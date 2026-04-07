@@ -1,74 +1,359 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { motion } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const services = [
-  { id: 'servicio-01', number: '01', name: 'Reingeniería de Deuda' },
-  { id: 'servicio-02', number: '02', name: 'Estrategia Financiera Cíclica' },
-  { id: 'servicio-03', number: '03', name: 'Tesorería Avanzada' },
-  { id: 'servicio-04', number: '04', name: 'Valuación Estratégica' },
-  { id: 'servicio-05', number: '05', name: 'Auditoría de Activos' },
-  { id: 'servicio-06', number: '06', name: 'Gobernanza Financiera' },
+/* ─── Service-specific SVG icons ─── */
+function Icon01() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* Restructure: two arrows cycling around a diamond */}
+      <path d="M18 32C18 22 26 14 36 14" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M46 32C46 42 38 50 28 50" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M32 9L36 14L32 19" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 55L28 50L32 45" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 27L37 32L32 37L27 32Z" stroke="#E5997B" strokeWidth="1" />
+    </svg>
+  )
+}
+
+function Icon02() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* Cycle wave: economic sine */}
+      <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
+      {/* Baseline */}
+      <line x1="8" y1="50" x2="56" y2="50" stroke="#E5997B" strokeWidth="0.6" opacity="0.4" />
+      <circle cx="56" cy="18" r="2.5" stroke="#E5997B" strokeWidth="1" />
+    </svg>
+  )
+}
+
+function Icon03() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* Treasury: flow diamond with directional arrows */}
+      <path d="M32 10L54 32L32 54L10 32Z" stroke="#E5997B" strokeWidth="1.2" />
+      <path d="M22 32L42 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M36 26L42 32L36 38" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="32" cy="32" r="4" stroke="#E5997B" strokeWidth="0.8" />
+    </svg>
+  )
+}
+
+function Icon04() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* Valuation: balance scale */}
+      <line x1="32" y1="12" x2="32" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="20" y1="52" x2="44" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="14" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="50" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M10 30L14 36H18L14 30Z" stroke="#E5997B" strokeWidth="1" />
+      <path d="M46 30L50 36H54L50 30Z" stroke="#E5997B" strokeWidth="1" />
+      <circle cx="32" cy="14" r="3" stroke="#E5997B" strokeWidth="1" />
+    </svg>
+  )
+}
+
+function Icon05() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* CapEx: machinery / productive asset */}
+      <rect x="10" y="36" width="44" height="16" rx="1" stroke="#E5997B" strokeWidth="1.2" />
+      <rect x="22" y="24" width="20" height="12" rx="1" stroke="#E5997B" strokeWidth="1.2" />
+      <line x1="32" y1="12" x2="32" y2="24" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="32" cy="10" r="3" stroke="#E5997B" strokeWidth="1" />
+      <line x1="18" y1="44" x2="18" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
+      <line x1="32" y1="44" x2="32" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
+      <line x1="46" y1="44" x2="46" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function Icon06() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
+      {/* Governance: nested institutional diamonds */}
+      <path d="M32 6L58 32L32 58L6 32Z" stroke="#E5997B" strokeWidth="1.2" />
+      <path d="M32 18L46 32L32 46L18 32Z" stroke="#E5997B" strokeWidth="1" opacity="0.6" />
+      <path d="M32 28L36 32L32 36L28 32Z" stroke="#E5997B" strokeWidth="1" />
+    </svg>
+  )
+}
+
+const serviceItems = [
+  { number: '01', name: 'Reingeniería de Deuda',          descriptor: 'Estructura óptima de capital',           Icon: Icon01 },
+  { number: '02', name: 'Estrategia Financiera Cíclica',  descriptor: 'Anticipación de ciclos económicos',       Icon: Icon02 },
+  { number: '03', name: 'Tesorería Avanzada',             descriptor: 'Maximización de liquidez operativa',      Icon: Icon03 },
+  { number: '04', name: 'Valuación Estratégica',          descriptor: 'Determinación del valor real',            Icon: Icon04 },
+  { number: '05', name: 'Auditoría de CapEx',             descriptor: 'Rentabilidad de inversión productiva',    Icon: Icon05 },
+  { number: '06', name: 'Gobernanza Financiera',          descriptor: 'Institucionalización de decisiones',      Icon: Icon06 },
 ]
 
 export default function ServiciosNav() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const pathRef    = useRef<SVGPathElement>(null)
 
   useEffect(() => {
     if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
-      const cards = sectionRef.current!.querySelectorAll('.nav-card')
+      const el = sectionRef.current!
+
+      /* ── Heading reveal ── */
       gsap.fromTo(
-        cards,
-        { opacity: 0, y: 40 },
+        el.querySelector('.section-heading'),
+        { opacity: 0, y: 30 },
         {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power3.out',
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
+          opacity: 1, y: 0,
+          duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 80%' },
         }
       )
+
+      /* ── Cards clip-path reveal (stagger from bottom) ── */
+      const cards = el.querySelectorAll('.service-card')
+      gsap.fromTo(
+        cards,
+        { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0 0 0% 0)',
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power3.out',
+          stagger: 0.1,
+          scrollTrigger: { trigger: el, start: 'top 72%' },
+        }
+      )
+
+      /* ── Background number parallax ── */
+      const bgNums = el.querySelectorAll('.card-bg-num')
+      bgNums.forEach((num) => {
+        gsap.fromTo(
+          num,
+          { y: 20 },
+          {
+            y: -20,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: num.closest('.service-card'),
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+          }
+        )
+      })
+
+      /* ── Connection path draw-in ── */
+      if (pathRef.current) {
+        const len = pathRef.current.getTotalLength()
+        gsap.set(pathRef.current, { strokeDasharray: len, strokeDashoffset: len })
+        gsap.to(pathRef.current, {
+          strokeDashoffset: 0,
+          duration: 2,
+          ease: 'power2.inOut',
+          scrollTrigger: { trigger: el, start: 'top 60%' },
+        })
+      }
+
+      /* ── Floating ornament gentle scroll drift ── */
+      const floats = el.querySelectorAll('.ornament-drift')
+      floats.forEach((f, i) => {
+        gsap.to(f, {
+          y: i % 2 === 0 ? -50 : 40,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2,
+          },
+        })
+      })
     }, sectionRef)
 
     return () => ctx.revert()
   }, [])
 
-  const handleClick = (id: string) => {
-    const target = document.getElementById(id)
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' })
-    }
+  const handleClick = () => {
+    const target = document.getElementById('servicios')
+    if (target) target.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <section ref={sectionRef} className="bg-cream py-16 md:py-24 section-padding">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 md:pb-0 scrollbar-hide md:grid md:grid-cols-3 lg:grid-cols-6">
-          {services.map((service) => (
-            <button
-              key={service.id}
-              onClick={() => handleClick(service.id)}
-              className="nav-card group flex-shrink-0 w-44 md:w-auto text-left p-5 md:p-6 transition-all duration-500 hover:bg-white/60"
-            >
-              <span className="block font-display text-2xl md:text-3xl text-bronze/30 group-hover:text-bronze/60 transition-colors duration-500 mb-3">
-                {service.number}
-              </span>
-              <span className="block font-body text-sm md:text-base text-navy font-medium leading-snug">
-                {service.name}
-              </span>
-              {/* Underline on hover */}
-              <div className="mt-3 h-px bg-bronze scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-            </button>
-          ))}
+    <section ref={sectionRef} className="relative bg-cream overflow-hidden py-24 md:py-32 section-padding">
+
+      {/* ══════════════════════════════════
+          BACKGROUND DECORATIONS
+      ══════════════════════════════════ */}
+
+      {/* Large faded diamond — center background */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+        <svg viewBox="0 0 900 900" fill="none" className="w-[900px] h-[900px] opacity-[0.035]">
+          <path d="M450 40L860 450L450 860L40 450Z" stroke="#1A2540" strokeWidth="0.6" />
+          <path d="M450 160L740 450L450 740L160 450Z" stroke="#1A2540" strokeWidth="0.4" />
+          <line x1="450" y1="40" x2="450" y2="860" stroke="#1A2540" strokeWidth="0.2" />
+          <line x1="40" y1="450" x2="860" y2="450" stroke="#1A2540" strokeWidth="0.2" />
+        </svg>
+      </div>
+
+      {/* Subtle dot grid */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.06]">
+        <svg className="w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+          {Array.from({ length: 10 }).map((_, row) =>
+            Array.from({ length: 14 }).map((_, col) => (
+              <circle key={`${row}-${col}`} cx={col * 64 + 32} cy={row * 64 + 32} r="1.5" fill="#1A2540" />
+            ))
+          )}
+        </svg>
+      </div>
+
+      {/* Bronze connection path between cards (decorative) */}
+      <div className="absolute inset-0 pointer-events-none hidden lg:block overflow-hidden">
+        <svg className="w-full h-full" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" fill="none">
+          <path
+            ref={pathRef}
+            d="M200 220 L600 220 L1000 220 M200 500 L600 500 L1000 500 M200 220 L200 500 M600 220 L600 500 M1000 220 L1000 500"
+            stroke="#E5997B"
+            strokeWidth="0.5"
+            opacity="0.2"
+          />
+        </svg>
+      </div>
+
+      {/* Floating diamond ornaments */}
+      <motion.div
+        animate={{ y: [-12, 12, -12], rotate: [0, 8, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        className="ornament-drift absolute top-12 right-[8%] pointer-events-none hidden lg:block"
+      >
+        <svg viewBox="0 0 70 70" fill="none" className="w-14 h-14 opacity-[0.07]">
+          <path d="M35 4L66 35L35 66L4 35Z" stroke="#1A2540" strokeWidth="0.7" />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        animate={{ y: [10, -10, 10], rotate: [0, -5, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        className="ornament-drift absolute bottom-16 left-[6%] pointer-events-none hidden lg:block"
+      >
+        <svg viewBox="0 0 50 50" fill="none" className="w-10 h-10 opacity-[0.06]">
+          <path d="M25 3L47 25L25 47L3 25Z" stroke="#1A2540" strokeWidth="0.6" />
+          <path d="M25 11L39 25L25 39L11 25Z" stroke="#1A2540" strokeWidth="0.4" />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        animate={{ y: [-8, 8, -8] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
+        className="ornament-drift absolute top-1/2 right-[4%] pointer-events-none hidden lg:block"
+      >
+        <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8 opacity-[0.05]">
+          <path d="M20 2L38 20L20 38L2 20Z" stroke="#E5997B" strokeWidth="0.6" />
+        </svg>
+      </motion.div>
+
+      {/* ══════════════════════════════════
+          SECTION HEADER
+      ══════════════════════════════════ */}
+      <div className="section-heading relative z-10 text-center mb-20 md:mb-24 max-w-7xl mx-auto">
+        <p className="text-bronze font-body text-xs tracking-[0.35em] uppercase mb-5">
+          Ecosistema de Servicios
+        </p>
+
+        {/* Bronze line + diamond ornament */}
+        <div className="flex items-center justify-center gap-4 mb-6">
+          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
+          <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4 opacity-30">
+            <path d="M10 1L19 10L10 19L1 10Z" stroke="#1A2540" strokeWidth="0.8" />
+          </svg>
+          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
         </div>
+
+        <h2 className="font-display text-navy text-4xl md:text-5xl lg:text-6xl leading-tight">
+          Seis pilares de la
+          <br />
+          <em className="text-bronze italic">ingeniería financiera</em>
+        </h2>
+      </div>
+
+      {/* ══════════════════════════════════
+          SERVICE CARDS GRID
+      ══════════════════════════════════ */}
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-navy/[0.07]">
+        {serviceItems.map(({ number, name, descriptor, Icon }, i) => (
+              <button
+            key={number}
+            onClick={handleClick}
+            className="service-card group relative text-left bg-cream hover:bg-[#EDEAE0] overflow-hidden will-change-transform transition-colors duration-500"
+          >
+            <div className="relative p-8 md:p-10 h-full min-h-[220px] flex flex-col gap-5">
+
+              {/* Large faded background number */}
+              <span
+                className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none will-change-transform text-navy/[0.05] group-hover:text-navy/[0.08] transition-colors duration-500"
+                style={{ fontSize: 'clamp(5rem, 10vw, 9rem)' }}
+              >
+                {number}
+              </span>
+
+              {/* Top row: icon + number */}
+              <div className="flex items-start justify-between">
+                <div className="transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 origin-center">
+                  <Icon />
+                </div>
+                <span className="font-display text-xs tracking-[0.4em] text-bronze/40 group-hover:text-bronze/80 transition-colors duration-400">
+                  {number}
+                </span>
+              </div>
+
+              {/* Name + descriptor */}
+              <div>
+                <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2">
+                  {name}
+                </h3>
+                <p className="font-body text-navy/45 text-sm leading-relaxed group-hover:text-navy/65 transition-colors duration-300">
+                  {descriptor}
+                </p>
+              </div>
+
+              {/* Bottom row: arrow reveal on hover */}
+              <div className="flex items-center gap-2 mt-auto overflow-hidden">
+                <span className="font-body text-bronze text-xs tracking-[0.2em] uppercase opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                  Ver servicio
+                </span>
+                <svg viewBox="0 0 20 8" fill="none" className="w-5 h-2.5 text-bronze opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-[50ms]">
+                  <path d="M0 4H18M14 1L18 4L14 7" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-bronze origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]" />
+
+              {/* Left accent line */}
+              <div className="absolute top-0 left-0 bottom-0 w-px bg-bronze/40 origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]" />
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Subtle bottom divider ── */}
+      <div className="relative z-10 flex items-center justify-center gap-6 mt-20">
+        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
+        <motion.svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="w-5 h-5 opacity-20"
+          animate={{ rotate: [0, 180, 360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        >
+          <path d="M12 1L23 12L12 23L1 12Z" stroke="#1A2540" strokeWidth="0.7" />
+        </motion.svg>
+        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
       </div>
     </section>
   )

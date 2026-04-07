@@ -3,7 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/PageTransition'
 import ServiciosHero from '../components/servicios/ServiciosHero'
 import ServiciosNav from '../components/servicios/ServiciosNav'
-import ServiceSection from '../components/servicios/ServiceSection'
+import ServicesShowcase from '../components/servicios/ServicesShowcase'
 import ServiciosValues from '../components/servicios/ServiciosValues'
 import ServiciosCTA from '../components/servicios/ServiciosCTA'
 
@@ -170,9 +170,7 @@ export default function Services() {
       <ServiciosHero />
       <ServiciosNav />
 
-      {services.map((service) => (
-        <ServiceSection key={service.number} {...service} />
-      ))}
+      <ServicesShowcase services={services} />
 
       <ServiciosValues />
       <ServiciosCTA />

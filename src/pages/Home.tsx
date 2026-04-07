@@ -240,14 +240,27 @@ export default function Home() {
   return (
     <PageTransition>
       {/* ═══════════════════════════════════════════
-          SECTION 1 — HERO
+          SECTION 1 — HERO WITH BANNER
       ═══════════════════════════════════════════ */}
       <section
         ref={heroRef}
         className="relative h-screen flex items-center overflow-hidden"
       >
+        {/* Hero Banner - Immersive Full Screen Image */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/foto/brand-corporate.jpg)',
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Overlay untuk readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/60" />
+        </div>
+
         {/* Geometric background animation */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 opacity-20 pointer-events-none hidden lg:block">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 opacity-10 pointer-events-none hidden lg:block z-5">
           <DimaGeometric />
         </div>
 
