@@ -1,25 +1,38 @@
+import { useEffect } from 'react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/PageTransition'
+import ModeloHero from '../components/modelo/ModeloHero'
+import ModeloFundamento from '../components/modelo/ModeloFundamento'
+import ModeloProtagonistas from '../components/modelo/ModeloProtagonistas'
+import ModeloFuerzas from '../components/modelo/ModeloFuerzas'
+import ModeloPrincipios from '../components/modelo/ModeloPrincipios'
+import ModeloProceso from '../components/modelo/ModeloProceso'
+import ModeloCTA from '../components/modelo/ModeloCTA'
 
 export default function CreditModel() {
+  useEffect(() => {
+    /* Scroll to top on mount */
+    window.scrollTo(0, 0)
+
+    /* Refresh ScrollTrigger after all sections mount */
+    const timeout = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 100)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [])
+
   return (
     <PageTransition>
-      <section className="min-h-screen flex items-center justify-center section-padding pt-32">
-        <div className="text-center max-w-3xl">
-          <p className="text-bronze font-body text-sm tracking-widest uppercase mb-6">
-            Modelo Crediticio
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl text-white leading-tight mb-8">
-            Equilibrio como
-            <br />
-            <span className="text-bronze italic">principio rector</span>
-          </h1>
-          <p className="text-lightgray/60 text-lg leading-relaxed">
-            Nuestro modelo crediticio se fundamenta en los principios macroeconómicos
-            de Ray Dalio, adaptados al contexto financiero mexicano. Estructuramos
-            cada producto para mantener el equilibrio entre productividad y deuda.
-          </p>
-        </div>
-      </section>
+      <ModeloHero />
+      <ModeloFundamento />
+      <ModeloProtagonistas />
+      <ModeloFuerzas />
+      <ModeloPrincipios />
+      <ModeloProceso />
+      <ModeloCTA />
     </PageTransition>
   )
 }

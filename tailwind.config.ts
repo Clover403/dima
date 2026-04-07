@@ -6,7 +6,12 @@ export default {
     extend: {
       colors: {
         navy: '#030035',
-        bronze: '#E5997B',
+        bronze: {
+          DEFAULT: '#E5997B',
+          dark: '#D97E5A',
+          light: '#F1C2B0',
+        },
+        cream: '#FCF6F4',
         lightgray: '#F4F4F5',
       },
       fontFamily: {
