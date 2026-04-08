@@ -8,12 +8,12 @@ export default function About() {
           <p className="text-bronze font-body text-sm tracking-widest uppercase mb-6">
             Nosotros
           </p>
-          <h1 className="font-display text-5xl md:text-7xl text-white leading-tight mb-8">
+          <h1 className="font-display text-5xl md:text-7xl text-navy leading-tight mb-8">
             Arquitectos del
             <br />
             <span className="text-bronze italic">equilibrio</span>
           </h1>
-          <p className="text-lightgray/60 text-lg leading-relaxed">
+          <p className="text-navy/60 text-lg leading-relaxed">
             Somos un equipo multidisciplinario de ingenieros financieros,
             economistas y estrategas comprometidos con transformar
             el panorama crediticio en México.

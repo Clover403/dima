@@ -185,7 +185,7 @@ export default function ServiciosNav() {
   }
 
   return (
-    <section ref={sectionRef} className="relative bg-cream overflow-hidden py-24 md:py-32 section-padding">
+    <section ref={sectionRef} className="relative bg-white overflow-hidden py-24 md:py-32 section-padding">
 
       {/* ══════════════════════════════════
           BACKGROUND DECORATIONS
@@ -289,7 +289,7 @@ export default function ServiciosNav() {
               <button
             key={number}
             onClick={handleClick}
-            className="service-card group relative text-left bg-cream hover:bg-[#EDEAE0] overflow-hidden will-change-transform transition-colors duration-500"
+            className="service-card group relative text-left bg-white hover:bg-lightgray overflow-hidden will-change-transform transition-colors duration-500"
           >
             <div className="relative p-8 md:p-10 h-full min-h-[220px] flex flex-col gap-5">
 

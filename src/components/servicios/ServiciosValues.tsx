@@ -116,7 +116,7 @@ export default function ServiciosValues() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-navy min-h-screen flex items-center overflow-hidden"
+      className="relative bg-lightgray min-h-screen flex items-center overflow-hidden"
     >
       {/* Subtle geometric pattern background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
@@ -142,7 +142,7 @@ export default function ServiciosValues() {
             <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase mb-4">
               ¿Por qué nuestros servicios?
             </p>
-            <div className="w-12 h-px bg-bronze/40 mx-auto" />
+            <div className="w-12 h-px bg-bronze mx-auto" />
           </div>
 
           {/* Statements container */}
@@ -154,10 +154,10 @@ export default function ServiciosValues() {
                   i === 0 ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-white leading-tight mb-8 max-w-4xl">
+                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight mb-8 max-w-4xl">
                   &ldquo;{s.quote}&rdquo;
                 </h3>
-                <p className="font-body text-white/50 text-base md:text-lg max-w-2xl leading-relaxed">
+                <p className="font-body text-navy text-base md:text-lg max-w-2xl leading-relaxed">
                   {s.subtext}
                 </p>
               </div>

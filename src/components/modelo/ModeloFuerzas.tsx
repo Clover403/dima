@@ -113,7 +113,7 @@ export default function ModeloFuerzas() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-cream py-32 md:py-48 section-padding">
+    <section ref={sectionRef} className="bg-white py-32 md:py-48 section-padding">
       <div className="max-w-6xl mx-auto">
         <p className="section-label text-bronze font-body text-sm tracking-[0.3em] uppercase mb-16">
           Las Fuerzas Económicas
@@ -210,7 +210,7 @@ export default function ModeloFuerzas() {
         </div>
 
         {/* ─── Callout Box ─── */}
-        <div className="callout-box border-l-2 border-bronze bg-white/60 backdrop-blur-sm px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto">
+        <div className="callout-box border-l-2 border-bronze bg-lightgray px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto">
           <p className="font-display text-xl md:text-2xl text-navy leading-relaxed italic">
             &ldquo;El crédito no es necesariamente algo malo. Es malo cuando financia
             consumo que no puede ser pagado. Cuando los recursos se asignan de manera

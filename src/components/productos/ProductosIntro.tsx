@@ -34,7 +34,7 @@ export default function ProductosIntro() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-cream py-24 md:py-32 section-padding">
+    <section ref={sectionRef} className="bg-white py-24 md:py-32 section-padding">
       <div className="max-w-3xl mx-auto text-center">
         <p className="reveal font-body text-navy/60 text-lg md:text-xl leading-relaxed">
           La mayoría de los créditos pueden adaptarse a las circunstancias y

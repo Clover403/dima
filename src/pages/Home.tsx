@@ -93,9 +93,15 @@ const services = [
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null)
   const whoWeAreRef = useRef<HTMLDivElement>(null)
+  const whoWeAreImageWrapRef = useRef<HTMLDivElement>(null)
+  const whoWeAreImageRef = useRef<HTMLImageElement>(null)
   const productsRef = useRef<HTMLDivElement>(null)
   const servicesRef = useRef<HTMLDivElement>(null)
+  const servicesImageWrapRef = useRef<HTMLDivElement>(null)
+  const servicesImageRef = useRef<HTMLImageElement>(null)
   const modelRef = useRef<HTMLDivElement>(null)
+  const modelChartPathRef = useRef<SVGPathElement>(null)
+  const modelChartWaveRef = useRef<SVGPathElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -136,6 +142,38 @@ export default function Home() {
             }
           )
         })
+
+        /* ── Photo: clip-path wipe from right ── */
+        if (whoWeAreImageWrapRef.current && whoWeAreImageRef.current) {
+          gsap.fromTo(
+            whoWeAreImageWrapRef.current,
+            { clipPath: 'inset(0 100% 0 0)' },
+            {
+              clipPath: 'inset(0 0% 0 0)',
+              duration: 1.6,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: whoWeAreRef.current,
+                start: 'top 70%',
+              },
+            }
+          )
+          gsap.fromTo(
+            whoWeAreImageRef.current,
+            { scale: 1.15, y: 50 },
+            {
+              scale: 1.0,
+              y: -50,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: whoWeAreRef.current,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 1.5,
+              },
+            }
+          )
+        }
       }
 
       /* ─── Products — staggered card entrance ─── */
@@ -177,6 +215,38 @@ export default function Home() {
             }
           )
         })
+
+        /* ── Photo: clip-path wipe from left ── */
+        if (servicesImageWrapRef.current && servicesImageRef.current) {
+          gsap.fromTo(
+            servicesImageWrapRef.current,
+            { clipPath: 'inset(0 0 0 100%)' },
+            {
+              clipPath: 'inset(0 0% 0 0%)',
+              duration: 1.6,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: servicesRef.current,
+                start: 'top 70%',
+              },
+            }
+          )
+          gsap.fromTo(
+            servicesImageRef.current,
+            { scale: 1.15, y: 50 },
+            {
+              scale: 1.0,
+              y: -50,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: servicesRef.current,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 1.5,
+              },
+            }
+          )
+        }
       }
 
       /* ─── Credit Model — parallax background text ─── */
@@ -213,6 +283,38 @@ export default function Home() {
             },
           }
         )
+
+        /* ── SVG chart: draw paths on scroll ── */
+        ;[modelChartPathRef.current, modelChartWaveRef.current].forEach((path) => {
+          if (!path) return
+          const length = path.getTotalLength()
+          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length })
+          gsap.to(path, {
+            strokeDashoffset: 0,
+            ease: 'power2.inOut',
+            scrollTrigger: {
+              trigger: modelRef.current,
+              start: 'top 65%',
+              end: 'bottom 35%',
+              scrub: 1.5,
+            },
+          })
+        })
+
+        /* ── Chart labels fade in ── */
+        gsap.fromTo(
+          modelRef.current.querySelectorAll('.chart-label'),
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: modelRef.current,
+              start: 'top 55%',
+            },
+          }
+        )
       }
 
       /* ─── CTA Banner ─── */
@@ -246,8 +348,8 @@ export default function Home() {
         ref={heroRef}
         className="relative h-screen flex items-center overflow-hidden"
       >
-        {/* Hero Banner - Immersive Full Screen Image */}
-        <div 
+        {/* Hero Banner */}
+        <div
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url(/foto/brand-corporate.jpg)',
@@ -255,7 +357,6 @@ export default function Home() {
             backgroundPosition: 'center',
           }}
         >
-          {/* Overlay untuk readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/60" />
         </div>
 
@@ -298,7 +399,6 @@ export default function Home() {
             macroeconómico. Donde otros ven deuda, nosotros diseñamos productividad.
           </motion.p>
 
-          {/* Divider */}
           <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
@@ -317,7 +417,6 @@ export default function Home() {
           </motion.div>
         </div>
 
-        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -334,41 +433,161 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          SECTION 2 — WHO WE ARE
+          SECTION 2 — WHO WE ARE  (split layout: text + photo)
       ═══════════════════════════════════════════ */}
       <section
         ref={whoWeAreRef}
         className="py-32 md:py-48 section-padding"
       >
-        <div className="max-w-4xl mx-auto space-y-20 md:space-y-32">
-          <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-white leading-tight">
-            No somos un banco.
-          </p>
-          <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-white leading-tight">
-            Somos <span className="text-bronze italic">arquitectos</span> de equilibrio.
-          </p>
-          <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-white leading-tight">
-            Transformamos la deuda en{' '}
-            <span className="text-bronze italic">productividad.</span>
-          </p>
-          <p className="reveal-phrase font-body text-lg md:text-xl text-lightgray/50 max-w-2xl leading-relaxed">
-            En DIMA Finance, cada decisión crediticia se fundamenta en principios
-            de ingeniería financiera y equilibrio macroeconómico. No otorgamos
-            créditos — diseñamos estructuras que generan valor.
-          </p>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-16 lg:gap-20 items-start">
+
+          {/* ── Left: phrase stack ── */}
+          <div className="space-y-20 md:space-y-32">
+            <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight">
+              No somos un banco.
+            </p>
+            <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight">
+              Somos <span className="text-bronze italic">arquitectos</span> de equilibrio.
+            </p>
+            <p className="reveal-phrase font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight">
+              Transformamos la deuda en{' '}
+              <span className="text-bronze italic">productividad.</span>
+            </p>
+            <p className="reveal-phrase font-body text-lg md:text-xl text-navy/55 max-w-2xl leading-relaxed">
+              En DIMA Finance, cada decisión crediticia se fundamenta en principios
+              de ingeniería financiera y equilibrio macroeconómico. No otorgamos
+              créditos — diseñamos estructuras que generan valor.
+            </p>
+          </div>
+
+          {/* ── Right: sticky brand photo (desktop only) ── */}
+          <div className="hidden lg:block">
+            <div className="sticky top-32">
+              {/* Label */}
+              <motion.p
+                initial={{ opacity: 0, x: 16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="text-bronze/50 font-body text-xs tracking-[0.3em] uppercase mb-5 text-right"
+              >
+                Ingeniería · Equilibrio
+              </motion.p>
+
+              {/* Photo with clip-path wipe reveal */}
+              <div className="relative">
+                <div
+                  ref={whoWeAreImageWrapRef}
+                  className="relative overflow-hidden aspect-[2/3]"
+                >
+                  <img
+                    ref={whoWeAreImageRef}
+                    src="/foto/brand-stationery.jpg"
+                    alt="DIMA Finance"
+                    className="w-full h-full object-cover will-change-transform"
+                    loading="lazy"
+                  />
+                  {/* Subtle bottom fade to section bg */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-lightgray/20 pointer-events-none" />
+                </div>
+
+                {/* Bronze corner frame accents */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 border-t-2 border-l-2 border-bronze/40 pointer-events-none" />
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 border-b-2 border-r-2 border-bronze/40 pointer-events-none" />
+
+                {/* Floating diamond ornament */}
+                <motion.div
+                  animate={{ y: [-10, 10, -10] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute -right-5 top-[38%] pointer-events-none"
+                >
+                  <svg viewBox="0 0 44 44" fill="none" className="w-9 h-9 opacity-25">
+                    <path d="M22 2L42 22L22 42L2 22Z" stroke="#E5997B" strokeWidth="0.8" />
+                    <path d="M22 10L34 22L22 34L10 22Z" stroke="#E5997B" strokeWidth="0.4" />
+                  </svg>
+                </motion.div>
+              </div>
+
+              {/* Caption */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="text-navy/20 font-body text-xs tracking-widest uppercase mt-5 text-right"
+              >
+                DIMA Finance — 2025
+              </motion.p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          SECTION 3 — PRODUCTS PREVIEW
+          SECTION 3 — PRODUCTS PREVIEW  (with ornaments)
       ═══════════════════════════════════════════ */}
-      <section ref={productsRef} className="py-24 md:py-32 section-padding">
-        <div className="max-w-7xl mx-auto">
+      <section ref={productsRef} className="relative py-24 md:py-32 section-padding overflow-hidden">
+
+        {/* Background: subtle dot grid */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.04]">
+          <svg className="w-full h-full" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+            {Array.from({ length: 8 }).map((_, row) =>
+              Array.from({ length: 14 }).map((_, col) => (
+                <circle key={`${row}-${col}`} cx={col * 64 + 32} cy={row * 64 + 32} r="1.5" fill="#030035" />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Background: large diamond ornament */}
+        <div className="absolute top-1/2 right-[-5%] -translate-y-1/2 pointer-events-none opacity-[0.03] hidden lg:block">
+          <svg viewBox="0 0 600 600" fill="none" className="w-[500px] h-[500px]">
+            <path d="M300 30L570 300L300 570L30 300Z" stroke="#030035" strokeWidth="0.8" />
+            <path d="M300 120L480 300L300 480L120 300Z" stroke="#030035" strokeWidth="0.5" />
+            <line x1="300" y1="30" x2="300" y2="570" stroke="#030035" strokeWidth="0.2" />
+            <line x1="30" y1="300" x2="570" y2="300" stroke="#030035" strokeWidth="0.2" />
+          </svg>
+        </div>
+
+        {/* Floating ornament top-right */}
+        <motion.div
+          animate={{ y: [-10, 10, -10], rotate: [0, 6, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-10 right-[8%] pointer-events-none hidden lg:block"
+        >
+          <svg viewBox="0 0 50 50" fill="none" className="w-10 h-10 opacity-[0.06]">
+            <path d="M25 3L47 25L25 47L3 25Z" stroke="#030035" strokeWidth="0.7" />
+            <path d="M25 11L39 25L25 39L11 25Z" stroke="#030035" strokeWidth="0.4" />
+          </svg>
+        </motion.div>
+
+        {/* Floating ornament bottom-left */}
+        <motion.div
+          animate={{ y: [8, -8, 8] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          className="absolute bottom-14 left-[6%] pointer-events-none hidden lg:block"
+        >
+          <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8 opacity-[0.06]">
+            <path d="M20 2L38 20L20 38L2 20Z" stroke="#E5997B" strokeWidth="0.7" />
+          </svg>
+        </motion.div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section header with drawing line */}
           <div className="mb-16">
-            <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase mb-4">
-              Productos
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl text-white">
+            <div className="flex items-center gap-4 mb-6">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-10 h-px bg-bronze/50 origin-left"
+              />
+              <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase">
+                Productos
+              </p>
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl text-navy">
               Soluciones con ingeniería
             </h2>
           </div>
@@ -378,19 +597,19 @@ export default function Home() {
               <motion.div
                 key={product.name}
                 whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                className="product-card group relative p-8 border border-white/5 bg-white/[0.02] backdrop-blur-sm hover:border-bronze/30 transition-colors duration-500"
+                className="product-card group relative p-8 border border-navy/10 bg-white hover:border-bronze/30 shadow-sm hover:shadow-md transition-all duration-500"
               >
                 <div className="mb-6 opacity-70 group-hover:opacity-100 transition-opacity duration-500">
                   {product.icon}
                 </div>
-                <h3 className="font-display text-xl text-white mb-3">
+                <h3 className="font-display text-xl text-navy mb-3">
                   {product.name}
                 </h3>
-                <p className="font-body text-sm text-lightgray/50 leading-relaxed">
+                <p className="font-body text-sm text-navy/55 leading-relaxed">
                   {product.description}
                 </p>
-                {/* Hover border glow */}
-                <div className="absolute inset-0 border border-bronze/0 group-hover:border-bronze/20 transition-all duration-500 pointer-events-none" />
+                {/* Bottom bronze accent line on hover */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-bronze origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]" />
               </motion.div>
             ))}
           </div>
@@ -404,69 +623,115 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          SECTION 4 — SERVICES PREVIEW
+          SECTION 4 — SERVICES PREVIEW  (split layout: list + photo)
       ═══════════════════════════════════════════ */}
       <section ref={servicesRef} className="py-24 md:py-32 section-padding">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-16">
-            <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase mb-4">
-              Servicios
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl text-white">
-              Acompañamiento estratégico
-            </h2>
-          </div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-0 items-start">
 
-          <div className="space-y-0">
-            {services.map((service, i) => (
-              <div
-                key={service.name}
-                className="service-item group py-12 border-b border-white/5 flex flex-col md:flex-row md:items-start gap-6 md:gap-16"
-              >
-                {/* Index number */}
-                <span className="font-display text-6xl md:text-7xl text-white/5 group-hover:text-bronze/20 transition-colors duration-500 shrink-0">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-
-                <div className="flex-1">
-                  <h3 className="font-display text-2xl md:text-3xl text-white mb-4 group-hover:text-bronze transition-colors duration-500">
-                    {service.name}
-                  </h3>
-                  <p className="font-body text-lightgray/50 leading-relaxed max-w-xl">
-                    {service.description}
-                  </p>
-                </div>
-
-                {/* Geometric placeholder */}
-                <div className="hidden md:flex items-center justify-center w-24 h-24 shrink-0">
-                  <svg viewBox="0 0 80 80" fill="none" className="w-16 h-16 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
-                    <path
-                      d={
-                        i === 0
-                          ? 'M40 5L75 40L40 75L5 40Z'
-                          : i === 1
-                          ? 'M40 5L75 25V55L40 75L5 55V25Z'
-                          : 'M5 5H75V75H5Z'
-                      }
-                      stroke="#E5997B"
-                      strokeWidth="1"
-                    />
-                  </svg>
-                </div>
+          {/* ── Left: services list ── */}
+          <div className="lg:pr-20">
+            <div className="mb-16">
+              <div className="flex items-center gap-4 mb-6">
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="w-10 h-px bg-bronze/50 origin-left"
+                />
+                <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase">
+                  Servicios
+                </p>
               </div>
-            ))}
+              <h2 className="font-display text-4xl md:text-5xl text-navy">
+                Acompañamiento estratégico
+              </h2>
+            </div>
+
+            <div className="space-y-0">
+              {services.map((service, i) => (
+                <div
+                  key={service.name}
+                  className="service-item group py-12 border-b border-navy/10 flex flex-col md:flex-row md:items-start gap-6 md:gap-12"
+                >
+                  <span className="font-display text-5xl md:text-6xl text-navy/5 group-hover:text-bronze/20 transition-colors duration-500 shrink-0 leading-none pt-1">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+
+                  <div className="flex-1">
+                    <h3 className="font-display text-2xl md:text-3xl text-navy mb-4 group-hover:text-bronze transition-colors duration-500">
+                      {service.name}
+                    </h3>
+                    <p className="font-body text-navy/55 leading-relaxed max-w-xl">
+                      {service.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-12">
+              <Link to="/servicios" className="btn-bronze">
+                Explorar Servicios
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-12">
-            <Link to="/servicios" className="btn-bronze">
-              Explorar Servicios
-            </Link>
+          {/* ── Right: sticky brand photo (desktop only) ── */}
+          <div className="hidden lg:block">
+            <div className="sticky top-32">
+              {/* Clip-path wipe reveal from left */}
+              <div className="relative">
+                <div
+                  ref={servicesImageWrapRef}
+                  className="relative overflow-hidden aspect-[3/4]"
+                >
+                  <img
+                    ref={servicesImageRef}
+                    src="/foto/brand-nature.jpg"
+                    alt="DIMA Finance — Servicios"
+                    className="w-full h-full object-cover will-change-transform"
+                    loading="lazy"
+                  />
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-lightgray/25 via-transparent to-transparent pointer-events-none" />
+                  {/* Bronze border */}
+                  <div className="absolute inset-0 border border-bronze/15 pointer-events-none" />
+                </div>
+
+                {/* Bronze corner frames */}
+                <div className="absolute -top-2 -right-2 w-8 h-8 border-t-2 border-r-2 border-bronze/40 pointer-events-none" />
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 border-b-2 border-l-2 border-bronze/40 pointer-events-none" />
+
+                {/* Floating ornament */}
+                <motion.div
+                  animate={{ y: [-8, 8, -8], rotate: [0, -4, 0] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                  className="absolute -left-6 top-[30%] pointer-events-none"
+                >
+                  <svg viewBox="0 0 36 36" fill="none" className="w-7 h-7 opacity-20">
+                    <path d="M18 2L34 18L18 34L2 18Z" stroke="#E5997B" strokeWidth="0.8" />
+                  </svg>
+                </motion.div>
+              </div>
+
+              {/* Caption */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="text-navy/20 font-body text-xs tracking-widest uppercase mt-5"
+              >
+                Acompañamiento · Estrategia
+              </motion.p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          SECTION 5 — CREDIT MODEL TEASER
+          SECTION 5 — CREDIT MODEL TEASER  (text + animated SVG chart)
       ═══════════════════════════════════════════ */}
       <section
         ref={modelRef}
@@ -474,38 +739,173 @@ export default function Home() {
       >
         {/* Large background text */}
         <div className="bg-text absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-          <span className="font-display text-[20vw] md:text-[15vw] text-white/[0.02] tracking-widest">
+          <span className="font-display text-[20vw] md:text-[15vw] text-navy/[0.04] tracking-widest">
             DIMA
           </span>
         </div>
 
-        <div className="model-content relative z-10 max-w-3xl mx-auto text-center">
-          <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase mb-6">
-            Modelo Crediticio
-          </p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-8">
-            Fundamentado en el
-            <br />
-            equilibrio de <span className="text-bronze italic">Ray Dalio</span>
-          </h2>
-          <p className="font-body text-lightgray/50 text-lg leading-relaxed mb-12 max-w-2xl mx-auto">
-            La productividad debe crecer más rápido que la deuda. Este principio,
-            extraído del modelo macroeconómico de Ray Dalio, guía cada estructura
-            crediticia que diseñamos. No financiamos — equilibramos.
-          </p>
+        <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
-          {/* Visual divider */}
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="w-12 h-px bg-bronze/30" />
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none">
-              <path d="M12 2L22 12L12 22L2 12Z" stroke="#E5997B" strokeWidth="1" />
+          {/* ── Left: animated economic chart (desktop only) ── */}
+          <div className="hidden lg:flex flex-col items-center justify-center">
+            <svg
+              viewBox="0 0 520 360"
+              fill="none"
+              className="w-full max-w-lg"
+            >
+              {/* Grid lines */}
+              {[0, 1, 2, 3, 4].map((i) => (
+                <line
+                  key={i}
+                  x1="60"
+                  y1={50 + i * 55}
+                  x2="490"
+                  y2={50 + i * 55}
+                  stroke="#030035"
+                  strokeWidth="0.4"
+                  opacity="0.07"
+                />
+              ))}
+              {/* X axis */}
+              <line x1="60" y1="305" x2="490" y2="305" stroke="#030035" strokeWidth="0.8" opacity="0.15" />
+              {/* Y axis */}
+              <line x1="60" y1="30" x2="60" y2="305" stroke="#030035" strokeWidth="0.8" opacity="0.15" />
+
+              {/* ── Productividad — upward growth curve ── */}
+              <path
+                ref={modelChartPathRef}
+                d="M60 280 Q130 265 185 240 T300 185 T400 110 T490 55"
+                stroke="#D97E5A"
+                strokeWidth="2.5"
+                fill="none"
+                strokeLinecap="round"
+              />
+              {/* Diamond endpoint on productividad */}
+              <path
+                className="chart-label"
+                d="M488 53L494 59L488 65L482 59Z"
+                fill="#D97E5A"
+                fillOpacity="0.7"
+              />
+
+              {/* ── Deuda — oscillating cycle with slight upward trend ── */}
+              <path
+                ref={modelChartWaveRef}
+                d="M60 240 C100 240 115 175 155 175 S205 240 245 240 S295 305 335 298 S385 240 425 222 S465 200 490 185"
+                stroke="#E5997B"
+                strokeWidth="1.8"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray="7 4"
+              />
+
+              {/* ── Axis labels ── */}
+              <text
+                className="chart-label"
+                x="60"
+                y="325"
+                fill="#030035"
+                fontSize="10"
+                opacity="0.35"
+                style={{ fontFamily: 'Inter Tight, sans-serif' }}
+              >
+                Tiempo →
+              </text>
+              <text
+                className="chart-label"
+                x="14"
+                y="170"
+                fill="#030035"
+                fontSize="10"
+                opacity="0.35"
+                transform="rotate(-90, 14, 170)"
+                style={{ fontFamily: 'Inter Tight, sans-serif' }}
+              >
+                Crecimiento ↑
+              </text>
+
+              {/* ── Legend labels ── */}
+              <g className="chart-label">
+                <line x1="320" y1="28" x2="340" y2="28" stroke="#D97E5A" strokeWidth="2" />
+                <text x="344" y="32" fill="#D97E5A" fontSize="9.5" opacity="0.85" style={{ fontFamily: 'Inter Tight, sans-serif' }}>Productividad</text>
+              </g>
+              <g className="chart-label">
+                <line x1="320" y1="46" x2="340" y2="46" stroke="#E5997B" strokeWidth="1.8" strokeDasharray="5 3" />
+                <text x="344" y="50" fill="#E5997B" fontSize="9.5" opacity="0.75" style={{ fontFamily: 'Inter Tight, sans-serif' }}>Deuda (ciclo)</text>
+              </g>
+
+              {/* ── "Equilibrio DIMA" zone annotation ── */}
+              <rect
+                className="chart-label"
+                x="60" y="100" width="430" height="85"
+                fill="#E5997B"
+                fillOpacity="0.04"
+              />
+              <text
+                className="chart-label"
+                x="275"
+                y="148"
+                textAnchor="middle"
+                fill="#E5997B"
+                fontSize="9"
+                opacity="0.4"
+                letterSpacing="0.15em"
+                style={{ fontFamily: 'Inter Tight, sans-serif' }}
+              >
+                ZONA DE EQUILIBRIO DIMA
+              </text>
+
+              {/* ── Chart title ── */}
+              <text
+                className="chart-label"
+                x="275"
+                y="20"
+                textAnchor="middle"
+                fill="#030035"
+                fontSize="8.5"
+                opacity="0.25"
+                letterSpacing="0.18em"
+                style={{ fontFamily: 'Inter Tight, sans-serif' }}
+              >
+                MODELO MACROECONÓMICO — RAY DALIO
+              </text>
             </svg>
-            <div className="w-12 h-px bg-bronze/30" />
+
+            {/* Source note */}
+            <p className="text-navy/25 font-body text-[10px] tracking-[0.2em] uppercase mt-4">
+              Basado en "How the Economic Machine Works" — Ray Dalio
+            </p>
           </div>
 
-          <Link to="/modelo-crediticio" className="btn-bronze">
-            Descubre el Modelo
-          </Link>
+          {/* ── Right: text content ── */}
+          <div className="model-content text-center lg:text-left">
+            <p className="text-bronze font-body text-sm tracking-[0.3em] uppercase mb-6">
+              Modelo Crediticio
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-navy leading-tight mb-8">
+              Fundamentado en el
+              <br />
+              equilibrio de <span className="text-bronze italic">Ray Dalio</span>
+            </h2>
+            <p className="font-body text-navy/55 text-lg leading-relaxed mb-12 max-w-2xl lg:max-w-none">
+              La productividad debe crecer más rápido que la deuda. Este principio,
+              extraído del modelo macroeconómico de Ray Dalio, guía cada estructura
+              crediticia que diseñamos. No financiamos — equilibramos.
+            </p>
+
+            {/* Visual divider */}
+            <div className="flex items-center gap-4 mb-12 justify-center lg:justify-start">
+              <div className="w-12 h-px bg-bronze/30" />
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none">
+                <path d="M12 2L22 12L12 22L2 12Z" stroke="#E5997B" strokeWidth="1" />
+              </svg>
+              <div className="w-12 h-px bg-bronze/30" />
+            </div>
+
+            <Link to="/modelo-crediticio" className="btn-bronze">
+              Descubre el Modelo
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -514,7 +914,6 @@ export default function Home() {
       ═══════════════════════════════════════════ */}
       <section ref={ctaRef} className="py-24 md:py-32 section-padding">
         <div className="relative overflow-hidden bg-gradient-to-br from-bronze/90 to-bronze px-8 md:px-16 py-16 md:py-24">
-          {/* Subtle geometric overlay */}
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" preserveAspectRatio="xMidYMid slice">
               <path d="M400 0L800 200L400 400L0 200Z" stroke="#030035" strokeWidth="1" />

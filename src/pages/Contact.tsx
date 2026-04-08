@@ -8,12 +8,12 @@ export default function Contact() {
           <p className="text-bronze font-body text-sm tracking-widest uppercase mb-6">
             Contacto
           </p>
-          <h1 className="font-display text-5xl md:text-7xl text-white leading-tight mb-8">
+          <h1 className="font-display text-5xl md:text-7xl text-navy leading-tight mb-8">
             Hablemos de tu
             <br />
             <span className="text-bronze italic">crecimiento</span>
           </h1>
-          <p className="text-lightgray/60 text-lg leading-relaxed mb-12">
+          <p className="text-navy/60 text-lg leading-relaxed mb-12">
             Agenda una videollamada o envíanos un mensaje.
             Nuestro equipo está listo para estructurar tu siguiente paso.
           </p>

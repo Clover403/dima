@@ -212,7 +212,7 @@ export default function ServiceSection({
       ref={sectionRef}
       id={`servicio-${number}`}
       className={`relative min-h-screen py-24 md:py-32 lg:py-0 overflow-hidden ${
-        isDark ? 'bg-navy' : 'bg-cream'
+        isDark ? 'bg-navy' : 'bg-white'
       }`}
     >
       {/* Large background number */}
@@ -249,7 +249,7 @@ export default function ServiceSection({
                 className={`absolute inset-0 z-10 ${
                   isDark
                     ? 'bg-gradient-to-t from-navy/50 via-navy/10 to-transparent'
-                    : 'bg-gradient-to-t from-cream/40 via-transparent to-transparent'
+                    : 'bg-gradient-to-t from-white/40 via-transparent to-transparent'
                 }`}
               />
               {/* Photo */}

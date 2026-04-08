@@ -122,9 +122,9 @@ function NodeCard({ node, phaseAccent }: { node: ProcessNode; phaseAccent: strin
         className={`relative p-6 border-l-2 ${
           node.isIterate
             ? 'border-bronze bg-bronze/10'
-            : phaseAccent + ' bg-white/70'
+            : phaseAccent + ' bg-lightgray'
         } transition-all duration-500 cursor-pointer ${
-          isOpen ? '!bg-white' : ''
+          isOpen ? '!bg-white shadow-sm' : ''
         }`}
       >
         {/* Iterate badge */}
@@ -266,7 +266,7 @@ export default function ModeloProceso() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-cream py-32 md:py-48 section-padding">
+    <section ref={sectionRef} className="bg-white py-32 md:py-48 section-padding">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-20 md:mb-28">
@@ -296,7 +296,7 @@ export default function ModeloProceso() {
             {phases.map((phase) => (
               <div key={phase.num} className="phase-block relative lg:pl-20">
                 {/* Phase dot on flow line */}
-                <div className="hidden lg:block absolute left-[29px] top-2 w-3 h-3 rounded-full border-2 border-bronze bg-cream z-10" />
+                <div className="hidden lg:block absolute left-[29px] top-2 w-3 h-3 rounded-full border-2 border-bronze bg-white z-10" />
 
                 {/* Phase header */}
                 <div className="flex items-baseline gap-4 mb-8">

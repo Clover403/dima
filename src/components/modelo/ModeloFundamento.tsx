@@ -81,7 +81,7 @@ export default function ModeloFundamento() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-cream py-32 md:py-48 section-padding">
+    <section ref={sectionRef} className="bg-white py-32 md:py-48 section-padding">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         {/* Left — Text */}
         <div>
