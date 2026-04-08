@@ -71,9 +71,9 @@ export default function ServicesShowcase({ services }: { services: Service[] }) 
           scrollTrigger: {
             trigger: el,
             start: 'top top',
-            end: `+=${(total - 1) * 180}vh`,
+            end: `+=${(total - 1) * 240}vh`,
             pin: true,
-            scrub: 2.5,
+            scrub: 3.5,
             pinSpacing: true,
           },
         })
@@ -83,28 +83,28 @@ export default function ServicesShowcase({ services }: { services: Service[] }) 
           tl.to(q('img', i - 1), {
             opacity: 0,
             scale: 1.06,
-            duration: 1.2,
+            duration: 1.8,
             ease: 'power2.inOut',
           })
           tl.fromTo(q('img', i),
             { opacity: 0, scale: 1.08 },
-            { opacity: 1, scale: 1, duration: 1.2, ease: 'power2.inOut' },
+            { opacity: 1, scale: 1, duration: 1.8, ease: 'power2.inOut' },
             '<'
           )
 
           /* ── Background number swap ── */
-          tl.to(q('bgnum', i - 1), { opacity: 0, y: -20, duration: 0.8, ease: 'power2.out' }, '<')
+          tl.to(q('bgnum', i - 1), { opacity: 0, y: -20, duration: 1.1, ease: 'power2.out' }, '<')
           tl.fromTo(q('bgnum', i),
             { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+            { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out' },
             '<+=0.2'
           )
 
           /* ── Counter number swap ── */
-          tl.to(q('counter', i - 1), { opacity: 0, y: -12, duration: 0.6, ease: 'power3.out' }, '<')
+          tl.to(q('counter', i - 1), { opacity: 0, y: -12, duration: 0.9, ease: 'power3.out' }, '<')
           tl.fromTo(q('counter', i),
             { opacity: 0, y: 12 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+            { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' },
             '<+=0.1'
           )
 
@@ -112,23 +112,23 @@ export default function ServicesShowcase({ services }: { services: Service[] }) 
           tl.to(q('panel', i - 1), {
             opacity: 0,
             y: -60,
-            duration: 0.9,
+            duration: 1.3,
             ease: 'power3.in',
           }, '<')
 
           /* Small breathing pause between exit and enter */
-          tl.to({}, { duration: 0.3 })
+          tl.to({}, { duration: 0.6 })
 
           tl.fromTo(q('panel', i),
             { opacity: 0, y: 60 },
-            { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out' },
+            { opacity: 1, y: 0, duration: 1.4, ease: 'power3.out' },
           )
 
           /* ── Progress dots ── */
-          tl.to(q('dot', i - 1), { scale: 0.6, opacity: 0.2, duration: 0.5 }, '<')
+          tl.to(q('dot', i - 1), { scale: 0.6, opacity: 0.2, duration: 0.7 }, '<')
           tl.fromTo(q('dot', i),
             { scale: 0.6, opacity: 0.2 },
-            { scale: 1, opacity: 1, duration: 0.5 },
+            { scale: 1, opacity: 1, duration: 0.7 },
             '<'
           )
 
@@ -137,13 +137,13 @@ export default function ServicesShowcase({ services }: { services: Service[] }) 
           if (line) {
             tl.fromTo(line,
               { scaleX: 0 },
-              { scaleX: 1, duration: 0.6, ease: 'power2.out' },
+              { scaleX: 1, duration: 0.9, ease: 'power2.out' },
               '<'
             )
           }
 
           /* Long hold so user can read before next transition */
-          tl.to({}, { duration: 1.2 })
+          tl.to({}, { duration: 1.6 })
         }
       })
     }, sectionRef)
