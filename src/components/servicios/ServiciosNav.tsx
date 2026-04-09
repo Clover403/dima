@@ -285,7 +285,7 @@ export default function ServiciosNav() {
           SERVICE CARDS GRID
       ══════════════════════════════════ */}
       <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-navy/[0.07]">
-        {serviceItems.map(({ number, name, descriptor, Icon }, i) => (
+        {serviceItems.map(({ number, name, descriptor, Icon }) => (
               <button
             key={number}
             onClick={handleClick}

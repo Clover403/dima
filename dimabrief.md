@@ -164,3 +164,178 @@ The following content will be provided later by the client — use elegant place
 - Pages go in src/pages/
 - GSAP animations go in custom hooks in src/hooks/
 - Start by building the complete Home page first before moving to other pages
+
+referensi tampilan website yang saya inginkan, ini adalah: https://terminal-industries.com/ 
+http://relats.com/sustainability
+
+brief from client:
+Essential Foundations Web Site DIMA
+FINANCE for price purposes.
+Content
+Pages/Sections ..................................................................................................... 2
+Products ............................................................................................................... 3
+Services ............................................................................................................... 5
+Target audience .................................................................................................... 6
+Legal or compliance points that must appear on the website .................................... 6
+Brand Book ........................................................................................................... 6
+Ideal launch date ................................................................................................... 8
+Pages/Sections
+1. Regarding the pages/sections I would like one of the pages to be dedicated
+primarily to our origin, identity, and philosophy, as this is one of our greatest
+differentiators. This page should cover how we started, what we do, and so on.
+Additionally, to capture the audience's attention, I would briefly mention the
+products and services we offer on this same page.
+2. Therefore, we would like a second page explaining our credit model. Another key
+differentiator, which is essentially our origin, identity, and institutional philosophy
+translated into our operational identity and philosophy, is our core business
+model. Here, we would like to explain what this model entails, as it is a
+macroeconomic model adapted to the microeconomic level, specifically to the
+business/company level. Furthermore, and as a result of the above, we would
+also explain our credit granting process.
+3. Another page, of course, dedicated to explaining each and every one of our
+products in detail. Financial ignorance in general, and especially regarding
+leverage, debt, and funding, is very widespread, at least in Mexico. Therefore, it
+will be important to be detailed but also concise in the length and content of the
+text. We will be fully involved in this aspect, and it will come up later.
+4. 5. The same applies to our financial services. A dedicated page for our services.
+Speaking of the conversion flow, we'd like a contact section, buttons all over the
+web site at specific points where users can request advice and schedule a video
+conference directly linked to our calendar. Of course, we'd also include our
+contact information via email, phone, and WhatsApp. But specifically for the pre-
+qualification process, we'd like to ask for general information such as the loan
+amount they're looking for, the term, and other details. This would allow us to
+filter leads and avoid generating a huge number of unsolicited leads. I'm not sure
+if this warrants a separate page or if it could be integrated into one of the existing
+sections.
+6. Another page dedicated to talking about us as an institution/organization.
+General information could include, for example, the current team, when we were
+founded, where we're from, and other relevant details. We'd need to decide
+what information to include here, but a page like our CV.
+Products
+(I will be as concise as possible. Regarding concepts, I will use exact translations.)
+It's important to note that most loans can be tailored to each client's circumstances and
+needs. Ultimately, what differentiates them are primarily legal matters, specifically the
+contract's clauses and conditions, which can be adapted to any situation. That said, I'll
+outline the main characteristics of each type and their typical/common uses, although
+these uses aren't strictly defined.
+a) Simple Credit (the most common or well-known)
+It's a fixed-term loan with a set interest rate, defined amounts, and predictable
+payments. It allows you to obtain capital for specific projects without affecting
+your cash flow.
+b) Bridge Credit (Known in english as “Bridging Loan”)
+It is a type of simple loan designed to cover the costs of a real estate project
+(construction, development, etc.) and the expected revenue.
+c) Current Account Credit (Revolving working capital limit or Overdraft
+facility/protection in English)
+Designed to facilitate the daily management of a company's operations. With
+other loans, once you repay the principal, you can no longer access the funds,
+and the contract ends when you finish paying it off. With this loan, you can repay
+the loan and access the funds again as long as the contract is active. Similar to
+a credit card, it's for managing project finances centrally and securely, facilitating
+control and monitoring of operations, covering short-term liquidity needs, taking
+advantage of business opportunities, optimizing working capital management,
+and financing specific projects.
+d) Agro-industrial Credit (also known as Agro-industrial lending)
+Designed specifically for the agricultural sector, this program allows producers
+and businesses in the sector to access capital for investments, working capital,
+and modernization projects. The process involves evaluating the agricultural
+project, approving the loan, and disbursing the funds, with payments tailored to
+the harvest cycles.
+e) Factoring (Known in english as Accounts receivable financing or invoice
+financing)
+This allows you to obtain immediate liquidity by assigning your accounts
+receivable (invoices receivable) to a financial institution. You receive an advance
+on the value of your invoices, giving you working capital without waiting for your
+customers to pay. The financial institution manages the collection of the
+invoices.
+f) Financial Leasing
+It is a product designed for the borrower to use and ultimately acquire an asset
+through periodic payments that include principal and interest. Unlike a standard
+lease, a service focused solely on temporary use through periodic payments
+called rent, the goal here is the transfer of ownership at the end of the contract
+in exchange for a payment of the asset's value, known as its "residual value."
+Therefore, the asset is recorded on the borrower's balance sheet, allowing them
+to deduct both the interest payments and the asset's depreciation. Furthermore,
+the lessee assumes the risks and responsibilities associated with the asset, such
+as its maintenance and insurance. Essentially, it is a strategic financing tool that
+culminates in the lessee's ownership of the asset.
+Services
+They are all, in some way, advisory and consulting services.
+1. Debt Reengineering and Capital Structure
+Analysis of the company's current debt and comprehensive design of the
+optimal capital structure (debt vs. equity), including maturities, currencies, rates,
+and covenants, aligned with the operating cycle and the debt cycle (part of the
+macroeconomic model adapted to our credit model). We identify expensive
+loans, mismatched maturities (short-term financing long-term), and wasted
+collateral. This includes refinancing, consolidation, and debt reengineering.
+2. Cycle-Based Financial Strategy - Liability Reengineering (Ray Dalio
+Framework)
+Diagnosing the business within the economic, credit and sectoral cycle to
+anticipate financial decisions, not react to them.
+3. Advanced Treasury and Conversion Cycle (Cash-Flow Maximization
+Architecture)
+Dynamic modeling of operational, financial and strategic cash flow to maximize
+available liquidity without sacrificing profitability.
+Strategies to accelerate collections and optimize payments to suppliers and
+inventory.
+4. Strategic Financial Valuation and Value Engineering
+To determine the real value of the company for purposes of sale, merger or entry
+of investment partners, as well as for internal decisions regarding financing,
+expansion or restructuring.
+5. Asset Efficiency Audit (CAPEX Intelligence)
+We mathematically evaluate whether the machinery or expansion the client
+wants to purchase is viable. We don't use hunches, we use calculations. This
+avoids the "Risk of Unproductive Investment" (buying machines that don't pay
+off their own debt).
+6. Financial Governance, Capital Discipline and Financial Succession (Like a
+External Strategic CFO)
+Ongoing support as an external financial architect, establishing rules, metrics,
+and capital decisions. Professionalization of financial decision-making. Creation
+of internal committees and dividend policies.
+Target audience
+These are primarily companies. The industry doesn't matter; they can be from any
+sector. The type of company is determined more by its ability to repay than by its size.
+It could be a company with a small team but one that generates sufficient revenue
+and/or has financially sound and verifiable contracts/projects. For the same reason,
+individual entrepreneurs are also eligible; however, they are few because, in terms of
+risk, there is less risk in lending to companies than to individuals. That said, while we
+don't have an unlimited budget, the loan amount is large enough to compete with even
+a bank. Therefore, the loan size, to put it simply, could cover the needs from small
+companies to even a AAA-rated company.
+Legal or compliance points that must appear on the
+website
+Legal Notice (paragraph we already have)
+Privacy notice (paragraph we already have)
+Brand Book
+Regarding the brand manual, I received it about 24 hours ago; however, it will undergo
+many changes. Nevertheless, I can provide you with the important specifications for
+pricing purposes, which will be the ones that ultimately appear in the manual. Of course,
+if you need anything else besides this, let me know.
+Logo
+This is the logo, but as I mentioned, there are pending changes in the manual. For
+example, the font for DIMA FINANCE (Brand Name) will be Gill Sans MT. But the shape,
+the symbol, is the same.
+Tipography
+Headings: Playfair Display
+Texts: Inter Tight
+Colorimetry
+Color scheme: I'm sharing the inspiration. These will be the brand colors. This is how all
+our branding should look.
+Websites I like
+I would tell you exactly which ones you present in your content; if I had to specify
+which ones, I would tell you the following:
+https://terminal-industries.com/
+http://relats.com/sustainability
+I know they have nothing to do with my line of business. But this is the inspiration, and
+to adapt this to my business, I'd like to give you complete freedom to make a proposal.
+I already have some inspiration, but I'd like to see what you have in mind first. From what
+I see in your content, the probability of you exceeding my own expectations of this idea
+of mine is of 100%.
+I'm also sharing with you another type of input that I really like outside of your account.
+https://vt.tiktok.com/ZS5TMUcPj/
+https://vt.tiktok.com/ZS5TMwH83/
+Even if you look closely, the type of business they run is completely different, yet they
+follow several patterns and share many characteristics, including—and this is one of my
+favorites—their visual effects. That's why, before I share my idea with you, I'd like to see
+one of yours. Feel free to visually incorporate elements related to this type of business
+using the patterns shared by the pages I've attached.

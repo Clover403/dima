@@ -1,339 +1,193 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion, AnimatePresence } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-/* ─── Phase / Node Data ─── */
-interface ProcessNode {
-  id: string
-  title: string
-  description: string
-  isIterate?: boolean
-}
-
-interface Phase {
-  num: string
-  title: string
-  accent: string
-  nodes: ProcessNode[]
-}
-
-const phases: Phase[] = [
+const phases = [
   {
     num: '01',
-    title: 'Diagnóstico e Ideación Estructural',
-    accent: 'border-bronze/40',
+    title: 'Diagnóstico e Ideación',
+    subtitle: 'Arquitectura Inicial',
     nodes: [
-      {
-        id: 'n1',
-        title: 'Diagnóstico Estructural de Prospección',
-        description:
-          'Revisión integral del perfil corporativo y requerimientos de la entidad. Se analiza escalabilidad, contexto y mapeo preliminar para alinear necesidades con factibilidad técnica inicial.',
-      },
-      {
-        id: 'n2',
-        title: 'Diseño de Vehículo Financiero',
-        description:
-          'Se determina el producto financiero preliminar y sus componentes estructurales con base en la evaluación del primer nodo.',
-      },
-      {
-        id: 'n3',
-        title: 'Sincronización de Condiciones Técnicas',
-        description:
-          'Intercambio directo de métricas detalladas: avalúos fiduciarios, tasas, plazos y garantías. Se establecen reglas de gobernanza antes de proceder con el análisis de riesgo.',
-      },
-    ],
+      { title: 'Diagnóstico de Prospección', desc: 'Revisión integral del perfil corporativo y requerimientos. Se analiza escalabilidad dan mapeo preliminar.' },
+      { title: 'Diseño de Vehículo', desc: 'Se determina el producto financiero preliminar y sus componentes estructurales base.' },
+      { title: 'Sincronización Técnica', desc: 'Intercambio de métricas: avalúos, tasas, plazos y garantías. Reglas de gobernanza.' }
+    ]
   },
   {
     num: '02',
-    title: 'Due Diligence y Reingeniería de Riesgo',
-    accent: 'border-bronze',
+    title: 'Due Diligence y Riesgo',
+    subtitle: 'El Corazón del Proceso',
     nodes: [
-      {
-        id: 'n4',
-        title: 'Ejecución de Filtros Excluyentes',
-        description:
-          'Evaluación crítica de criterios de exclusión. Se realizan validaciones de integridad reputacional y buró de crédito para determinar la viabilidad de la base, bloqueando el avance ante factores de riesgo sistémico insuperables.',
-      },
-      {
-        id: 'n5',
-        title: 'Integración y Evaluación Macroeconómica',
-        description:
-          'Recopilación integral de información y documentación para due diligence multidisciplinario (legal, fiscal, contable y financiero) y aplicación del modelo de ingeniería económica financiera.',
-      },
-      {
-        id: 'iterate',
-        title: 'Protocolo de Reconfiguración y Alineación',
-        description:
-          'Mecanismo de ajuste técnico para entidades con indicadores de solvencia subóptimos. No representa un rechazo, sino una Intervención Estratégica. DIMA ejecuta una transformación del balance y estructura hasta que la entidad alcanza la solvencia y resiliencia operativa necesaria.',
-        isIterate: true,
-      },
-    ],
+      { title: 'Filtros Excluyentes', desc: 'Evaluación de integridad reputacional y buró de crédito para determinar viabilidad de base.' },
+      { title: 'Evaluación Macroeconómica', desc: 'Due diligence multidisciplinario (legal, fiscal, contable y financiero) con modelo DIMA.' },
+      { title: 'Protocolo de Reconfiguración', desc: 'Intervención estratégica para transformar el balance hasta alcanzar la solvencia necesaria.', isIterate: true }
+    ]
   },
   {
     num: '03',
-    title: 'Modelación, Despliegue y Escalabilidad',
-    accent: 'border-bronze/60',
+    title: 'Modelación y Despliegue',
+    subtitle: 'Ejecución Matemática',
     nodes: [
-      {
-        id: 'n6',
-        title: 'Ingeniería Financiera Absoluta',
-        description:
-          'Definición precisa de variables crediticias. El calendario de amortización se cruza con estados financieros proyectados, sincronizando matemáticamente el servicio de deuda con la generación sostenida de flujo de caja libre.',
-      },
-      {
-        id: 'n7',
-        title: 'Formalización y Protección Fiduciaria',
-        description:
-          'Estructuración jurídica integral de la operación. Se establecen las garantías y fideicomisos requeridos, creando un marco legal robusto.',
-      },
-      {
-        id: 'n8',
-        title: 'Desembolso de Capital Productivo',
-        description:
-          'Despliegue técnico de recursos financieros. La inyección de liquidez se ejecuta como anticipo estratégico del gasto.',
-      },
-      {
-        id: 'n9',
-        title: 'Gobernanza y Consultoría de Ciclo',
-        description:
-          'Monitoreo post-otorgamiento del cumplimiento de covenants y eficiencia del capital. Se asegura que la deuda incremente la productividad marginal y fortalezca la resiliencia sistémica del negocio.',
-      },
-    ],
-  },
+      { title: 'Ingeniería Financiera Absoluta', desc: 'Definición de variables crediticias. Sincronización de amortización con flujo de caja libre.' },
+      { title: 'Protección Fiduciaria', desc: 'Estructuración jurídica integral. Garantías y fideicomisos en un marco legal robusto.' },
+      { title: 'Desembolso Productivo', desc: 'Inyección de liquidez como anticipo estratégico del gasto para máxima productividad.' }
+    ]
+  }
 ]
 
-/* ─── Node Component (Desktop: hover-to-reveal, Mobile: tap-to-expand) ─── */
-function NodeCard({ node, phaseAccent }: { node: ProcessNode; phaseAccent: string }) {
-  const [hovered, setHovered] = useState(false)
-  const [tapped, setTapped] = useState(false)
-  const isOpen = hovered || tapped
-
-  return (
-    <div
-      className={`relative group ${node.isIterate ? 'col-span-full' : ''}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => setTapped(!tapped)}
-    >
-      <div
-        className={`relative p-6 border-l-2 ${
-          node.isIterate
-            ? 'border-bronze bg-bronze/10'
-            : phaseAccent + ' bg-lightgray'
-        } transition-all duration-500 cursor-pointer ${
-          isOpen ? '!bg-white shadow-sm' : ''
-        }`}
-      >
-        {/* Iterate badge */}
-        {node.isIterate && (
-          <div className="flex items-center gap-2 mb-3">
-            <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-              <path
-                d="M10 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm0 3v4l3 2"
-                stroke="#E5997B"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="text-bronze font-body text-xs tracking-widest uppercase">
-              Iteración Estratégica
-            </span>
-          </div>
-        )}
-
-        {/* Title */}
-        <h4 className={`font-display text-lg md:text-xl leading-snug transition-colors duration-300 ${
-          node.isIterate ? 'text-bronze' : 'text-navy/80 group-hover:text-bronze'
-        }`}>
-          {node.title}
-        </h4>
-
-        {/* Expand indicator */}
-        <div className={`mt-3 flex items-center gap-2 transition-opacity duration-300 ${
-          isOpen ? 'opacity-0' : 'opacity-60'
-        }`}>
-          <div className="w-4 h-px bg-bronze" />
-          <span className="text-bronze font-body text-xs">Ver más</span>
-        </div>
-
-        {/* Description — animate in on hover/tap */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }}
-              className="overflow-hidden"
-            >
-              <p className="font-body text-navy/55 text-sm leading-relaxed mt-4 pr-4">
-                {node.description}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  )
-}
-
-/* ─── Flow Path SVG ─── */
-function FlowPath() {
-  const pathRef = useRef<SVGPathElement>(null)
+export default function UltimateHorizontalProcess() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sliderRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!pathRef.current) return
-    const length = pathRef.current.getTotalLength()
-    gsap.set(pathRef.current, { strokeDasharray: length, strokeDashoffset: length })
-  }, [])
+    if (!containerRef.current || !sliderRef.current) return
 
-  return (
-    <svg className="flow-svg absolute inset-0 w-full h-full pointer-events-none hidden lg:block" preserveAspectRatio="none">
-      <path
-        ref={pathRef}
-        className="flow-path"
-        d="M50,0 L50,33 L50,66 L50,100"
-        stroke="#E5997B"
-        strokeWidth="1"
-        fill="none"
-        opacity="0.3"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  )
-}
-
-/* ─── Main Component ─── */
-export default function ModeloProceso() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!sectionRef.current) return
+    const totalWidth = sliderRef.current.scrollWidth - window.innerWidth
 
     const ctx = gsap.context(() => {
-      const el = sectionRef.current!
-
-      /* Header reveal */
-      gsap.fromTo(
-        el.querySelectorAll('.section-head'),
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.15,
-          scrollTrigger: { trigger: el, start: 'top 75%' },
+      // 1. PIN & HORIZONTAL LOGIC (Tetap Sama)
+      gsap.to(sliderRef.current, {
+        x: -totalWidth,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          pin: true,
+          scrub: 1,
+          start: 'top top',
+          end: () => `+=${totalWidth}`,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
         }
-      )
-
-      /* Phase blocks stagger in */
-      const phaseBlocks = el.querySelectorAll('.phase-block')
-      phaseBlocks.forEach((block) => {
-        gsap.fromTo(
-          block,
-          { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: block, start: 'top 80%' },
-          }
-        )
       })
 
-      /* Flow path draw */
-      const flowPath = el.querySelector('.flow-path') as SVGPathElement | null
-      if (flowPath) {
-        gsap.to(flowPath, {
-          strokeDashoffset: 0,
-          ease: 'none',
+      // 2. ENTRY ANIMATION (Tetap Sama)
+      gsap.utils.toArray('.process-card').forEach((card: any) => {
+        gsap.from(card, {
+          y: 100,
+          opacity: 0,
+          duration: 1,
+          ease: 'power3.out',
           scrollTrigger: {
-            trigger: el.querySelector('.phases-container'),
-            start: 'top 70%',
-            end: 'bottom 30%',
-            scrub: 1,
-          },
+            trigger: card,
+            containerAnimation: gsap.to(sliderRef.current, { x: -totalWidth, ease: 'none' }),
+            start: 'left 95%',
+            toggleActions: 'play none none reverse'
+          }
         })
-      }
-    }, sectionRef)
+      })
+    }, containerRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-white py-32 md:py-48 section-padding">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-20 md:mb-28">
-          <p className="section-head text-bronze font-body text-sm tracking-[0.3em] uppercase mb-6">
-            Proceso Crediticio
-          </p>
-          <h2 className="section-head font-display text-4xl md:text-5xl lg:text-6xl text-navy leading-tight">
-            De la visión
-            <br />
-            <span className="text-bronze italic">a la estructura</span>
-          </h2>
-          <p className="section-head font-body text-navy/50 text-lg leading-relaxed max-w-3xl mx-auto mt-8">
-            Nuestro proceso integral de otorgamiento crediticio fusiona la comprensión
-            macroeconómica de Ray Dalio con la práctica crediticia, a través de tres
-            fases iterativas de diagnóstico, ingeniería y despliegue.
-          </p>
-        </div>
+    <div ref={containerRef} className="bg-white overflow-hidden">
 
-        {/* Phases */}
-        <div className="phases-container relative">
-          {/* Vertical flow line — desktop */}
-          <div className="hidden lg:block absolute left-8 top-0 bottom-0 w-px">
-            <FlowPath />
+      {/* Progress Line */}
+      <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
+        <div className="progress-fill h-full bg-bronze origin-left scale-x-0" />
+      </div>
+
+      <div ref={sliderRef} className="flex h-screen w-max items-center">
+
+        {/* ── INTRO SLIDE (Heading diperkecil sedikit) ── */}
+        <section className="w-[100vw] h-full flex flex-col justify-center px-12 md:px-32 border-r border-gray-100">
+          <div className="max-w-[90%]">
+            <span className="text-bronze font-body text-[12px] md:text-[14px] tracking-[0.6em] uppercase font-black mb-8 block">Metodología de Élite</span>
+            <h2 className="font-display text-[6vw] md:text-[8.5vw] text-navy leading-[0.85] tracking-tighter mb-16">
+              The Process <br />
+              <span className="text-bronze italic">Architecture.</span>
+            </h2>
+            <div className="flex items-center gap-8">
+              <div className="w-32 h-[2px] bg-bronze" />
+              <p className="text-navy/40 font-body text-lg uppercase tracking-widest font-bold italic">Scroll to navigate the framework</p>
+            </div>
           </div>
+        </section>
 
-          <div className="space-y-16 md:space-y-24">
-            {phases.map((phase) => (
-              <div key={phase.num} className="phase-block relative lg:pl-20">
-                {/* Phase dot on flow line */}
-                <div className="hidden lg:block absolute left-[29px] top-2 w-3 h-3 rounded-full border-2 border-bronze bg-white z-10" />
+        {/* ── PHASE SLIDES ── */}
+        {phases.map((phase) => (
+          <section key={phase.num} className="h-full flex items-center px-32 md:px-56 border-r border-gray-100 relative">
 
-                {/* Phase header */}
-                <div className="flex items-baseline gap-4 mb-8">
-                  <span className="text-bronze/30 font-display text-5xl md:text-6xl leading-none select-none">
-                    {phase.num}
-                  </span>
-                  <div>
-                    <h3 className="font-display text-2xl md:text-3xl text-navy leading-tight">
-                      {phase.title}
-                    </h3>
-                    {phase.num === '02' && (
-                      <p className="font-body text-bronze text-xs tracking-widest uppercase mt-2">
-                        El corazón del proceso
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Nodes grid */}
-                <div className={`grid gap-4 ${
-                  phase.nodes.length <= 3
-                    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                    : 'grid-cols-1 md:grid-cols-2'
-                }`}>
-                  {phase.nodes.map((node) => (
-                    <NodeCard
-                      key={node.id}
-                      node={node}
-                      phaseAccent={phase.accent}
-                    />
-                  ))}
+            <div className="absolute top-[12%] left-32">
+              <div className="flex items-end gap-6 mb-4">
+                <span className="font-display text-[150px] text-navy/[0.04] leading-[0.7] select-none">{phase.num}</span>
+                <div className="mb-4">
+                  <h3 className="font-display text-5xl md:text-7xl text-navy leading-none mb-3">{phase.title}</h3>
+                  <p className="text-bronze font-body text-xs tracking-[0.5em] uppercase font-black">{phase.subtitle}</p>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="flex gap-12 mt-24">
+              {phase.nodes.map((node, i) => (
+                <div
+                  key={i}
+                  className={`process-card group relative w-[420px] h-[520px] p-12 flex flex-col justify-between transition-all duration-700 rounded-[2.5rem] border-2 overflow-hidden
+                    hover:-translate-y-4 hover:shadow-[0_60px_100px_-30px_rgba(0,0,0,0.15)]
+                    ${node.isIterate
+                      ? 'bg-[#FFFAF8] border-bronze/20 hover:border-bronze'
+                      : 'bg-white border-gray-100 hover:border-bronze/40'
+                    }`}
+                >
+                  {/* Glass Decorative Glow on Hover */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-bronze/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                  <div className="flex justify-between items-center z-10">
+                    <span className="font-display text-lg text-bronze/40 font-bold italic group-hover:text-bronze group-hover:translate-x-2 transition-all duration-500">
+                      Step 0{i + 1}
+                    </span>
+                    {node.isIterate && (
+                      <div className="px-4 py-1 bg-bronze text-white text-[9px] font-black uppercase tracking-tighter rounded-full shadow-lg shadow-bronze/30 group-hover:scale-110 transition-transform duration-500">
+                        Critical Loop
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative z-10">
+                    <h4 className={`font-display text-4xl leading-[1.1] mb-8 transition-all duration-700 group-hover:-translate-y-4 ${node.isIterate ? 'text-bronze' : 'text-navy group-hover:text-navy'}`}>
+                      {node.title}
+                    </h4>
+
+                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]">
+                      <div className="overflow-hidden">
+                        <p className="font-body text-navy/50 text-lg leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">
+                          {node.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-10 flex items-center gap-4 transition-all duration-500">
+                      <div className="h-[2px] bg-bronze w-10 group-hover:w-20 transition-all duration-700 ease-in-out" />
+                      <span className="text-bronze font-body text-[10px] tracking-[0.3em] uppercase font-black opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-700 delay-100">
+                        Explore Insight
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* ── FINAL SLIDE (Heading diperkecil sedikit) ── */}
+        <section className="w-[100vw] h-full flex items-center justify-center bg-[#FAFAFA]">
+          <div className="text-center px-10">
+            <span className="text-bronze font-body text-sm tracking-[0.8em] uppercase font-black mb-8 block">Conclusion</span>
+            <h2 className="font-display text-[7vw] md:text-[8vw] text-navy mb-16 leading-none tracking-tighter">
+              Ready to <br />
+              <span className="text-bronze italic text-[8.5vw] md:text-[9.5vw]">Execute?</span>
+            </h2>
+            <button className="group relative px-20 py-8 bg-navy text-white font-body text-xs tracking-[0.6em] uppercase overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(3,0,53,0.2)]">
+              <span className="relative z-10">Solicitar Diagnóstico</span>
+              <div className="absolute inset-0 bg-bronze translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            </button>
           </div>
-        </div>
+        </section>
+
       </div>
-    </section>
+    </div>
   )
 }

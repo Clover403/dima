@@ -71,10 +71,24 @@ export default function ModeloHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen flex items-center justify-center overflow-hidden bg-navy"
+      className="relative h-screen flex items-center justify-center overflow-hidden"
     >
+      {/* Hero Banner */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/foto/illust-growth.jpg)',
+          backgroundAttachment: 'fixed',
+          backgroundPosition: 'center',
+        }}
+      >
+ <div className="absolute inset-0 bg-black/80" />
+        {/* Extra gradient for depth */}
+        {/* <div className="absolute inset-0 bg-gradient-to-b from-navy/40 via-transparent to-navy/90" /> */}
+            </div>
+
       {/* Decorative geometric SVG */}
-      <div className="geo-deco absolute inset-0 pointer-events-none select-none overflow-hidden">
+      <div className="geo-deco absolute inset-0 pointer-events-none select-none overflow-hidden z-5">
         <svg
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.04]"
           viewBox="0 0 800 800"
@@ -98,7 +112,7 @@ export default function ModeloHero() {
         </svg>
       </div>
 
-      <div className="hero-inner relative z-10 text-center max-w-4xl section-padding">
+      <div className="hero-inner relative z-20 text-center max-w-4xl section-padding">
         {/* Label */}
         <motion.p
           initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
@@ -149,7 +163,7 @@ export default function ModeloHero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20"
       >
         <div className="flex flex-col items-center gap-2">
           <span className="text-lightgray/30 text-xs tracking-widest uppercase font-body">
