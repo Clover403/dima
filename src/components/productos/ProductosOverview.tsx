@@ -41,14 +41,30 @@ export default function ProductosOverview() {
       })
 
       // Cards stagger
-      gsap.from('.overview-card', {
-        opacity: 0,
-        y: 50,
-        duration: 1,
-        ease: 'power3.out',
-        stagger: 0.08,
-        scrollTrigger: { trigger: '.overview-grid', start: 'top 85%' },
-      })
+      const cards = el.querySelectorAll('.overview-card')
+      const grid = el.querySelector('.overview-grid')
+
+      gsap.set(cards, { autoAlpha: 1, y: 0 })
+
+      if (cards.length && grid) {
+        gsap.fromTo(
+          cards,
+          { autoAlpha: 0, y: 50 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out',
+            stagger: 0.08,
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: grid,
+              start: 'top 85%',
+              once: true,
+            },
+          }
+        )
+      }
     }, sectionRef)
 
     return () => ctx.revert()
@@ -85,7 +101,7 @@ export default function ProductosOverview() {
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
 
         {/* ── Header ───────────────────────────────────────────────────── */}
-        <div className="mb-24 md:mb-32 flex flex-col items-start">
+        <div className="mb-14 md:mb-16 flex flex-col items-start">
           <div className="overflow-hidden mb-4">
             <p className="reveal-text font-body text-[11px] tracking-[0.5em] uppercase text-bronze font-medium">
               Portafolio de Soluciones
@@ -106,7 +122,7 @@ export default function ProductosOverview() {
 
         {/* ── Grid ─────────────────────────────────────────────────────── */}
         <div className="overview-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {overview.map((item, idx) => (
+          {overview.map((item) => (
             <div
               key={item.num}
               className="overview-card group relative overflow-hidden transition-all duration-500"
