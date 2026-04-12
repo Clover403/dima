@@ -75,8 +75,8 @@ export default function ProductosCTA() {
           className="w-full h-full object-cover will-change-transform"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-navy/85" />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/80" />
+        <div className="absolute inset-0 bg-navy/70" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-navy/80" /> */}
       </div>
 
       {/* Geometric decoration */}
