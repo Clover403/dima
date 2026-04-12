@@ -45,33 +45,27 @@ export default function ModeloCTA() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-navy py-32 md:py-48 section-padding relative overflow-hidden">
-      {/* Geometric background decoration */}
-      <div className="geo-bg absolute inset-0 pointer-events-none select-none flex items-center justify-center">
-        <svg
-          viewBox="0 0 600 600"
-          fill="none"
-          className="w-[500px] h-[500px] opacity-[0.03]"
-        >
-          <path d="M300 50L550 300L300 550L50 300Z" stroke="#E5997B" strokeWidth="1" />
-          <path d="M300 120L480 300L300 480L120 300Z" stroke="#E5997B" strokeWidth="0.5" />
-          <path d="M300 190L410 300L300 410L190 300Z" stroke="#E5997B" strokeWidth="0.5" />
-          {/* DIMA logo shapes */}
-          <path d="M220 180L300 180L300 210L260 260L220 210Z" stroke="#E5997B" strokeWidth="0.5" />
-          <path d="M300 180L380 180L380 210L340 260L300 210Z" stroke="#E5997B" strokeWidth="0.5" />
-          <path d="M220 420L300 420L300 390L260 340L220 390Z" stroke="#E5997B" strokeWidth="0.5" />
-          <path d="M300 420L380 420L380 390L340 340L300 390Z" stroke="#E5997B" strokeWidth="0.5" />
-        </svg>
-      </div>
+    <section ref={sectionRef} className="relative isolate bg-navy py-32 md:py-48 section-padding overflow-hidden">
+      {/* 1. Base Image */}
+      <img
+        src="/foto/brand-corporate.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover object-center"
+      />
 
-      <div className="relative z-10 text-center max-w-3xl mx-auto">
+      {/* 2. Navy Overlay - Ini yang memberikan warna navy di atas foto */}
+      <div className="absolute inset-0 bg-navy/85 z-0" />
+
+      {/* 3. Content - Menggunakan z-10 agar berada di atas overlay */}
+      <div className="relative z-10 text-center max-w-3xl mx-auto px-6">
         <h2 className="reveal font-display text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-6">
           ¿Listo para estructurar
           <br />
           <span className="text-bronze italic">su crecimiento?</span>
         </h2>
 
-        <p className="reveal font-body text-white/50 text-lg leading-relaxed max-w-xl mx-auto mb-12">
+        <p className="reveal font-body text-white/60 text-lg leading-relaxed max-w-xl mx-auto mb-12">
           Descubra cómo nuestro modelo puede transformar la deuda en un motor
           de productividad para su empresa.
         </p>
@@ -85,6 +79,9 @@ export default function ModeloCTA() {
           </Link>
         </div>
       </div>
+
+      {/* Optional: Geometric background element if needed */}
+      <div className="geo-bg absolute -bottom-20 -right-20 w-96 h-96 bg-bronze/10 rounded-full blur-3xl -z-10" />
     </section>
   )
 }
