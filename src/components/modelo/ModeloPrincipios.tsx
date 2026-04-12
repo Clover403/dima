@@ -281,13 +281,13 @@ function PremiumCTA() {
           </svg>
         </div>
 
-        <div className="relative z-10 p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="relative z-10 p-8 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="text-center md:text-left">
-            <h3 className="font-display text-4xl md:text-6xl text-navy leading-tight mb-4">
-              Ready to architect <br />
+            <h3 className="font-display text-2xl md:text-4xl text-navy leading-tight mb-3">
+              Ready to architect{' '}
               <span className="text-bronze italic">growth?</span>
             </h3>
-            <p className="text-navy/40 font-body text-xs tracking-[0.4em] uppercase">
+            <p className="text-navy/40 font-body text-[10px] tracking-[0.35em] uppercase">
               Request structural diagnostics
             </p>
           </div>
@@ -295,7 +295,7 @@ function PremiumCTA() {
           {/* Magnetic button */}
           <button
             ref={buttonRef}
-            className="group/btn relative px-12 py-6 bg-bronze text-navy font-black text-[11px] uppercase tracking-[0.3em] overflow-hidden transition-shadow duration-300 hover:shadow-[0_0_30px_rgba(3,0,53,0.25)]"
+            className="group/btn relative px-8 py-4 bg-bronze text-navy font-black text-[10px] uppercase tracking-[0.25em] overflow-hidden transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(3,0,53,0.2)] flex-shrink-0"
           >
             <span className="relative z-10">Request Diagnostics</span>
             <div className="absolute inset-0 bg-white translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />
