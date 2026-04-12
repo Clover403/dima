@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { AnimatePresence, motion } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -9,27 +10,31 @@ const services = [
   {
     number: '01',
     name: 'Estructuración de Deuda',
+    image: '/foto/brand-nature.jpg',
     description:
       'Rediseñamos la arquitectura financiera de tu empresa para maximizar produktividad y minimizar el costo de capital.',
   },
   {
     number: '02',
     name: 'Análisis de Riesgo Crediticio',
+    image: '/foto/brand-stationery.jpg',
     description:
       'Evaluación profunda basada en modelos macroeconómicos y análisis sectorial del contexto mexicano.',
   },
   {
     number: '03',
     name: 'Planeación Financiera Estratégica',
+    image: '/foto/illust-buildings.jpg',
     description:
       'Diseñamos roadmaps financieros alineados a tus objetivos de crecimiento a mediano y largo plazo.',
   },
 ]
 
 export default function ServicesSection() {
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0)
   const sectionRef   = useRef<HTMLElement>(null)
   const imageWrapRef = useRef<HTMLDivElement>(null)
-  const imageRef     = useRef<HTMLImageElement>(null)
+  const imageParallaxRef = useRef<HTMLDivElement>(null)
   const textWrapRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -96,9 +101,9 @@ export default function ServicesSection() {
       })
 
       // Photo parallax — same as WhoWeAre
-      if (imageRef.current) {
+      if (imageParallaxRef.current) {
         gsap.fromTo(
-          imageRef.current,
+          imageParallaxRef.current,
           { scale: 1.12, y: 60 },
           {
             scale: 1.0,
@@ -147,13 +152,24 @@ export default function ServicesSection() {
       {/* ── KIRI: Foto — persis kayak WhoWeAre ───────────────────────────── */}
       <div className="relative h-[60vh] lg:h-auto lg:min-h-screen overflow-hidden">
         <div ref={imageWrapRef} className="absolute inset-0 overflow-hidden">
-          <img
-            ref={imageRef}
-            src="/foto/brand-stationery.jpg"
-            alt="DIMA Finance — Servicios"
-            className="absolute inset-0 w-full h-[115%] object-cover will-change-transform"
-            loading="lazy"
-          />
+          <div
+            ref={imageParallaxRef}
+            className="absolute inset-0 w-full h-[115%] will-change-transform"
+          >
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={services[activeServiceIndex].image}
+                src={services[activeServiceIndex].image}
+                alt={`DIMA Finance — ${services[activeServiceIndex].name}`}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+                initial={{ opacity: 0, scale: 1.04, filter: 'blur(2px)' }}
+                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, scale: 0.985, filter: 'blur(2px)' }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </AnimatePresence>
+          </div>
           {/* Diagonal blend ke kanan menuju text area */}
           <div
             className="absolute inset-y-0 right-0 w-[36%] hidden lg:block"
@@ -180,23 +196,38 @@ export default function ServicesSection() {
         </h2>
 
         <div className="space-y-0">
-          {services.map((service) => (
-            <div
+          {services.map((service, index) => (
+            <button
+              type="button"
               key={service.number}
-              className="service-row group py-10 border-b border-navy/10 flex gap-8 items-start"
+              onClick={() => setActiveServiceIndex(index)}
+              className="service-row group w-full py-10 border-b border-navy/10 flex gap-8 items-start text-left transition-colors duration-500"
+              aria-pressed={activeServiceIndex === index}
             >
-              <span className="font-display text-4xl text-navy/[0.06] group-hover:text-bronze/20 transition-colors duration-500 shrink-0 leading-none mt-1">
+              <span
+                className={`font-display text-4xl transition-colors duration-500 shrink-0 leading-none mt-1 ${
+                  activeServiceIndex === index
+                    ? 'text-bronze/30'
+                    : 'text-navy/[0.06] group-hover:text-bronze/20'
+                }`}
+              >
                 {service.number}
               </span>
               <div>
-                <h3 className="font-display text-xl md:text-2xl text-navy mb-3 group-hover:text-bronze transition-colors duration-500">
+                <h3
+                  className={`font-display text-xl md:text-2xl mb-3 transition-colors duration-500 ${
+                    activeServiceIndex === index
+                      ? 'text-bronze'
+                      : 'text-navy group-hover:text-bronze'
+                  }`}
+                >
                   {service.name}
                 </h3>
                 <p className="font-body text-sm md:text-base text-navy/50 leading-relaxed">
                   {service.description}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
 
