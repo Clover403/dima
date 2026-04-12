@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -41,14 +41,29 @@ export default function UltimateHorizontalProcess() {
   const containerRef = useRef<HTMLDivElement>(null)
   const sliderRef    = useRef<HTMLDivElement>(null)
 
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+    if (sliderRef.current) {
+      gsap.set(sliderRef.current, { x: 0 })
+    }
+  }, [])
+
   useEffect(() => {
     if (!containerRef.current || !sliderRef.current) return
 
     const totalWidth = sliderRef.current.scrollWidth - window.innerWidth
 
     const ctx = gsap.context(() => {
-      // 1. PIN & HORIZONTAL LOGIC (Tetap Sama)
-      gsap.to(sliderRef.current, {
+      // 1. KINETIC MARQUEE LOGIC - Gerak sangat lambat & elegan (70s)
+      gsap.to(".marquee-part", {
+        xPercent: -100,
+        repeat: -1,
+        duration: 70, 
+        ease: "none",
+      })
+
+      // 2. PIN & HORIZONTAL SCROLL
+      const horizontalTween = gsap.to(sliderRef.current, {
         x: -totalWidth,
         ease: 'none',
         scrollTrigger: {
@@ -62,17 +77,17 @@ export default function UltimateHorizontalProcess() {
         }
       })
 
-      // 2. ENTRY ANIMATION (Tetap Sama)
+      // 3. CARDS ENTRY ANIMATION
       gsap.utils.toArray('.process-card').forEach((card: any) => {
         gsap.from(card, {
-          y: 100,
+          y: 60,
           opacity: 0,
-          duration: 1,
+          duration: 1.2,
           ease: 'power3.out',
           scrollTrigger: {
             trigger: card,
-            containerAnimation: gsap.to(sliderRef.current, { x: -totalWidth, ease: 'none' }),
-            start: 'left 95%',
+            containerAnimation: horizontalTween,
+            start: 'left 98%',
             toggleActions: 'play none none reverse'
           }
         })
@@ -83,17 +98,17 @@ export default function UltimateHorizontalProcess() {
   }, [])
 
   return (
-    <div ref={containerRef} className="bg-white overflow-hidden">
+    <div ref={containerRef} className="bg-white overflow-hidden relative">
 
       {/* Progress Line */}
       <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
         <div className="progress-fill h-full bg-bronze origin-left scale-x-0" />
       </div>
 
-      <div ref={sliderRef} className="flex h-screen w-max items-center">
+      <div ref={sliderRef} className="flex h-screen w-max items-center relative z-10">
 
-        {/* ── INTRO SLIDE (Heading diperkecil sedikit) ── */}
-        <section className="w-[100vw] h-full flex flex-col justify-center px-12 md:px-32 border-r border-gray-100">
+        {/* ── INTRO SLIDE ── */}
+        <section className="w-[100vw] h-full flex flex-col justify-center px-12 md:px-32 border-r border-gray-100 bg-white relative z-20">
           <div className="max-w-[90%]">
             <span className="text-bronze font-body text-[12px] md:text-[14px] tracking-[0.6em] uppercase font-black mb-8 block">Metodología de Élite</span>
             <h2 className="font-display text-[6vw] md:text-[8.5vw] text-navy leading-[0.85] tracking-tighter mb-16">
@@ -109,11 +124,21 @@ export default function UltimateHorizontalProcess() {
 
         {/* ── PHASE SLIDES ── */}
         {phases.map((phase) => (
-          <section key={phase.num} className="h-full flex items-center px-32 md:px-56 border-r border-gray-100 relative">
+          <section key={phase.num} className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100 relative overflow-hidden">
+            
+            {/* KINETIC MARQUEE (Posisi Bawah) */}
+            <div className="absolute bottom-[8%] left-0 flex whitespace-nowrap opacity-[0.045] select-none pointer-events-none z-0">
+              {[...Array(2)].map((_, i) => (
+                <span key={i} className="marquee-part font-display text-[17vw] leading-none uppercase pr-40 text-navy">
+                  Dima Finance • Methodology • Architecture • Excellence •
+                </span>
+              ))}
+            </div>
 
-            <div className="absolute top-[12%] left-32">
+            {/* Phase Info */}
+            <div className="absolute top-[12%] left-32 z-10">
               <div className="flex items-end gap-6 mb-4">
-                <span className="font-display text-[150px] text-navy/[0.04] leading-[0.7] select-none">{phase.num}</span>
+                <span className="font-display text-[130px] text-navy/[0.04] leading-[0.7] select-none">{phase.num}</span>
                 <div className="mb-4">
                   <h3 className="font-display text-5xl md:text-7xl text-navy leading-none mb-3">{phase.title}</h3>
                   <p className="text-bronze font-body text-xs tracking-[0.5em] uppercase font-black">{phase.subtitle}</p>
@@ -121,39 +146,41 @@ export default function UltimateHorizontalProcess() {
               </div>
             </div>
 
-            <div className="flex gap-12 mt-24">
+            {/* Card Container (Posisi Tengah-Atas) */}
+            <div className="flex gap-12 mt-24 z-10 relative">
               {phase.nodes.map((node, i) => (
                 <div
                   key={i}
-                  className={`process-card group relative w-[420px] h-[520px] p-12 flex flex-col justify-between transition-all duration-700 rounded-[2.5rem] border-2 overflow-hidden
+                  className={`process-card group relative w-[420px] h-[480px] p-12 flex flex-col justify-between transition-all duration-700 rounded-[2.5rem] border-2 overflow-hidden
                     hover:-translate-y-4 hover:shadow-[0_60px_100px_-30px_rgba(0,0,0,0.15)]
+                    /* Glassmorphism Logic with Visible Borders */
                     ${node.isIterate
-                      ? 'bg-[#FFFAF8] border-bronze/20 hover:border-bronze'
-                      : 'bg-white border-gray-100 hover:border-bronze/40'
+                      ? 'bg-bronze/[0.04] border-bronze/30 hover:bg-[#FFFAF8]/95 hover:border-bronze'
+                      : 'bg-white/10 border-navy/5 hover:bg-white/95 hover:border-bronze/40'
                     }`}
+                  style={{ backdropFilter: 'blur(16px)' }}
                 >
-                  {/* Glass Decorative Glow on Hover */}
                   <div className="absolute top-0 right-0 w-40 h-40 bg-bronze/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
                   <div className="flex justify-between items-center z-10">
-                    <span className="font-display text-lg text-bronze/40 font-bold italic group-hover:text-bronze group-hover:translate-x-2 transition-all duration-500">
+                    <span className="font-display text-lg text-bronze/40 font-bold italic group-hover:text-bronze transition-all duration-500">
                       Step 0{i + 1}
                     </span>
                     {node.isIterate && (
-                      <div className="px-4 py-1 bg-bronze text-white text-[9px] font-black uppercase tracking-tighter rounded-full shadow-lg shadow-bronze/30 group-hover:scale-110 transition-transform duration-500">
+                      <div className="px-4 py-1 bg-bronze text-white text-[9px] font-black uppercase tracking-tighter rounded-full shadow-lg shadow-bronze/30">
                         Critical Loop
                       </div>
                     )}
                   </div>
 
                   <div className="relative z-10">
-                    <h4 className={`font-display text-4xl leading-[1.1] mb-8 transition-all duration-700 group-hover:-translate-y-4 ${node.isIterate ? 'text-bronze' : 'text-navy group-hover:text-navy'}`}>
+                    <h4 className={`font-display text-4xl leading-[1.1] mb-8 transition-all duration-700 group-hover:-translate-y-4 ${node.isIterate ? 'text-bronze' : 'text-navy/80 group-hover:text-navy'}`}>
                       {node.title}
                     </h4>
 
                     <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]">
                       <div className="overflow-hidden">
-                        <p className="font-body text-navy/50 text-lg leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">
+                        <p className="font-body text-navy/60 text-lg leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">
                           {node.desc}
                         </p>
                       </div>
@@ -161,7 +188,7 @@ export default function UltimateHorizontalProcess() {
 
                     <div className="mt-10 flex items-center gap-4 transition-all duration-500">
                       <div className="h-[2px] bg-bronze w-10 group-hover:w-20 transition-all duration-700 ease-in-out" />
-                      <span className="text-bronze font-body text-[10px] tracking-[0.3em] uppercase font-black opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-700 delay-100">
+                      <span className="text-bronze font-body text-[10px] tracking-[0.3em] uppercase font-black opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100">
                         Explore Insight
                       </span>
                     </div>
@@ -172,17 +199,17 @@ export default function UltimateHorizontalProcess() {
           </section>
         ))}
 
-        {/* ── FINAL SLIDE (Heading diperkecil sedikit) ── */}
-        <section className="w-[100vw] h-full flex items-center justify-center bg-[#FAFAFA]">
+        {/* ── FINAL SLIDE ── */}
+        <section className="w-[100vw] h-full flex items-center justify-center bg-[#FAFAFA] relative z-20">
           <div className="text-center px-10">
             <span className="text-bronze font-body text-sm tracking-[0.8em] uppercase font-black mb-8 block">Conclusion</span>
             <h2 className="font-display text-[7vw] md:text-[8vw] text-navy mb-16 leading-none tracking-tighter">
               Ready to <br />
               <span className="text-bronze italic text-[8.5vw] md:text-[9.5vw]">Execute?</span>
             </h2>
-            <button className="group relative px-20 py-8 bg-navy text-white font-body text-xs tracking-[0.6em] uppercase overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(3,0,53,0.2)]">
+            <button className="group relative px-20 py-8 bg-navy text-white font-body text-xs tracking-[0.6em] uppercase overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(3,0,53,0.2)] rounded-2xl">
               <span className="relative z-10">Solicitar Diagnóstico</span>
-              <div className="absolute inset-0 bg-bronze translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-bronze translate-y-full group-hover:translate-y-0 transition-transform duration-500 rounded-2xl" />
             </button>
           </div>
         </section>
