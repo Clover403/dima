@@ -129,7 +129,9 @@ export default function FinaleSection() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href="#"
+                href="https://calendly.com/corporativo-dimafinance/30min"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block px-8 py-4 bg-navy text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy/80"
               >
                 AGENDA UNA VIDEOLLAMADA
