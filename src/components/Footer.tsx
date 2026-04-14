@@ -54,28 +54,30 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-lightgray/50">
               <li>
                 <a
-                  href="mailto:contacto@dimafinance.mx"
+                  href="mailto:corporativo@dimafinance.com.mx"
                   className="hover:text-bronze transition-colors duration-300"
                 >
-                  contacto@dimafinance.mx
+                  corporativo@dimafinance.com.mx
                 </a>
               </li>
               <li>
                 <a
-                  href="tel:+525512345678"
-                  className="hover:text-bronze transition-colors duration-300"
-                >
-                  +52 55 1234 5678
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://wa.me/525512345678"
+                  href="https://wa.me/5213319717871"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-bronze transition-colors duration-300"
                 >
                   WhatsApp
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://calendly.com/corporativo-dimafinance/30min"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-bronze transition-colors duration-300"
+                >
+                  Agendar Videollamada
                 </a>
               </li>
             </ul>
