@@ -9,6 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 const navLinks = [
   { to: '/', label: 'Inicio' },
   { to: '/modelo-crediticio', label: 'Modelo' },
+  { to: '/proceso', label: 'Proceso' },
   { to: '/productos', label: 'Productos' },
   { to: '/servicios', label: 'Servicios' },
   { to: '/nosotros', label: 'Nosotros' },

@@ -7,6 +7,7 @@ import Products from './pages/Products'
 import Services from './pages/Services'
 import Contact from './pages/Contact'
 import About from './pages/About'
+import Process from './pages/Process'
 
 export default function App() {
   const location = useLocation()
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/servicios" element={<Services />} />
           <Route path="/contacto" element={<Contact />} />
           <Route path="/nosotros" element={<About />} />
+          <Route path="/proceso" element={<Process />} />
         </Route>
       </Routes>
     </AnimatePresence>

@@ -106,12 +106,11 @@ export default function ServiciosHero() {
       <div className="absolute inset-0">
         <img
           ref={bgRef}
-          src="/foto/brand-corporate.jpg"
+          src="/foto/illust-shipping.jpg"
           alt=""
           className="w-full h-full object-cover will-change-transform"
         />
-        <div className="absolute inset-0 bg-navy/75" />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/50 via-transparent to-navy/90" />
+        <div className="absolute inset-0 bg-black/75" />
       </div>
 
       {/* Decorative geometric SVG lines */}

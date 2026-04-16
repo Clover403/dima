@@ -6,7 +6,6 @@ import ModeloFundamento from '../components/modelo/ModeloFundamento'
 import ModeloProtagonistas from '../components/modelo/ModeloProtagonistas'
 import ModeloFuerzas from '../components/modelo/ModeloFuerzas'
 import ModeloPrincipios from '../components/modelo/ModeloPrincipios'
-import ModeloProceso from '../components/modelo/ModeloProceso'
 import ModeloCTA from '../components/modelo/ModeloCTA'
 
 export default function CreditModel() {
@@ -31,7 +30,6 @@ export default function CreditModel() {
       <ModeloProtagonistas />
       <ModeloFuerzas />
       <ModeloPrincipios />
-      <ModeloProceso />
       <ModeloCTA />
     </PageTransition>
   )

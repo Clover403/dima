@@ -200,7 +200,7 @@ export default function UltimateHorizontalProcess() {
         ))}
 
         {/* ── FINAL SLIDE ── */}
-        <section className="w-[100vw] h-full flex items-center justify-center bg-[#FAFAFA] relative z-20">
+        <section className="w-[100vw] h-full flex items-center justify-center bg-lightgray relative z-20">
           <div className="text-center px-10">
             <span className="text-bronze font-body text-sm tracking-[0.8em] uppercase font-black mb-8 block">Conclusion</span>
             <h2 className="font-display text-[7vw] md:text-[8vw] text-navy mb-16 leading-none tracking-tighter">

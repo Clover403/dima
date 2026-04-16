@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 const footerLinks = [
   { to: '/', label: 'Inicio' },
   { to: '/modelo-crediticio', label: 'Modelo Crediticio' },
+  { to: '/proceso', label: 'Proceso' },
   { to: '/productos', label: 'Productos' },
   { to: '/servicios', label: 'Servicios' },
   { to: '/nosotros', label: 'Nosotros' },
