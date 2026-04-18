@@ -54,10 +54,10 @@ export default function AboutCTASection() {
 
         {/* Main heading */}
         <div className="flex flex-col gap-1">
-          <h2 className="font-serif text-[clamp(3rem,7vw,6.5rem)] text-[#F4F4F5] font-light leading-[1.0] tracking-tight">
+          <h2 className="font-display text-[clamp(3rem,7vw,6.5rem)] text-[#F4F4F5] font-light leading-[1.0] tracking-tight">
             Hablemos de
           </h2>
-          <h2 className="font-serif italic text-[clamp(3rem,7vw,6.5rem)] text-[#E5997B] font-light leading-[1.0] tracking-tight">
+          <h2 className="font-display italic text-[clamp(3rem,7vw,6.5rem)] text-[#E5997B] font-light leading-[1.0] tracking-tight">
             su empresa.
           </h2>
         </div>

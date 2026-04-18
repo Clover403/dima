@@ -14,25 +14,17 @@ export default function ModeloHero() {
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
 
-      /* Pin hero for extra scroll distance */
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top top',
-        end: '+=50%',
-        pin: true,
-        pinSpacing: true,
-      })
-
       /* Fade-out content as user scrolls past */
       gsap.to(el.querySelector('.hero-inner'), {
         y: -60,
         opacity: 0,
-        ease: 'power2.inOut',
+        ease: 'none',
         scrollTrigger: {
           trigger: el,
-          start: 'top top',
-          end: '+=50%',
+          start: '40% top',
+          end: '80% top',
           scrub: 1,
+          invalidateOnRefresh: true,
         },
       })
 
@@ -43,8 +35,9 @@ export default function ModeloHero() {
         scrollTrigger: {
           trigger: el,
           start: 'top top',
-          end: '+=50%',
+          end: 'bottom top',
           scrub: 2,
+          invalidateOnRefresh: true,
         },
       })
     }, sectionRef)
@@ -78,7 +71,6 @@ export default function ModeloHero() {
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: 'url(/foto/illust-growth.jpg)',
-          backgroundAttachment: 'fixed',
           backgroundPosition: 'center',
         }}
       >

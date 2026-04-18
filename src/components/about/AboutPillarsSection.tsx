@@ -123,7 +123,7 @@ export default function AboutPillarsSection({ pillarsRef }: Props) {
       />
 
       {/* Fixed Header Label */}
-      <div className="absolute top-20 left-12 z-50">
+      <div className="absolute top-28 left-12 z-50">
         <div className="flex items-center gap-4 text-[#E5997B]">
           <div className="w-12 h-px bg-current" />
           <span className="font-mono text-[10px] tracking-[0.8em] uppercase font-bold">Protocol Pillars</span>
@@ -140,7 +140,7 @@ export default function AboutPillarsSection({ pillarsRef }: Props) {
               Phase {pillar.index}
             </span>
             
-            <h2 className="font-serif text-[clamp(2rem,6vw,4.5rem)] text-white font-light leading-none tracking-tighter mb-8">
+            <h2 className="font-display text-[clamp(2rem,6vw,4.5rem)] text-white font-light leading-none tracking-tighter mb-8">
               {pillar.title.split(' ').map((word, idx) => (
                 <span key={idx} className={idx % 2 !== 0 ? 'italic text-[#E5997B]' : ''}>
                   {word}{' '}

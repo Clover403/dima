@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
@@ -6,255 +6,939 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const THEME = {
-  navy: '#0f172a',
-  bronze: '#E5997B',
-  lightGray: '#F1F5F9',
-}
-
 interface Product {
   number: string; label: string; tagline: string; heading: string;
   description: string[]; features: string[]; image: string; ctaLink: string;
 }
-
 interface Props { products: Product[] }
 
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 01 — Crédito Simple
+//  Amortización: barras de deuda que disminuyen con el tiempo
+//  + línea de interés que cae = capital pagado visualmente
+// ─────────────────────────────────────────────────────────────
+function IllusSimple({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+  const BARS = 12
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.012
+
+    const padL = W * 0.1, padR = W * 0.08
+    const padT = H * 0.12, padB = H * 0.18
+    const chartW = W - padL - padR
+    const chartH = H - padT - padB
+    const barW   = chartW / BARS * 0.6
+    const gap    = chartW / BARS
+
+    // Axis lines
+    ctx.strokeStyle = 'rgba(244,244,245,0.12)'
+    ctx.lineWidth = 0.8
+    ctx.beginPath()
+    ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH)
+    ctx.lineTo(padL + chartW, padT + chartH)
+    ctx.stroke()
+
+    // Horizontal grid
+    for (let i = 1; i <= 4; i++) {
+      const y = padT + chartH - (chartH / 4) * i
+      ctx.beginPath()
+      ctx.strokeStyle = 'rgba(244,244,245,0.05)'
+      ctx.setLineDash([3, 6])
+      ctx.moveTo(padL, y); ctx.lineTo(padL + chartW, y)
+      ctx.stroke()
+      ctx.setLineDash([])
+    }
+
+    // Bars (capital + interés)
+    for (let i = 0; i < BARS; i++) {
+      const ratio     = i / (BARS - 1)   // 0=inicio, 1=fin
+      const animate   = (Math.sin(t - i * 0.3) * 0.04)
+      const totalH    = chartH * (1 - ratio * 0.85 + animate) // decreasing
+      const interestH = chartH * (1 - ratio) * 0.35           // interest portion
+      const capitalH  = totalH - interestH
+
+      const x = padL + gap * i + (gap - barW) / 2
+      const y = padT + chartH
+
+      // Capital bar (bronze)
+      const alpha = 0.35 + (1 - ratio) * 0.45
+      ctx.fillStyle = `rgba(229,153,123,${alpha})`
+      ctx.fillRect(x, y - totalH, barW, capitalH)
+
+      // Interest bar (lighter, on top)
+      ctx.fillStyle = `rgba(244,244,245,${0.08 + (1 - ratio) * 0.12})`
+      ctx.fillRect(x, y - totalH, barW, -interestH)
+
+      // Current period marker
+      const progress = ((t * 0.3) % 1) * BARS
+      if (Math.abs(i - progress) < 0.8) {
+        ctx.strokeStyle = '#E5997B'
+        ctx.lineWidth = 1.5
+        ctx.strokeRect(x - 1, y - totalH - 1, barW + 2, totalH + 2)
+      }
+    }
+
+    // Smooth amortization curve overlay
+    ctx.beginPath()
+    ctx.strokeStyle = 'rgba(229,153,123,0.55)'
+    ctx.lineWidth = 1.5
+    for (let x = 0; x <= chartW; x += 2) {
+      const r = x / chartW
+      const y = padT + chartH - chartH * (1 - r * 0.85) + Math.sin(t + r * 8) * 2
+      x === 0 ? ctx.moveTo(padL + x, y) : ctx.lineTo(padL + x, y)
+    }
+    ctx.stroke()
+
+    // Labels
+    ctx.fillStyle = 'rgba(244,244,245,0.25)'
+    ctx.font = `${W * 0.028}px monospace`
+    ctx.textAlign = 'left'
+    ctx.fillText('Capital', padL, padT - 8)
+    ctx.fillStyle = 'rgba(229,153,123,0.5)'
+    ctx.textAlign = 'right'
+    ctx.fillText('Amortización', W - padR, padT - 8)
+
+    // Month ticks
+    ctx.fillStyle = 'rgba(244,244,245,0.2)'
+    ctx.font = `${W * 0.022}px monospace`
+    ctx.textAlign = 'center'
+    ;['01','03','06','09','12'].forEach((m, i) => {
+      ctx.fillText(m, padL + gap * i * 2.4, padT + chartH + 18)
+    })
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 02 — Crédito Puente
+//  Dos columnas: PROYECTO (costos) y INGRESOS
+//  Un puente animado que conecta el gap de financiamiento
+// ─────────────────────────────────────────────────────────────
+function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.008
+
+    const midY   = H * 0.55
+    const left   = W * 0.12
+    const right  = W * 0.88
+    const gapL   = W * 0.38
+    const gapR   = W * 0.62
+
+    // Ground lines
+    ctx.strokeStyle = 'rgba(244,244,245,0.15)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(left, midY); ctx.lineTo(gapL, midY)
+    ctx.moveTo(gapR, midY); ctx.lineTo(right, midY)
+    ctx.stroke()
+
+    // Left block — PROYECTO (costs stacking up)
+    const stackH = H * 0.28
+    for (let i = 0; i < 4; i++) {
+      const bH = stackH / 4
+      const bY = midY - bH * (i + 1)
+      const alpha = 0.2 + i * 0.12
+      ctx.fillStyle = `rgba(229,153,123,${alpha})`
+      ctx.fillRect(left, bY, W * 0.18, bH - 2)
+      ctx.strokeStyle = 'rgba(229,153,123,0.3)'
+      ctx.lineWidth = 0.5
+      ctx.strokeRect(left, bY, W * 0.18, bH - 2)
+    }
+    ctx.fillStyle = 'rgba(229,153,123,0.6)'
+    ctx.font = `bold ${W * 0.026}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('COSTOS', left + W * 0.09, midY + 20)
+
+    // Right block — INGRESOS (expected revenue)
+    const revH = H * 0.38
+    const pulse = Math.sin(t * 2) * 0.03
+    ctx.fillStyle = `rgba(244,244,245,${0.06 + pulse})`
+    ctx.fillRect(gapR, midY - revH, W * 0.18, revH)
+    ctx.strokeStyle = 'rgba(244,244,245,0.2)'
+    ctx.lineWidth = 1
+    ctx.strokeRect(gapR, midY - revH, W * 0.18, revH)
+    // Dashed future lines
+    for (let i = 1; i < 4; i++) {
+      ctx.beginPath()
+      ctx.setLineDash([2, 4])
+      ctx.strokeStyle = 'rgba(244,244,245,0.1)'
+      ctx.moveTo(gapR, midY - (revH / 4) * i)
+      ctx.lineTo(gapR + W * 0.18, midY - (revH / 4) * i)
+      ctx.stroke()
+      ctx.setLineDash([])
+    }
+    ctx.fillStyle = 'rgba(244,244,245,0.4)'
+    ctx.font = `bold ${W * 0.026}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('INGRESOS', gapR + W * 0.09, midY + 20)
+
+    // Bridge arch — animated build progress
+    const progress = (Math.sin(t * 0.5) * 0.5 + 0.5) * 0.9 + 0.1
+    const archMidX = (gapL + gapR) / 2
+    const archH    = H * 0.22
+
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(gapL, 0, (gapR - gapL) * progress, H)
+    ctx.clip()
+
+    ctx.beginPath()
+    ctx.moveTo(gapL, midY)
+    ctx.bezierCurveTo(gapL, midY - archH, gapR, midY - archH, gapR, midY)
+    ctx.strokeStyle = '#E5997B'
+    ctx.lineWidth = 2
+    ctx.stroke()
+
+    // Bridge deck
+    ctx.beginPath()
+    ctx.moveTo(gapL, midY - archH * 0.45)
+    ctx.lineTo(gapR, midY - archH * 0.45)
+    ctx.strokeStyle = 'rgba(229,153,123,0.7)'
+    ctx.lineWidth = 1.5
+    ctx.stroke()
+
+    // Cables
+    for (let i = 0; i <= 5; i++) {
+      const x = gapL + (gapR - gapL) * (i / 5)
+      const archY = midY - archH * (1 - 4 * Math.pow(i/5 - 0.5, 2))
+      ctx.beginPath()
+      ctx.moveTo(x, archY)
+      ctx.lineTo(x, midY - archH * 0.45)
+      ctx.strokeStyle = 'rgba(229,153,123,0.35)'
+      ctx.lineWidth = 0.7
+      ctx.stroke()
+    }
+    ctx.restore()
+
+    // GAP label
+    ctx.fillStyle = 'rgba(229,153,123,0.45)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('BRECHA DE', archMidX, midY - archH * 0.85)
+    ctx.fillText('FINANCIAMIENTO', archMidX, midY - archH * 0.7)
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 03 — Cuenta Corriente
+//  Ciclo revolvente: dispones → pagas → vuelves a disponer
+//  Tanque de liquidez que sube y baja + flecha circular
+// ─────────────────────────────────────────────────────────────
+function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.015
+
+    const cx   = W / 2
+    const cy   = H * 0.48
+    const tankW = W * 0.28
+    const tankH = H * 0.55
+    const tankX = cx - tankW / 2
+    const tankY = cy - tankH / 2
+
+    // Liquid level oscillates
+    const level = 0.3 + Math.sin(t * 0.6) * 0.28   // 0.02 → 0.58
+    const liqY  = tankY + tankH * (1 - level)
+
+    // Tank border
+    ctx.strokeStyle = 'rgba(229,153,123,0.5)'
+    ctx.lineWidth = 1.5
+    ctx.strokeRect(tankX, tankY, tankW, tankH)
+
+    // Liquid fill with wave
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(tankX + 1, tankY + 1, tankW - 2, tankH - 2)
+    ctx.clip()
+
+    ctx.beginPath()
+    const waveAmp = 6
+    ctx.moveTo(tankX, liqY + waveAmp)
+    for (let x = tankX; x <= tankX + tankW; x += 2) {
+      const y = liqY + Math.sin((x - tankX) / tankW * Math.PI * 3 + t * 3) * waveAmp
+      ctx.lineTo(x, y)
+    }
+    ctx.lineTo(tankX + tankW, tankY + tankH)
+    ctx.lineTo(tankX, tankY + tankH)
+    ctx.closePath()
+    const grad = ctx.createLinearGradient(0, liqY, 0, tankY + tankH)
+    grad.addColorStop(0, 'rgba(229,153,123,0.55)')
+    grad.addColorStop(1, 'rgba(229,153,123,0.15)')
+    ctx.fillStyle = grad
+    ctx.fill()
+    ctx.restore()
+
+    // Level percentage
+    ctx.fillStyle = 'rgba(229,153,123,0.9)'
+    ctx.font = `bold ${W * 0.055}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText(Math.round(level * 100) + '%', cx, cy + W * 0.025)
+
+    ctx.fillStyle = 'rgba(244,244,245,0.3)'
+    ctx.font = `${W * 0.026}px monospace`
+    ctx.fillText('LIQUIDEZ', cx, cy + W * 0.065)
+
+    // Tick marks on tank
+    for (let i = 1; i < 5; i++) {
+      const ty = tankY + tankH * (i / 5)
+      ctx.beginPath()
+      ctx.strokeStyle = 'rgba(244,244,245,0.12)'
+      ctx.lineWidth = 0.5
+      ctx.moveTo(tankX + tankW, ty); ctx.lineTo(tankX + tankW + 8, ty)
+      ctx.stroke()
+      ctx.fillStyle = 'rgba(244,244,245,0.18)'
+      ctx.font = `${W * 0.022}px monospace`
+      ctx.textAlign = 'left'
+      ctx.fillText(String((5 - i) * 20) + '%', tankX + tankW + 12, ty + 4)
+    }
+
+    // Left arrow — DISPONER (flow out)
+    const arrowAlpha = level > 0.3 ? 0.8 : 0.2
+    ctx.strokeStyle = `rgba(229,153,123,${arrowAlpha})`
+    ctx.lineWidth = 1.5
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.moveTo(tankX - 8, cy)
+    ctx.lineTo(tankX - W * 0.18, cy)
+    ctx.stroke()
+    ctx.setLineDash([])
+    // Arrowhead
+    ctx.beginPath()
+    ctx.moveTo(tankX - W * 0.18, cy - 5)
+    ctx.lineTo(tankX - W * 0.18 - 10, cy)
+    ctx.lineTo(tankX - W * 0.18, cy + 5)
+    ctx.fillStyle = `rgba(229,153,123,${arrowAlpha})`
+    ctx.fill()
+    ctx.fillStyle = 'rgba(229,153,123,0.5)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('DISPONES', tankX - W * 0.12, cy - 14)
+
+    // Right arrow — REPONES (flow in)
+    const repoAlpha = level < 0.7 ? 0.8 : 0.2
+    ctx.strokeStyle = `rgba(244,244,245,${repoAlpha * 0.6})`
+    ctx.lineWidth = 1.5
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.moveTo(tankX + tankW + 8, cy)
+    ctx.lineTo(tankX + tankW + W * 0.18, cy)
+    ctx.stroke()
+    ctx.setLineDash([])
+    ctx.beginPath()
+    ctx.moveTo(tankX + tankW + 8, cy - 5)
+    ctx.lineTo(tankX + tankW + 8 + 10, cy)
+    ctx.lineTo(tankX + tankW + 8, cy + 5)
+    ctx.fillStyle = `rgba(244,244,245,${repoAlpha * 0.4})`
+    ctx.fill()
+    ctx.fillStyle = 'rgba(244,244,245,0.3)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('REPONES', tankX + tankW + W * 0.12, cy - 14)
+
+    // Bottom label
+    ctx.fillStyle = 'rgba(229,153,123,0.4)'
+    ctx.font = `${W * 0.026}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('LÍNEA REVOLVENTE ACTIVA', cx, tankY + tankH + 28)
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 04 — Crédito Agroindustrial
+//  Ciclo agrícola: siembra → crecimiento → cosecha → pago
+//  Plantas que crecen + timeline de pagos adaptados
+// ─────────────────────────────────────────────────────────────
+function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.01
+
+    const ground = H * 0.70
+    const PLANTS = 5
+
+    // Ground line
+    ctx.strokeStyle = 'rgba(229,153,123,0.25)'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    ctx.moveTo(W * 0.05, ground); ctx.lineTo(W * 0.95, ground)
+    ctx.stroke()
+
+    // Sun / season indicator
+    const season = (t * 0.08) % 1   // 0=siembra 0.25=crecimiento 0.5=cosecha 0.75=reposo
+    const sunX   = W * 0.1 + W * 0.8 * season
+    const sunY   = H * 0.12
+    const sunR   = W * 0.04
+    const sunAlpha = 0.3 + Math.sin(t * 2) * 0.1
+
+    ctx.beginPath()
+    ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2)
+    ctx.fillStyle = `rgba(229,153,123,${sunAlpha})`
+    ctx.fill()
+    ctx.strokeStyle = `rgba(229,153,123,${sunAlpha * 0.5})`
+    ctx.lineWidth = 0.8
+    // Sun rays
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2
+      ctx.beginPath()
+      ctx.moveTo(sunX + Math.cos(a) * sunR * 1.3, sunY + Math.sin(a) * sunR * 1.3)
+      ctx.lineTo(sunX + Math.cos(a) * sunR * 1.8, sunY + Math.sin(a) * sunR * 1.8)
+      ctx.stroke()
+    }
+
+    // Season label
+    const seasons = ['SIEMBRA', 'CRECIMIENTO', 'COSECHA', 'REPOSO']
+    const sIdx    = Math.floor(season * 4)
+    ctx.fillStyle = 'rgba(229,153,123,0.6)'
+    ctx.font = `bold ${W * 0.028}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText(seasons[sIdx], W / 2, H * 0.06)
+
+    // Plants
+    for (let i = 0; i < PLANTS; i++) {
+      const px      = W * 0.15 + (W * 0.70 / (PLANTS - 1)) * i
+      const growthOffset = (i / PLANTS) * 0.3
+      const plantSeason = ((season + growthOffset) % 1)
+      const height  = Math.min(1, plantSeason * 2.5) * H * 0.30
+
+      if (height < 2) continue
+
+      // Stem
+      ctx.strokeStyle = `rgba(229,153,123,0.45)`
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(px, ground)
+      ctx.bezierCurveTo(px, ground - height * 0.5, px + Math.sin(t + i) * 8, ground - height, px, ground - height)
+      ctx.stroke()
+
+      // Leaves
+      if (height > H * 0.08) {
+        for (let l = 0; l < 2; l++) {
+          const leafY = ground - height * (0.4 + l * 0.3)
+          const leafDir = l % 2 === 0 ? 1 : -1
+          ctx.beginPath()
+          ctx.ellipse(px + leafDir * W * 0.025, leafY, W * 0.025, H * 0.02, leafDir * 0.5, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(229,153,123,0.2)`
+          ctx.fill()
+        }
+      }
+
+      // Harvest grain (circles at top when tall enough)
+      if (plantSeason > 0.5 && height > H * 0.15) {
+        ctx.beginPath()
+        ctx.arc(px, ground - height - 6, 5, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(229,153,123,0.7)'
+        ctx.fill()
+      }
+    }
+
+    // Payment timeline at bottom
+    const timeY = H * 0.88
+    ctx.strokeStyle = 'rgba(244,244,245,0.1)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(W * 0.05, timeY); ctx.lineTo(W * 0.95, timeY)
+    ctx.stroke()
+
+    const milestones = [
+      { x: 0.1,  label: 'PRÉSTAMO', bronze: true },
+      { x: 0.38, label: 'INICIO',   bronze: false },
+      { x: 0.65, label: 'COSECHA',  bronze: true },
+      { x: 0.9,  label: 'PAGO',     bronze: true },
+    ]
+    milestones.forEach(m => {
+      const mx = W * m.x
+      const active = season >= m.x - 0.05 && season <= m.x + 0.2
+      ctx.beginPath()
+      ctx.arc(mx, timeY, active ? 5 : 3, 0, Math.PI * 2)
+      ctx.fillStyle = m.bronze ? `rgba(229,153,123,${active ? 0.9 : 0.4})` : `rgba(244,244,245,${active ? 0.6 : 0.2})`
+      ctx.fill()
+      ctx.fillStyle = m.bronze ? 'rgba(229,153,123,0.55)' : 'rgba(244,244,245,0.25)'
+      ctx.font = `${W * 0.022}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText(m.label, mx, timeY + 16)
+    })
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 05 — Factoring
+//  Factura → anticipo inmediato
+//  Facturas entrando, institución las cobra, tú recibes $$
+// ─────────────────────────────────────────────────────────────
+function IllusFactoring({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.01
+
+    const cy  = H * 0.48
+    const instX = W * 0.5   // Institution center
+    const instW = W * 0.22
+    const instH = H * 0.28
+
+    // Moving invoices (left → institution)
+    for (let i = 0; i < 3; i++) {
+      const progress = ((t * 0.18 + i / 3) % 1)
+      if (progress > 0.5) continue   // only left half
+
+      const x    = W * 0.06 + progress * (instX - instW / 2 - W * 0.06)
+      const y    = cy - H * 0.12 + i * H * 0.12
+      const alpha = Math.sin(progress * Math.PI) * 0.7
+
+      // Invoice doc
+      ctx.fillStyle = `rgba(244,244,245,${alpha * 0.08})`
+      ctx.strokeStyle = `rgba(244,244,245,${alpha * 0.3})`
+      ctx.lineWidth = 0.8
+      ctx.fillRect(x, y, W * 0.1, H * 0.09)
+      ctx.strokeRect(x, y, W * 0.1, H * 0.09)
+      // Lines inside
+      for (let l = 0; l < 3; l++) {
+        ctx.fillStyle = `rgba(244,244,245,${alpha * 0.2})`
+        ctx.fillRect(x + 4, y + 8 + l * 9, W * 0.06, 2)
+      }
+      ctx.fillStyle = `rgba(244,244,245,${alpha * 0.5})`
+      ctx.font = `${W * 0.022}px monospace`
+      ctx.textAlign = 'left'
+      ctx.fillText('$', x + W * 0.065, y + H * 0.055)
+    }
+
+    // Institution box
+    ctx.strokeStyle = 'rgba(229,153,123,0.7)'
+    ctx.lineWidth = 1.5
+    ctx.strokeRect(instX - instW / 2, cy - instH / 2, instW, instH)
+    ctx.fillStyle = 'rgba(229,153,123,0.06)'
+    ctx.fillRect(instX - instW / 2, cy - instH / 2, instW, instH)
+
+    // Institution label
+    ctx.fillStyle = 'rgba(229,153,123,0.8)'
+    ctx.font = `bold ${W * 0.026}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('DIMA', instX, cy - 4)
+    ctx.fillStyle = 'rgba(229,153,123,0.45)'
+    ctx.font = `${W * 0.022}px monospace`
+    ctx.fillText('FINANCE', instX, cy + 12)
+
+    // Pulse ring
+    const ring = (t * 0.8) % 1
+    ctx.beginPath()
+    ctx.arc(instX, cy, (instW / 2) * (1 + ring * 0.8), 0, Math.PI * 2)
+    ctx.strokeStyle = `rgba(229,153,123,${(1 - ring) * 0.2})`
+    ctx.lineWidth = 1
+    ctx.stroke()
+
+    // Moving cash (institution → right/client)
+    for (let i = 0; i < 3; i++) {
+      const progress = ((t * 0.18 + i / 3) % 1)
+      if (progress < 0.5) continue
+
+      const p2   = (progress - 0.5) * 2
+      const x    = instX + instW / 2 + p2 * (W * 0.88 - instX - instW / 2)
+      const y    = cy - H * 0.08 + i * H * 0.08
+      const alpha = Math.sin(p2 * Math.PI) * 0.8
+
+      ctx.beginPath()
+      ctx.arc(x, y, 10, 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(229,153,123,${alpha * 0.7})`
+      ctx.fill()
+      ctx.fillStyle = `rgba(3,0,53,${alpha * 0.9})`
+      ctx.font = `bold ${W * 0.028}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText('$', x, y + 4)
+    }
+
+    // Time saving label
+    const elapsed = Math.floor((t * 8) % 90)
+    ctx.fillStyle = 'rgba(229,153,123,0.45)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText(`ANTICIPO EN < 48 HRS`, W / 2, H * 0.88)
+
+    // Labels
+    ctx.fillStyle = 'rgba(244,244,245,0.25)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('TUS FACTURAS', W * 0.18, cy + H * 0.22)
+    ctx.fillText('TU EMPRESA', W * 0.82, cy + H * 0.22)
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  ILUSTRASI 06 — Arrendamiento Financiero
+//  Barra de propiedad que va de 0% → 100%
+//  Pagos periódicos → activo se vuelve tuyo
+// ─────────────────────────────────────────────────────────────
+function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
+  let raf = 0, t = 0
+
+  function draw() {
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    ctx.clearRect(0, 0, W, H)
+    t += 0.008
+
+    const cx    = W / 2
+    const barY  = H * 0.52
+    const barW  = W * 0.78
+    const barH  = H * 0.06
+    const barX  = cx - barW / 2
+
+    // Ownership progress (0→100% cycling)
+    const ownership = (Math.sin(t * 0.35) * 0.5 + 0.5)
+    const pct = Math.round(ownership * 100)
+
+    // Asset icon (machine/building) — simple schematic
+    const assetX = barX - W * 0.08
+    const assetY = barY - H * 0.22
+    const assetW = W * 0.14
+    const assetH = H * 0.18
+    // Body
+    ctx.strokeStyle = `rgba(229,153,123,${0.3 + ownership * 0.4})`
+    ctx.lineWidth = 1.2
+    ctx.fillStyle = `rgba(229,153,123,${0.03 + ownership * 0.08})`
+    ctx.fillRect(assetX, assetY, assetW, assetH)
+    ctx.strokeRect(assetX, assetY, assetW, assetH)
+    // Windows
+    ctx.fillStyle = `rgba(229,153,123,${0.2 + ownership * 0.4})`
+    ctx.fillRect(assetX + 8, assetY + 8, assetW * 0.3, assetH * 0.3)
+    ctx.fillRect(assetX + assetW * 0.55, assetY + 8, assetW * 0.3, assetH * 0.3)
+    // Wheels
+    ;[0.2, 0.8].forEach(r => {
+      ctx.beginPath()
+      ctx.arc(assetX + assetW * r, assetY + assetH + 5, 7, 0, Math.PI * 2)
+      ctx.strokeStyle = `rgba(229,153,123,${0.4 + ownership * 0.3})`
+      ctx.stroke()
+    })
+
+    // % owned label
+    ctx.fillStyle = `rgba(229,153,123,${0.5 + ownership * 0.4})`
+    ctx.font = `bold ${W * 0.028}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText(`${pct}%`, assetX + assetW / 2, assetY - 10)
+    ctx.fillStyle = 'rgba(244,244,245,0.25)'
+    ctx.font = `${W * 0.022}px monospace`
+    ctx.fillText('TUYO', assetX + assetW / 2, assetY - 26)
+
+    // Progress bar background
+    ctx.fillStyle = 'rgba(244,244,245,0.06)'
+    ctx.fillRect(barX, barY, barW, barH)
+    ctx.strokeStyle = 'rgba(244,244,245,0.1)'
+    ctx.lineWidth = 0.8
+    ctx.strokeRect(barX, barY, barW, barH)
+
+    // Progress fill with gradient
+    const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0)
+    grad.addColorStop(0, 'rgba(229,153,123,0.7)')
+    grad.addColorStop(1, 'rgba(229,153,123,0.3)')
+    ctx.fillStyle = grad
+    ctx.fillRect(barX, barY, barW * ownership, barH)
+
+    // Milestone ticks
+    const PERIODS = 6
+    for (let i = 1; i <= PERIODS; i++) {
+      const tx = barX + barW * (i / PERIODS)
+      const paid = (i / PERIODS) <= ownership
+      ctx.beginPath()
+      ctx.moveTo(tx, barY - 4); ctx.lineTo(tx, barY + barH + 4)
+      ctx.strokeStyle = paid ? 'rgba(229,153,123,0.6)' : 'rgba(244,244,245,0.12)'
+      ctx.lineWidth = paid ? 1.2 : 0.5
+      ctx.stroke()
+      ctx.fillStyle = paid ? 'rgba(229,153,123,0.55)' : 'rgba(244,244,245,0.18)'
+      ctx.font = `${W * 0.022}px monospace`
+      ctx.textAlign = 'center'
+      ctx.fillText(`P${i}`, tx, barY + barH + 18)
+    }
+
+    // Residual value marker
+    const resX = barX + barW * 0.92
+    ctx.beginPath()
+    ctx.moveTo(resX, barY - 12); ctx.lineTo(resX, barY)
+    ctx.strokeStyle = 'rgba(229,153,123,0.5)'
+    ctx.lineWidth = 1
+    ctx.stroke()
+    ctx.fillStyle = 'rgba(229,153,123,0.45)'
+    ctx.font = `${W * 0.022}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('VALOR', resX, barY - 22)
+    ctx.fillText('RESIDUAL', resX, barY - 10)
+
+    // Left label ARRENDATARIO / Right PROPIETARIO
+    ctx.fillStyle = 'rgba(244,244,245,0.25)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'left'
+    ctx.fillText('INICIO', barX, barY + barH + 34)
+    ctx.textAlign = 'right'
+    ctx.fillStyle = 'rgba(229,153,123,0.5)'
+    ctx.fillText('PROPIETARIO', barX + barW, barY + barH + 34)
+
+    // Bottom description
+    ctx.fillStyle = 'rgba(229,153,123,0.35)'
+    ctx.font = `${W * 0.024}px monospace`
+    ctx.textAlign = 'center'
+    ctx.fillText('PAGOS PERIÓDICOS → TRANSFERENCIA DE PROPIEDAD', cx, H * 0.92)
+
+    raf = requestAnimationFrame(draw)
+  }
+  draw()
+  return () => cancelAnimationFrame(raf)
+}
+
+// ── Canvas wrapper component ──────────────────────────────────
+const ILLUSTRATORS = [
+  IllusSimple, IllusBridge, IllusCorriente,
+  IllusAgro,   IllusFactoring, IllusLeasing,
+]
+
+function ProductIllustration({ active }: { active: number }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const fn = ILLUSTRATORS[active] ?? ILLUSTRATORS[0]
+
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth
+      canvas.height = canvas.offsetHeight
+    }
+    resize()
+    const ro = new ResizeObserver(resize)
+    ro.observe(canvas)
+
+    const cleanup = fn({ canvas })
+    return () => { cleanup?.(); ro.disconnect() }
+  }, [active])
+
+  return (
+    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none"/>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────
 export default function ProductosShowcase({ products }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [activeProduct, setActiveProduct] = useState(0)
-  
-  // Fungsi untuk handle klik navigasi agar scroll menuju posisi yang tepat
+  const [active, setActive] = useState(0)
+  const [prev,   setPrev]   = useState(0)
+  const dir = active >= prev ? 1 : -1
+
   const scrollToProduct = (index: number) => {
-    if (!sectionRef.current) return
     const st = ScrollTrigger.getById('productScroll')
-    if (st) {
-      const totalScroll = st.end - st.start
-      const targetScroll = st.start + (index / (products.length - 1)) * totalScroll
-      window.scrollTo({
-        top: targetScroll,
-        behavior: 'smooth'
-      })
-    }
+    if (!st) return
+    const target = st.start + (index / Math.max(products.length - 1, 1)) * (st.end - st.start)
+    window.scrollTo({ top: target, behavior: 'smooth' })
   }
 
   useEffect(() => {
     if (!sectionRef.current) return
     const ctx = gsap.context(() => {
-      const el = sectionRef.current!
-      
-      // 1. KINETIC TEXT (Sama seperti Principles Section)
-      gsap.to(".marquee-part", {
-        xPercent: -100,
-        repeat: -1,
-        duration: 50,
-        ease: "none",
-      })
-
-      // 2. MAIN SCROLL TRIGGER
       ScrollTrigger.create({
         id: 'productScroll',
-        trigger: el,
+        trigger: sectionRef.current,
         start: 'top top',
         end: `+=${products.length * 150}%`,
-        pin: true,
-        scrub: 1,
+        pin: true, scrub: 1,
         onUpdate: (self) => {
-          const idx = Math.min(
-            Math.floor(self.progress * products.length), 
-            products.length - 1
-          )
-          setActiveProduct(idx)
+          const idx = Math.min(Math.floor(self.progress * products.length), products.length - 1)
+          setActive(cur => { if (cur !== idx) setPrev(cur); return idx })
         },
-      })
-
-      // 3. MOVING GRID
-      gsap.to(".bg-grid", {
-        backgroundPosition: "0 120px",
-        scrollTrigger: {
-          trigger: el,
-          scrub: true
-        }
       })
     }, sectionRef)
     return () => ctx.revert()
   }, [products.length])
 
+  const p = products[active]
+
   return (
-    <div ref={sectionRef} className="relative h-screen bg-[#F1F5F9] overflow-hidden">
-      
-      {/* --- BACKGROUND LAYERS (Jiwa dari Section Principles) --- */}
-      <div 
-        className="bg-grid absolute inset-0 opacity-[0.12]" 
-        style={{ 
-          backgroundImage: `linear-gradient(to right, #0f172a 1px, transparent 1px), linear-gradient(to bottom, #0f172a 1px, transparent 1px)`,
-          backgroundSize: '80px 80px' 
-        }}
-      />
+    <div ref={sectionRef} className="relative h-screen overflow-hidden bg-[#030035]">
 
-      <div className="absolute top-[10%] left-0 flex whitespace-nowrap opacity-[0.03] select-none pointer-events-none">
-        {[...Array(4)].map((_, i) => (
-          <span key={i} className="marquee-part font-display text-[18vw] leading-none uppercase pr-20 text-navy">
-            Dima Solutions • Strategic Products • Engineering •
-          </span>
-        ))}
-      </div>
-
-      {/* --- SIDE COUNTER (Sync dengan activeProduct) --- */}
-      <div className="hidden lg:flex absolute left-12 bottom-12 z-30 items-center gap-6">
-        <div className="overflow-hidden h-[120px] w-[180px]">
-          <motion.div 
-            animate={{ y: -activeProduct * 120 }}
-            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-            className="flex flex-col"
-          >
-            {products.map((p, i) => (
-              <span key={i} className="block font-display text-9xl text-bronze/30 leading-[120px]">
-                {p.number}
-              </span>
-            ))}
+      {/* ── Illustration canvas — right half background ─────── */}
+      <div className="absolute right-0 top-0 w-[48%] h-full">
+        <AnimatePresence mode="wait">
+          <motion.div key={`illus-${active}`} className="absolute inset-0"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}>
+            <ProductIllustration active={active} />
           </motion.div>
-        </div>
-        <p className="text-navy/40 font-body text-[10px] tracking-[0.5em] uppercase [writing-mode:vertical-lr]">
-          Soluciones 2026
-        </p>
+        </AnimatePresence>
+        {/* Fade left edge so it blends with content */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'linear-gradient(90deg, #030035 0%, rgba(3,0,53,0.4) 35%, transparent 70%)',
+        }}/>
       </div>
 
-      {/* --- MAIN CONTENT AREA --- */}
-      <div className="relative z-10 h-full flex flex-col lg:flex-row">
-        
-        {/* LEFT: NAVIGATOR (Lebih "Niat", Bersih, Interaktif) */}
-        <div className="lg:w-[40%] h-full flex flex-col justify-center px-12 xl:px-24">
-          <div className="mb-12">
-            <p className="text-bronze text-[10px] tracking-[0.6em] uppercase mb-4">Portfolio</p>
-            <h2 className="text-5xl font-display text-navy leading-none">
-              PRODUCTOS<br/><span className="italic">ESTRATÉGICOS</span>
-            </h2>
-          </div>
 
-          <div className="flex flex-col gap-4">
-            {products.map((product, i) => (
-              <button
-                key={product.number}
-                onClick={() => scrollToProduct(i)}
-                className="group relative flex items-center gap-6 text-left py-2 outline-none"
-              >
-                <span className={`font-display text-xl transition-colors duration-500 ${
-                  activeProduct === i ? 'text-bronze' : 'text-navy/20 group-hover:text-navy/40'
-                }`}>
-                  {product.number}
-                </span>
-                
-                <span className={`text-2xl xl:text-3xl font-display transition-all duration-500 ${
-                  activeProduct === i ? 'text-navy translate-x-2' : 'text-navy/40 group-hover:text-navy/60'
-                }`}>
-                  {product.label}
-                </span>
 
-                {activeProduct === i && (
-                  <motion.div 
-                    layoutId="activeBar"
-                    className="absolute -left-6 w-1 h-8 bg-bronze rounded-full"
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+      {/* ── Photo bg ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        <motion.div key={`bg-${active}`} className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 1.8 }}>
+          <img src={p.image} className="w-full h-full object-cover"
+            style={{ opacity: 0.22 }} alt=""/>
+          <div className="absolute inset-0" style={{
+            background: 'linear-gradient(90deg, rgba(3,0,53,0.88) 35%, rgba(3,0,53,0.35) 100%)',
+          }}/>
+        </motion.div>
+      </AnimatePresence>
 
-          <div className="mt-16 flex items-center gap-4">
-             <div className="h-px flex-1 bg-navy/10 relative">
-                <motion.div 
-                  className="absolute inset-0 bg-bronze origin-left"
-                  animate={{ scaleX: (activeProduct + 1) / products.length }}
-                />
-             </div>
-             <span className="text-[10px] text-navy/30 tracking-widest">
-                {activeProduct + 1} / {products.length}
-             </span>
-          </div>
+      {/* ── Top bar ──────────────────────────────────────────── */}
+      <div className="absolute top-0 left-0 right-0 z-30 border-b border-[#F4F4F5]/[0.05] py-3 px-8 md:px-14 flex items-center justify-between">
+        <span className="font-mono text-[7px] tracking-[0.5em] uppercase text-[#F4F4F5]/15">
+          DIMA Finance — Portafolio Crediticio
+        </span>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-[#E5997B] rounded-full animate-pulse"/>
+          <span className="font-mono text-[7px] tracking-[0.4em] uppercase text-[#F4F4F5]/15">
+            {String(active + 1).padStart(2,'0')} / {String(products.length).padStart(2,'0')}
+          </span>
         </div>
+      </div>
 
-        {/* RIGHT: IMMERSIVE IMAGE & DESCRIPTION */}
-        <div className="lg:w-[60%] h-full relative bg-navy">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeProduct}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0"
+      {/* ── Content ──────────────────────────────────────────── */}
+      <div className="relative z-10 h-full flex pt-12 pb-20">
+        <div className="flex flex-col justify-center px-8 md:px-20 lg:px-28 w-full lg:w-[55%] overflow-hidden">
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div key={`content-${active}`} custom={dir}
+              variants={{
+                enter: (d) => ({ opacity: 0, y: d * 28, filter: 'blur(5px)' }),
+                center:     ({ opacity: 1, y: 0,      filter: 'blur(0px)' }),
+                exit:  (d) => ({ opacity: 0, y: d * -18, filter: 'blur(3px)' }),
+              }}
+              initial="enter" animate="center" exit="exit"
+              transition={{ duration: 0.5, ease: [0.16,1,0.3,1] }}
+              className="max-w-xl"
             >
-              {/* Image with Dark Overlay */}
-              <img 
-                src={products[activeProduct].image} 
-                className="w-full h-full object-cover opacity-50 mix-blend-luminosity" 
-                alt="" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/40 to-transparent" />
+              {/* Eyebrow */}
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[9px] tracking-[0.5em] uppercase text-[#E5997B]/80">{p.number}</span>
+                <div className="w-8 h-px bg-[#E5997B]/40"/>
+                <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-[#F4F4F5]/50">{p.tagline}</span>
+              </div>
 
-              {/* Float Description Card */}
-              <div className="absolute inset-0 flex flex-col justify-center px-16 xl:px-24">
-                <div className="max-w-xl">
-                  <motion.div 
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <span className="text-bronze text-xs tracking-[0.4em] uppercase mb-6 block">
-                      {products[activeProduct].tagline}
-                    </span>
-                    <h3 className="text-4xl xl:text-6xl font-display text-white leading-tight mb-8">
-                      {products[activeProduct].heading}
-                    </h3>
-                    
-                    <div className="w-16 h-[2px] bg-bronze mb-8" />
-                    
-                    <p className="text-white/60 font-body text-lg leading-relaxed italic mb-10 border-l-2 border-white/10 pl-8">
-                      "{products[activeProduct].description[0]}"
-                    </p>
+              {/* Heading */}
+              <h2 className="font-display font-light text-[#F4F4F5] leading-[1.06] tracking-tight mb-5"
+                style={{ fontSize: 'clamp(2.2rem, 4vw, 4.6rem)' }}>
+                {p.heading.split(' ').map((word, wi) => (
+                  <span key={wi} className="inline-block mr-[0.14em]">
+                    {wi === 0 ? <em className="not-italic text-[#E5997B]">{word}</em> : word}
+                  </span>
+                ))}
+              </h2>
 
-                    <div className="flex flex-wrap gap-3 mb-12">
-                      {products[activeProduct].features.map(f => (
-                        <span key={f} className="px-4 py-2 bg-white/5 border border-white/10 text-white/80 text-[10px] tracking-widest uppercase rounded-lg backdrop-blur-md">
-                          {f}
-                        </span>
-                      ))}
+              {/* Ornament */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-px bg-[#E5997B]/35"/>
+                <svg width="7" height="7" viewBox="0 0 7 7" fill="none">
+                  <path d="M3.5 0L7 3.5L3.5 7L0 3.5Z" fill="#E5997B" opacity="0.5"/>
+                </svg>
+                <div className="flex-1 h-px bg-[#F4F4F5]/[0.12]"/>
+              </div>
+
+              {/* Description */}
+              <p className="font-body text-[#F4F4F5] text-base md:text-[16px] leading-[1.92] mb-4 border-l-2 border-[#E5997B]/50 pl-5"
+                style={{ opacity: 0.82 }}>
+                {p.description[0]}
+              </p>
+              {p.description[1] && (
+                <p className="font-body text-[#F4F4F5]/65 text-sm md:text-[15px] leading-[1.85] mb-5 pl-5">
+                  {p.description[1]}
+                </p>
+              )}
+
+              {/* Features */}
+              <div className="mb-7">
+                <p className="font-mono text-[8px] tracking-[0.5em] uppercase text-[#E5997B]/70 mb-3">Características</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
+                  {p.features.map((f, fi) => (
+                    <div key={f} className="flex items-start gap-2 group">
+                      <span className="font-mono text-[#E5997B]/60 text-[8px] mt-0.5 shrink-0">{String(fi+1).padStart(2,'0')}</span>
+                      <span className="font-body text-[#F4F4F5]/78 text-[13px] leading-relaxed group-hover:text-[#F4F4F5] transition-colors duration-300">{f}</span>
                     </div>
-
-                    <Link 
-                      to={products[activeProduct].ctaLink}
-                      className="inline-flex items-center gap-6 bg-bronze text-navy px-10 py-5 group hover:bg-white transition-all"
-                    >
-                      <span className="text-xs uppercase tracking-[0.2em]">Más Información</span>
-                      <div className="w-6 h-6 rounded-full bg-navy/10 flex items-center justify-center group-hover:translate-x-2 transition-transform">
-                        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
-                          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                    </Link>
-                  </motion.div>
+                  ))}
                 </div>
               </div>
+
+              {/* CTA */}
+              <Link to={p.ctaLink} className="group inline-flex items-center gap-0 w-fit">
+                <div className="relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[#E5997B] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"/>
+                  <div className="relative border border-[#E5997B]/50 group-hover:border-[#E5997B] px-7 py-3 transition-colors duration-300">
+                    <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#E5997B] group-hover:text-[#030035] transition-colors duration-300">Conocer más</span>
+                  </div>
+                </div>
+                <div className="border border-l-0 border-[#E5997B]/20 group-hover:border-[#E5997B]/50 px-3.5 py-3 transition-colors duration-300">
+                  <svg className="w-3 h-3 text-[#E5997B]/40 group-hover:text-[#E5997B] group-hover:translate-x-0.5 transition-all duration-300" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </Link>
             </motion.div>
           </AnimatePresence>
-
-          {/* Decorative Corner Label */}
-          <div className="absolute top-12 right-12 text-white/10 font-display text-8xl pointer-events-none">
-            {products[activeProduct].number}
-          </div>
         </div>
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-12 right-12 flex flex-col items-center gap-4">
-         <div className="h-20 w-[1px] bg-white/20 relative">
-            <motion.div 
-              className="absolute top-0 w-full bg-bronze" 
-              animate={{ height: `${((activeProduct + 1) / products.length) * 100}%` }}
-            />
-         </div>
-         <span className="text-[9px] text-white/40 uppercase tracking-[0.3em] [writing-mode:vertical-lr]">Slide</span>
+      {/* ── Bottom nav ───────────────────────────────────────── */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 border-t border-[#F4F4F5]/[0.05]">
+        <div className="h-[2px] bg-[#F4F4F5]/[0.04]">
+          <motion.div className="h-full bg-[#E5997B]"
+            animate={{ width: `${((active + 1) / products.length) * 100}%` }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}/>
+        </div>
+        <div className="flex">
+          {products.map((prod, i) => (
+            <button key={prod.number} onClick={() => scrollToProduct(i)}
+              className="relative flex-1 flex flex-col items-start gap-1 px-4 py-3 transition-all duration-400 hover:bg-[#F4F4F5]/[0.025] text-left overflow-hidden">
+              <span className="font-mono text-[7px] tracking-[0.4em] uppercase transition-colors duration-400"
+                style={{ color: active === i ? '#E5997B' : 'rgba(244,244,245,0.18)' }}>
+                {prod.number}
+              </span>
+              <span className="font-display text-[10px] md:text-xs leading-tight truncate w-full transition-colors duration-400"
+                style={{ color: active === i ? 'rgba(244,244,245,0.88)' : 'rgba(244,244,245,0.18)' }}>
+                {prod.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
+
     </div>
   )
 }

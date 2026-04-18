@@ -8,6 +8,7 @@ import ProcessDiagramSVG from '../components/illustrations/ProcessDiagramSVG'
 import DiamondGeometricSVG from '../components/illustrations/DiamondGeometricSVG'
 import BalanceScaleSVG from '../components/illustrations/BalanceScaleSVG'
 import ArchitecturalColumnSVG from '../components/illustrations/ArchitecturalColumnSVG'
+import AnimatedGrid from '../components/AnimatedGrid'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -209,7 +210,7 @@ export default function Process() {
             HERO
         ═══════════════════════════════════════════ */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-navy">
-          <div
+<AnimatedGrid cellSize={60} color="229,153,123" />          <div
             className="proceso-grid-bg absolute inset-0 opacity-[0.06]"
             style={{
               backgroundImage:
@@ -217,7 +218,6 @@ export default function Process() {
               backgroundSize: '60px 60px',
             }}
           />
-
           <div className="absolute top-[12%] left-0 flex whitespace-nowrap opacity-[0.04] select-none pointer-events-none">
             {[...Array(4)].map((_, i) => (
               <span
@@ -228,25 +228,6 @@ export default function Process() {
               </span>
             ))}
           </div>
-
-          {/* Hero wireframe diagram */}
-          <svg
-            ref={heroIllusRef}
-            viewBox="0 0 1000 500"
-            className="absolute inset-0 w-full h-full opacity-30 pointer-events-none"
-            preserveAspectRatio="xMidYMid meet"
-            fill="none"
-          >
-            {/* Three rough nodes + iterate center */}
-            <circle className="draw-path" cx="200" cy="250" r="80" stroke="#F4F4F5" strokeWidth="0.6" strokeOpacity="0.5" />
-            <circle className="draw-path" cx="450" cy="250" r="80" stroke="#E5997B" strokeWidth="0.6" />
-            <circle className="draw-path" cx="700" cy="250" r="80" stroke="#F4F4F5" strokeWidth="0.6" strokeOpacity="0.5" />
-            <circle className="draw-path" cx="575" cy="250" r="110" stroke="#E5997B" strokeWidth="0.5" strokeOpacity="0.6" strokeDasharray="2 4" />
-            <path className="draw-path" d="M280 250 L370 250" stroke="#F4F4F5" strokeOpacity="0.4" strokeWidth="0.6" />
-            <path className="draw-path" d="M530 250 L620 250" stroke="#F4F4F5" strokeOpacity="0.4" strokeWidth="0.6" />
-            <path className="draw-path" d="M180 200 Q 440 100 700 200" stroke="#E5997B" strokeOpacity="0.4" strokeWidth="0.5" />
-            <path className="draw-path" d="M180 300 Q 440 400 700 300" stroke="#E5997B" strokeOpacity="0.4" strokeWidth="0.5" />
-          </svg>
 
           <div className="relative z-10 text-center max-w-4xl px-8">
             <p className="hero-reveal font-body text-bronze text-sm tracking-[0.5em] uppercase mb-8">
@@ -262,7 +243,6 @@ export default function Process() {
               sistemático, predecible y construido para transformar cada balance
               en una estructura de equilibrio sostenible.
             </p>
-
             <div className="hero-reveal mt-16 flex flex-col items-center gap-2">
               <span className="text-lightgray/30 text-xs tracking-widest uppercase font-body">
                 Explorar el Modelo

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import AnimatedGridEdge from '../AnimatedGridEdge'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -90,6 +91,7 @@ export default function DalioPrinciplesSection() {
   return (
     <div ref={sectionRef} className="relative h-screen bg-lightgray overflow-hidden">
       
+      <AnimatedGridEdge cellSize={60} color="3,0,53" />
       {/* 1. DYNAMIC GRID BACKGROUND */}
       <div 
         className="bg-grid absolute inset-0 opacity-[0.15]" 

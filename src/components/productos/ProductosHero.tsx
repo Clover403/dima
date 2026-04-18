@@ -29,6 +29,7 @@ export default function ProductosHero() {
               start: 'top top',
               end: 'bottom top',
               scrub: true,
+              invalidateOnRefresh: true,
             },
           }
         )
@@ -38,12 +39,13 @@ export default function ProductosHero() {
       gsap.to(el.querySelector('.hero-content'), {
         y: -60,
         opacity: 0,
-        ease: 'power2.inOut',
+        ease: 'none',
         scrollTrigger: {
           trigger: el,
           start: '40% top',
           end: '80% top',
           scrub: 1,
+          invalidateOnRefresh: true,
         },
       })
     }, sectionRef)

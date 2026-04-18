@@ -15,15 +15,6 @@ export default function ServiciosHero() {
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
 
-      /* Pin hero for extra scroll distance */
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top top',
-        end: '+=40%',
-        pin: true,
-        pinSpacing: true,
-      })
-
       /* Background photo slow parallax */
       if (bgRef.current) {
         gsap.fromTo(
@@ -36,8 +27,9 @@ export default function ServiciosHero() {
             scrollTrigger: {
               trigger: el,
               start: 'top top',
-              end: '+=140%',
+              end: 'bottom top',
               scrub: true,
+              invalidateOnRefresh: true,
             },
           }
         )
@@ -57,9 +49,10 @@ export default function ServiciosHero() {
           ease: 'power2.out',
           scrollTrigger: {
             trigger: el,
-            start: 'top top',
-            end: '+=40%',
+            start: 'top 85%',
+            end: 'bottom top',
             scrub: 1,
+            invalidateOnRefresh: true,
           },
         })
       })
@@ -68,12 +61,13 @@ export default function ServiciosHero() {
       gsap.to(el.querySelector('.hero-content'), {
         y: -50,
         opacity: 0,
-        ease: 'power2.inOut',
+        ease: 'none',
         scrollTrigger: {
           trigger: el,
-          start: '60% top',
-          end: '100% top',
+          start: '40% top',
+          end: '80% top',
           scrub: 1,
+          invalidateOnRefresh: true,
         },
       })
     }, sectionRef)

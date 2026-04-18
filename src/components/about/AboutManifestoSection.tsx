@@ -124,8 +124,8 @@ export default function AboutManifestoSection() {
               alt=""
               className="w-full h-full object-cover transition-transform duration-700"
             />
-            {/* Dark Overlay per image */}
-            <div className="absolute inset-0 bg-black/60" />
+            {/* Navy Overlay per image */}
+            <div className="absolute inset-0 bg-[#030035]/70" />
           </div>
         ))}
       </div>
@@ -140,20 +140,20 @@ export default function AboutManifestoSection() {
             >
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center w-full">
                 <div className="md:col-span-3 text-center md:text-right">
-                  <span className="text-8xl md:text-[10rem] font-serif text-[#E5997B] opacity-30 block leading-none">
+                  <span className="text-8xl md:text-[10rem] font-display text-[#E5997B] opacity-30 block leading-none">
                     {manifesto.num}
                   </span>
                 </div>
                 <div className="md:col-span-9 flex flex-col gap-6">
-                  <h2 className="text-xs font-mono tracking-[0.5em] uppercase text-[#E5997B]">
+                  <h2 className="text-sm font-mono tracking-[0.5em] uppercase text-[#E5997B]">
                     {manifesto.law}
                   </h2>
-                  <blockquote className="text-3xl md:text-5xl font-serif text-white leading-tight tracking-tight">
+                  <blockquote className="text-4xl md:text-6xl font-display text-white leading-tight tracking-tight">
                     "{manifesto.text}"
                   </blockquote>
                   <div className="flex items-center gap-6">
                     <div className="w-12 h-px bg-[#E5997B]/40" />
-                    <p className="text-base md:text-lg text-white/50 italic font-light max-w-xl">
+                    <p className="text-lg md:text-xl text-white/50 italic font-light max-w-xl">
                       {manifesto.expl}
                     </p>
                   </div>

@@ -54,7 +54,7 @@ export default function ProcessDiagramSVG() {
   const activeNode = useMemo(() => NODES.find(n => n.id === activeId), [activeId])
 
   return (
-    <div ref={wrapperRef} className="relative w-full py-20 select-none">
+    <div ref={wrapperRef} className="relative w-full pt-20 pb-20 md:pt-8 md:pb-24 select-none">
       <svg
         ref={svgRef}
         viewBox="0 0 1200 540"
