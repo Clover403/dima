@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -12,7 +12,6 @@ interface Props {
 const chars = '!<>-_\\\\/[]{}—=+*^?#________';
 
 export default function TextScramble({ text, className = '' }: Props) {
-  const [displayText, setDisplayText] = useState(text.replace(/./g, ' '));
   const elRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -81,5 +80,5 @@ export default function TextScramble({ text, className = '' }: Props) {
     };
   }, [text]);
 
-  return <span ref={elRef} className={className} dangerouslySetInnerHTML={{__html: displayText}} />;
+    return <span ref={elRef} className={className}>{text}</span>;
 }
