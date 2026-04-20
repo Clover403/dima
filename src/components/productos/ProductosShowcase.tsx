@@ -12,37 +12,26 @@ interface Product {
 }
 interface Props { products: Product[] }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 01 — Crédito Simple
-//  Amortización: barras de deuda que disminuyen con el tiempo
-//  + línea de interés que cae = capital pagado visualmente
-// ─────────────────────────────────────────────────────────────
 function IllusSimple({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
   const BARS = 12
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.012
-
     const padL = W * 0.1, padR = W * 0.08
     const padT = H * 0.12, padB = H * 0.18
     const chartW = W - padL - padR
     const chartH = H - padT - padB
     const barW   = chartW / BARS * 0.6
     const gap    = chartW / BARS
-
-    // Axis lines
     ctx.strokeStyle = 'rgba(244,244,245,0.12)'
     ctx.lineWidth = 0.8
     ctx.beginPath()
     ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH)
     ctx.lineTo(padL + chartW, padT + chartH)
     ctx.stroke()
-
-    // Horizontal grid
     for (let i = 1; i <= 4; i++) {
       const y = padT + chartH - (chartH / 4) * i
       ctx.beginPath()
@@ -52,28 +41,19 @@ function IllusSimple({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.stroke()
       ctx.setLineDash([])
     }
-
-    // Bars (capital + interés)
     for (let i = 0; i < BARS; i++) {
-      const ratio     = i / (BARS - 1)   // 0=inicio, 1=fin
+      const ratio     = i / (BARS - 1)
       const animate   = (Math.sin(t - i * 0.3) * 0.04)
-      const totalH    = chartH * (1 - ratio * 0.85 + animate) // decreasing
-      const interestH = chartH * (1 - ratio) * 0.35           // interest portion
+      const totalH    = chartH * (1 - ratio * 0.85 + animate)
+      const interestH = chartH * (1 - ratio) * 0.35
       const capitalH  = totalH - interestH
-
       const x = padL + gap * i + (gap - barW) / 2
       const y = padT + chartH
-
-      // Capital bar (bronze)
-      const alpha = 0.35 + (1 - ratio) * 0.45
+      const alpha = 0.6 + (1 - ratio) * 0.4
       ctx.fillStyle = `rgba(229,153,123,${alpha})`
       ctx.fillRect(x, y - totalH, barW, capitalH)
-
-      // Interest bar (lighter, on top)
       ctx.fillStyle = `rgba(244,244,245,${0.08 + (1 - ratio) * 0.12})`
       ctx.fillRect(x, y - totalH, barW, -interestH)
-
-      // Current period marker
       const progress = ((t * 0.3) % 1) * BARS
       if (Math.abs(i - progress) < 0.8) {
         ctx.strokeStyle = '#E5997B'
@@ -81,19 +61,15 @@ function IllusSimple({ canvas }: { canvas: HTMLCanvasElement }) {
         ctx.strokeRect(x - 1, y - totalH - 1, barW + 2, totalH + 2)
       }
     }
-
-    // Smooth amortization curve overlay
     ctx.beginPath()
-    ctx.strokeStyle = 'rgba(229,153,123,0.55)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = 'rgba(229,153,123,0.85)'
+    ctx.lineWidth = 2
     for (let x = 0; x <= chartW; x += 2) {
       const r = x / chartW
       const y = padT + chartH - chartH * (1 - r * 0.85) + Math.sin(t + r * 8) * 2
       x === 0 ? ctx.moveTo(padL + x, y) : ctx.lineTo(padL + x, y)
     }
     ctx.stroke()
-
-    // Labels
     ctx.fillStyle = 'rgba(244,244,245,0.25)'
     ctx.font = `${W * 0.028}px monospace`
     ctx.textAlign = 'left'
@@ -101,50 +77,33 @@ function IllusSimple({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.fillStyle = 'rgba(229,153,123,0.5)'
     ctx.textAlign = 'right'
     ctx.fillText('Amortización', W - padR, padT - 8)
-
-    // Month ticks
     ctx.fillStyle = 'rgba(244,244,245,0.2)'
     ctx.font = `${W * 0.022}px monospace`
     ctx.textAlign = 'center'
     ;['01','03','06','09','12'].forEach((m, i) => {
       ctx.fillText(m, padL + gap * i * 2.4, padT + chartH + 18)
     })
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 02 — Crédito Puente
-//  Dos columnas: PROYECTO (costos) y INGRESOS
-//  Un puente animado que conecta el gap de financiamiento
-// ─────────────────────────────────────────────────────────────
 function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.008
-
-    const midY   = H * 0.55
-    const left   = W * 0.12
-    const right  = W * 0.88
-    const gapL   = W * 0.38
-    const gapR   = W * 0.62
-
-    // Ground lines
+    const midY = H * 0.55, left = W * 0.12, right = W * 0.88
+    const gapL = W * 0.38, gapR = W * 0.62
     ctx.strokeStyle = 'rgba(244,244,245,0.15)'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.moveTo(left, midY); ctx.lineTo(gapL, midY)
     ctx.moveTo(gapR, midY); ctx.lineTo(right, midY)
     ctx.stroke()
-
-    // Left block — PROYECTO (costs stacking up)
     const stackH = H * 0.28
     for (let i = 0; i < 4; i++) {
       const bH = stackH / 4
@@ -160,8 +119,6 @@ function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.font = `bold ${W * 0.026}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('COSTOS', left + W * 0.09, midY + 20)
-
-    // Right block — INGRESOS (expected revenue)
     const revH = H * 0.38
     const pulse = Math.sin(t * 2) * 0.03
     ctx.fillStyle = `rgba(244,244,245,${0.06 + pulse})`
@@ -169,7 +126,6 @@ function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.strokeStyle = 'rgba(244,244,245,0.2)'
     ctx.lineWidth = 1
     ctx.strokeRect(gapR, midY - revH, W * 0.18, revH)
-    // Dashed future lines
     for (let i = 1; i < 4; i++) {
       ctx.beginPath()
       ctx.setLineDash([2, 4])
@@ -183,33 +139,25 @@ function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.font = `bold ${W * 0.026}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('INGRESOS', gapR + W * 0.09, midY + 20)
-
-    // Bridge arch — animated build progress
     const progress = (Math.sin(t * 0.5) * 0.5 + 0.5) * 0.9 + 0.1
     const archMidX = (gapL + gapR) / 2
     const archH    = H * 0.22
-
     ctx.save()
     ctx.beginPath()
     ctx.rect(gapL, 0, (gapR - gapL) * progress, H)
     ctx.clip()
-
     ctx.beginPath()
     ctx.moveTo(gapL, midY)
     ctx.bezierCurveTo(gapL, midY - archH, gapR, midY - archH, gapR, midY)
     ctx.strokeStyle = '#E5997B'
-    ctx.lineWidth = 2
+    ctx.lineWidth = 2.5
     ctx.stroke()
-
-    // Bridge deck
     ctx.beginPath()
     ctx.moveTo(gapL, midY - archH * 0.45)
     ctx.lineTo(gapR, midY - archH * 0.45)
-    ctx.strokeStyle = 'rgba(229,153,123,0.7)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = 'rgba(229,153,123,0.9)'
+    ctx.lineWidth = 2
     ctx.stroke()
-
-    // Cables
     for (let i = 0; i <= 5; i++) {
       const x = gapL + (gapR - gapL) * (i / 5)
       const archY = midY - archH * (1 - 4 * Math.pow(i/5 - 0.5, 2))
@@ -221,56 +169,36 @@ function IllusBridge({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.stroke()
     }
     ctx.restore()
-
-    // GAP label
     ctx.fillStyle = 'rgba(229,153,123,0.45)'
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('BRECHA DE', archMidX, midY - archH * 0.85)
     ctx.fillText('FINANCIAMIENTO', archMidX, midY - archH * 0.7)
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 03 — Cuenta Corriente
-//  Ciclo revolvente: dispones → pagas → vuelves a disponer
-//  Tanque de liquidez que sube y baja + flecha circular
-// ─────────────────────────────────────────────────────────────
 function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.015
-
-    const cx   = W / 2
-    const cy   = H * 0.48
-    const tankW = W * 0.28
-    const tankH = H * 0.55
-    const tankX = cx - tankW / 2
-    const tankY = cy - tankH / 2
-
-    // Liquid level oscillates
-    const level = 0.3 + Math.sin(t * 0.6) * 0.28   // 0.02 → 0.58
+    const cx = W / 2, cy = H * 0.48
+    const tankW = W * 0.28, tankH = H * 0.55
+    const tankX = cx - tankW / 2, tankY = cy - tankH / 2
+    const level = 0.3 + Math.sin(t * 0.6) * 0.28
     const liqY  = tankY + tankH * (1 - level)
-
-    // Tank border
-    ctx.strokeStyle = 'rgba(229,153,123,0.5)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = 'rgba(229,153,123,0.85)'
+    ctx.lineWidth = 2
     ctx.strokeRect(tankX, tankY, tankW, tankH)
-
-    // Liquid fill with wave
     ctx.save()
     ctx.beginPath()
     ctx.rect(tankX + 1, tankY + 1, tankW - 2, tankH - 2)
     ctx.clip()
-
     ctx.beginPath()
     const waveAmp = 6
     ctx.moveTo(tankX, liqY + waveAmp)
@@ -282,23 +210,18 @@ function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.lineTo(tankX, tankY + tankH)
     ctx.closePath()
     const grad = ctx.createLinearGradient(0, liqY, 0, tankY + tankH)
-    grad.addColorStop(0, 'rgba(229,153,123,0.55)')
-    grad.addColorStop(1, 'rgba(229,153,123,0.15)')
+    grad.addColorStop(0, 'rgba(229,153,123,0.85)')
+    grad.addColorStop(1, 'rgba(229,153,123,0.4)')
     ctx.fillStyle = grad
     ctx.fill()
     ctx.restore()
-
-    // Level percentage
     ctx.fillStyle = 'rgba(229,153,123,0.9)'
     ctx.font = `bold ${W * 0.055}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText(Math.round(level * 100) + '%', cx, cy + W * 0.025)
-
     ctx.fillStyle = 'rgba(244,244,245,0.3)'
     ctx.font = `${W * 0.026}px monospace`
     ctx.fillText('LIQUIDEZ', cx, cy + W * 0.065)
-
-    // Tick marks on tank
     for (let i = 1; i < 5; i++) {
       const ty = tankY + tankH * (i / 5)
       ctx.beginPath()
@@ -311,8 +234,6 @@ function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.textAlign = 'left'
       ctx.fillText(String((5 - i) * 20) + '%', tankX + tankW + 12, ty + 4)
     }
-
-    // Left arrow — DISPONER (flow out)
     const arrowAlpha = level > 0.3 ? 0.8 : 0.2
     ctx.strokeStyle = `rgba(229,153,123,${arrowAlpha})`
     ctx.lineWidth = 1.5
@@ -322,7 +243,6 @@ function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.lineTo(tankX - W * 0.18, cy)
     ctx.stroke()
     ctx.setLineDash([])
-    // Arrowhead
     ctx.beginPath()
     ctx.moveTo(tankX - W * 0.18, cy - 5)
     ctx.lineTo(tankX - W * 0.18 - 10, cy)
@@ -333,8 +253,6 @@ function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('DISPONES', tankX - W * 0.12, cy - 14)
-
-    // Right arrow — REPONES (flow in)
     const repoAlpha = level < 0.7 ? 0.8 : 0.2
     ctx.strokeStyle = `rgba(244,244,245,${repoAlpha * 0.6})`
     ctx.lineWidth = 1.5
@@ -354,57 +272,38 @@ function IllusCorriente({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('REPONES', tankX + tankW + W * 0.12, cy - 14)
-
-    // Bottom label
     ctx.fillStyle = 'rgba(229,153,123,0.4)'
     ctx.font = `${W * 0.026}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('LÍNEA REVOLVENTE ACTIVA', cx, tankY + tankH + 28)
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 04 — Crédito Agroindustrial
-//  Ciclo agrícola: siembra → crecimiento → cosecha → pago
-//  Plantas que crecen + timeline de pagos adaptados
-// ─────────────────────────────────────────────────────────────
 function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.01
-
-    const ground = H * 0.70
-    const PLANTS = 5
-
-    // Ground line
+    const ground = H * 0.70, PLANTS = 5
     ctx.strokeStyle = 'rgba(229,153,123,0.25)'
     ctx.lineWidth = 1.5
     ctx.beginPath()
     ctx.moveTo(W * 0.05, ground); ctx.lineTo(W * 0.95, ground)
     ctx.stroke()
-
-    // Sun / season indicator
-    const season = (t * 0.08) % 1   // 0=siembra 0.25=crecimiento 0.5=cosecha 0.75=reposo
-    const sunX   = W * 0.1 + W * 0.8 * season
-    const sunY   = H * 0.12
-    const sunR   = W * 0.04
-    const sunAlpha = 0.3 + Math.sin(t * 2) * 0.1
-
+    const season = (t * 0.08) % 1
+    const sunX = W * 0.1 + W * 0.8 * season, sunY = H * 0.12
+    const sunR = W * 0.04, sunAlpha = 0.3 + Math.sin(t * 2) * 0.1
     ctx.beginPath()
     ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2)
     ctx.fillStyle = `rgba(229,153,123,${sunAlpha})`
     ctx.fill()
     ctx.strokeStyle = `rgba(229,153,123,${sunAlpha * 0.5})`
     ctx.lineWidth = 0.8
-    // Sun rays
     for (let i = 0; i < 8; i++) {
       const a = (i / 8) * Math.PI * 2
       ctx.beginPath()
@@ -412,33 +311,23 @@ function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.lineTo(sunX + Math.cos(a) * sunR * 1.8, sunY + Math.sin(a) * sunR * 1.8)
       ctx.stroke()
     }
-
-    // Season label
     const seasons = ['SIEMBRA', 'CRECIMIENTO', 'COSECHA', 'REPOSO']
-    const sIdx    = Math.floor(season * 4)
+    const sIdx = Math.floor(season * 4)
     ctx.fillStyle = 'rgba(229,153,123,0.6)'
     ctx.font = `bold ${W * 0.028}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText(seasons[sIdx], W / 2, H * 0.06)
-
-    // Plants
     for (let i = 0; i < PLANTS; i++) {
-      const px      = W * 0.15 + (W * 0.70 / (PLANTS - 1)) * i
-      const growthOffset = (i / PLANTS) * 0.3
-      const plantSeason = ((season + growthOffset) % 1)
-      const height  = Math.min(1, plantSeason * 2.5) * H * 0.30
-
+      const px = W * 0.15 + (W * 0.70 / (PLANTS - 1)) * i
+      const plantSeason = ((season + (i / PLANTS) * 0.3) % 1)
+      const height = Math.min(1, plantSeason * 2.5) * H * 0.30
       if (height < 2) continue
-
-      // Stem
       ctx.strokeStyle = `rgba(229,153,123,0.45)`
       ctx.lineWidth = 1.5
       ctx.beginPath()
       ctx.moveTo(px, ground)
       ctx.bezierCurveTo(px, ground - height * 0.5, px + Math.sin(t + i) * 8, ground - height, px, ground - height)
       ctx.stroke()
-
-      // Leaves
       if (height > H * 0.08) {
         for (let l = 0; l < 2; l++) {
           const leafY = ground - height * (0.4 + l * 0.3)
@@ -449,8 +338,6 @@ function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
           ctx.fill()
         }
       }
-
-      // Harvest grain (circles at top when tall enough)
       if (plantSeason > 0.5 && height > H * 0.15) {
         ctx.beginPath()
         ctx.arc(px, ground - height - 6, 5, 0, Math.PI * 2)
@@ -458,15 +345,12 @@ function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
         ctx.fill()
       }
     }
-
-    // Payment timeline at bottom
     const timeY = H * 0.88
     ctx.strokeStyle = 'rgba(244,244,245,0.1)'
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.moveTo(W * 0.05, timeY); ctx.lineTo(W * 0.95, timeY)
     ctx.stroke()
-
     const milestones = [
       { x: 0.1,  label: 'PRÉSTAMO', bronze: true },
       { x: 0.38, label: 'INICIO',   bronze: false },
@@ -485,48 +369,31 @@ function IllusAgro({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.textAlign = 'center'
       ctx.fillText(m.label, mx, timeY + 16)
     })
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 05 — Factoring
-//  Factura → anticipo inmediato
-//  Facturas entrando, institución las cobra, tú recibes $$
-// ─────────────────────────────────────────────────────────────
 function IllusFactoring({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.01
-
-    const cy  = H * 0.48
-    const instX = W * 0.5   // Institution center
-    const instW = W * 0.22
-    const instH = H * 0.28
-
-    // Moving invoices (left → institution)
+    const cy = H * 0.48, instX = W * 0.5, instW = W * 0.22, instH = H * 0.28
     for (let i = 0; i < 3; i++) {
       const progress = ((t * 0.18 + i / 3) % 1)
-      if (progress > 0.5) continue   // only left half
-
-      const x    = W * 0.06 + progress * (instX - instW / 2 - W * 0.06)
-      const y    = cy - H * 0.12 + i * H * 0.12
+      if (progress > 0.5) continue
+      const x = W * 0.06 + progress * (instX - instW / 2 - W * 0.06)
+      const y = cy - H * 0.12 + i * H * 0.12
       const alpha = Math.sin(progress * Math.PI) * 0.7
-
-      // Invoice doc
       ctx.fillStyle = `rgba(244,244,245,${alpha * 0.08})`
       ctx.strokeStyle = `rgba(244,244,245,${alpha * 0.3})`
       ctx.lineWidth = 0.8
       ctx.fillRect(x, y, W * 0.1, H * 0.09)
       ctx.strokeRect(x, y, W * 0.1, H * 0.09)
-      // Lines inside
       for (let l = 0; l < 3; l++) {
         ctx.fillStyle = `rgba(244,244,245,${alpha * 0.2})`
         ctx.fillRect(x + 4, y + 8 + l * 9, W * 0.06, 2)
@@ -536,15 +403,11 @@ function IllusFactoring({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.textAlign = 'left'
       ctx.fillText('$', x + W * 0.065, y + H * 0.055)
     }
-
-    // Institution box
-    ctx.strokeStyle = 'rgba(229,153,123,0.7)'
-    ctx.lineWidth = 1.5
+    ctx.strokeStyle = 'rgba(229,153,123,0.95)'
+    ctx.lineWidth = 2
     ctx.strokeRect(instX - instW / 2, cy - instH / 2, instW, instH)
-    ctx.fillStyle = 'rgba(229,153,123,0.06)'
+    ctx.fillStyle = 'rgba(229,153,123,0.12)'
     ctx.fillRect(instX - instW / 2, cy - instH / 2, instW, instH)
-
-    // Institution label
     ctx.fillStyle = 'rgba(229,153,123,0.8)'
     ctx.font = `bold ${W * 0.026}px monospace`
     ctx.textAlign = 'center'
@@ -552,25 +415,19 @@ function IllusFactoring({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.fillStyle = 'rgba(229,153,123,0.45)'
     ctx.font = `${W * 0.022}px monospace`
     ctx.fillText('FINANCE', instX, cy + 12)
-
-    // Pulse ring
     const ring = (t * 0.8) % 1
     ctx.beginPath()
     ctx.arc(instX, cy, (instW / 2) * (1 + ring * 0.8), 0, Math.PI * 2)
     ctx.strokeStyle = `rgba(229,153,123,${(1 - ring) * 0.2})`
     ctx.lineWidth = 1
     ctx.stroke()
-
-    // Moving cash (institution → right/client)
     for (let i = 0; i < 3; i++) {
       const progress = ((t * 0.18 + i / 3) % 1)
       if (progress < 0.5) continue
-
-      const p2   = (progress - 0.5) * 2
-      const x    = instX + instW / 2 + p2 * (W * 0.88 - instX - instW / 2)
-      const y    = cy - H * 0.08 + i * H * 0.08
+      const p2 = (progress - 0.5) * 2
+      const x = instX + instW / 2 + p2 * (W * 0.88 - instX - instW / 2)
+      const y = cy - H * 0.08 + i * H * 0.08
       const alpha = Math.sin(p2 * Math.PI) * 0.8
-
       ctx.beginPath()
       ctx.arc(x, y, 10, 0, Math.PI * 2)
       ctx.fillStyle = `rgba(229,153,123,${alpha * 0.7})`
@@ -580,75 +437,48 @@ function IllusFactoring({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.textAlign = 'center'
       ctx.fillText('$', x, y + 4)
     }
-
-    // Time saving label
-    const elapsed = Math.floor((t * 8) % 90)
     ctx.fillStyle = 'rgba(229,153,123,0.45)'
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText(`ANTICIPO EN < 48 HRS`, W / 2, H * 0.88)
-
-    // Labels
     ctx.fillStyle = 'rgba(244,244,245,0.25)'
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('TUS FACTURAS', W * 0.18, cy + H * 0.22)
     ctx.fillText('TU EMPRESA', W * 0.82, cy + H * 0.22)
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ─────────────────────────────────────────────────────────────
-//  ILUSTRASI 06 — Arrendamiento Financiero
-//  Barra de propiedad que va de 0% → 100%
-//  Pagos periódicos → activo se vuelve tuyo
-// ─────────────────────────────────────────────────────────────
 function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
   let raf = 0, t = 0
-
   function draw() {
     const ctx = canvas.getContext('2d')!
     const W = canvas.width, H = canvas.height
     ctx.clearRect(0, 0, W, H)
     t += 0.008
-
-    const cx    = W / 2
-    const barY  = H * 0.52
-    const barW  = W * 0.78
-    const barH  = H * 0.06
-    const barX  = cx - barW / 2
-
-    // Ownership progress (0→100% cycling)
+    const cx = W / 2, barY = H * 0.52, barW = W * 0.78
+    const barH = H * 0.06, barX = cx - barW / 2
     const ownership = (Math.sin(t * 0.35) * 0.5 + 0.5)
     const pct = Math.round(ownership * 100)
-
-    // Asset icon (machine/building) — simple schematic
-    const assetX = barX - W * 0.08
-    const assetY = barY - H * 0.22
-    const assetW = W * 0.14
-    const assetH = H * 0.18
-    // Body
+    const assetX = barX - W * 0.08, assetY = barY - H * 0.22
+    const assetW = W * 0.14, assetH = H * 0.18
     ctx.strokeStyle = `rgba(229,153,123,${0.3 + ownership * 0.4})`
     ctx.lineWidth = 1.2
     ctx.fillStyle = `rgba(229,153,123,${0.03 + ownership * 0.08})`
     ctx.fillRect(assetX, assetY, assetW, assetH)
     ctx.strokeRect(assetX, assetY, assetW, assetH)
-    // Windows
     ctx.fillStyle = `rgba(229,153,123,${0.2 + ownership * 0.4})`
     ctx.fillRect(assetX + 8, assetY + 8, assetW * 0.3, assetH * 0.3)
     ctx.fillRect(assetX + assetW * 0.55, assetY + 8, assetW * 0.3, assetH * 0.3)
-    // Wheels
     ;[0.2, 0.8].forEach(r => {
       ctx.beginPath()
       ctx.arc(assetX + assetW * r, assetY + assetH + 5, 7, 0, Math.PI * 2)
       ctx.strokeStyle = `rgba(229,153,123,${0.4 + ownership * 0.3})`
       ctx.stroke()
     })
-
-    // % owned label
     ctx.fillStyle = `rgba(229,153,123,${0.5 + ownership * 0.4})`
     ctx.font = `bold ${W * 0.028}px monospace`
     ctx.textAlign = 'center'
@@ -656,22 +486,16 @@ function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.fillStyle = 'rgba(244,244,245,0.25)'
     ctx.font = `${W * 0.022}px monospace`
     ctx.fillText('TUYO', assetX + assetW / 2, assetY - 26)
-
-    // Progress bar background
     ctx.fillStyle = 'rgba(244,244,245,0.06)'
     ctx.fillRect(barX, barY, barW, barH)
     ctx.strokeStyle = 'rgba(244,244,245,0.1)'
     ctx.lineWidth = 0.8
     ctx.strokeRect(barX, barY, barW, barH)
-
-    // Progress fill with gradient
     const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0)
-    grad.addColorStop(0, 'rgba(229,153,123,0.7)')
-    grad.addColorStop(1, 'rgba(229,153,123,0.3)')
+    grad.addColorStop(0, 'rgba(229,153,123,0.95)')
+    grad.addColorStop(1, 'rgba(229,153,123,0.6)')
     ctx.fillStyle = grad
     ctx.fillRect(barX, barY, barW * ownership, barH)
-
-    // Milestone ticks
     const PERIODS = 6
     for (let i = 1; i <= PERIODS; i++) {
       const tx = barX + barW * (i / PERIODS)
@@ -686,8 +510,6 @@ function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
       ctx.textAlign = 'center'
       ctx.fillText(`P${i}`, tx, barY + barH + 18)
     }
-
-    // Residual value marker
     const resX = barX + barW * 0.92
     ctx.beginPath()
     ctx.moveTo(resX, barY - 12); ctx.lineTo(resX, barY)
@@ -699,8 +521,6 @@ function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.textAlign = 'center'
     ctx.fillText('VALOR', resX, barY - 22)
     ctx.fillText('RESIDUAL', resX, barY - 10)
-
-    // Left label ARRENDATARIO / Right PROPIETARIO
     ctx.fillStyle = 'rgba(244,244,245,0.25)'
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'left'
@@ -708,20 +528,16 @@ function IllusLeasing({ canvas }: { canvas: HTMLCanvasElement }) {
     ctx.textAlign = 'right'
     ctx.fillStyle = 'rgba(229,153,123,0.5)'
     ctx.fillText('PROPIETARIO', barX + barW, barY + barH + 34)
-
-    // Bottom description
     ctx.fillStyle = 'rgba(229,153,123,0.35)'
     ctx.font = `${W * 0.024}px monospace`
     ctx.textAlign = 'center'
     ctx.fillText('PAGOS PERIÓDICOS → TRANSFERENCIA DE PROPIEDAD', cx, H * 0.92)
-
     raf = requestAnimationFrame(draw)
   }
   draw()
   return () => cancelAnimationFrame(raf)
 }
 
-// ── Canvas wrapper component ──────────────────────────────────
 const ILLUSTRATORS = [
   IllusSimple, IllusBridge, IllusCorriente,
   IllusAgro,   IllusFactoring, IllusLeasing,
@@ -729,30 +545,20 @@ const ILLUSTRATORS = [
 
 function ProductIllustration({ active }: { active: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const fn = ILLUSTRATORS[active] ?? ILLUSTRATORS[0]
-
-    const resize = () => {
-      canvas.width  = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
-    }
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight }
     resize()
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
-
     const cleanup = fn({ canvas })
     return () => { cleanup?.(); ro.disconnect() }
   }, [active])
-
-  return (
-    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none"/>
-  )
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none"/>
 }
 
-// ── Main component ────────────────────────────────────────────
 export default function ProductosShowcase({ products }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -785,11 +591,17 @@ export default function ProductosShowcase({ products }: Props) {
   }, [products.length])
 
   const p = products[active]
+  const wordCount = p.heading.split(' ').length
+  const headingSize = wordCount > 5
+    ? 'clamp(2.4rem, 4vw, 4.5rem)'
+    : wordCount > 3
+      ? 'clamp(2.8rem, 5vw, 5.5rem)'
+      : 'clamp(3.2rem, 6vw, 6.5rem)'
 
   return (
     <div ref={sectionRef} className="relative h-screen overflow-hidden bg-[#030035]">
 
-      {/* ── Illustration canvas — right half background ─────── */}
+      {/* Illustration canvas */}
       <div className="absolute right-0 top-0 w-[48%] h-full">
         <AnimatePresence mode="wait">
           <motion.div key={`illus-${active}`} className="absolute inset-0"
@@ -798,28 +610,24 @@ export default function ProductosShowcase({ products }: Props) {
             <ProductIllustration active={active} />
           </motion.div>
         </AnimatePresence>
-        {/* Fade left edge so it blends with content */}
         <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'linear-gradient(90deg, #030035 0%, rgba(3,0,53,0.4) 35%, transparent 70%)',
+          background: 'linear-gradient(90deg, #030035 0%, rgba(3,0,53,0.2) 25%, transparent 55%)',
         }}/>
       </div>
 
-
-
-      {/* ── Photo bg ─────────────────────────────────────────── */}
+      {/* Photo bg */}
       <AnimatePresence>
         <motion.div key={`bg-${active}`} className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           transition={{ duration: 1.8 }}>
-          <img src={p.image} className="w-full h-full object-cover"
-            style={{ opacity: 0.22 }} alt=""/>
+          <img src={p.image} className="w-full h-full object-cover" style={{ opacity: 0.22 }} alt=""/>
           <div className="absolute inset-0" style={{
             background: 'linear-gradient(90deg, rgba(3,0,53,0.88) 35%, rgba(3,0,53,0.35) 100%)',
           }}/>
         </motion.div>
       </AnimatePresence>
 
-      {/* ── Top bar ──────────────────────────────────────────── */}
+      {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 z-30 border-b border-[#F4F4F5]/[0.05] py-3 px-8 md:px-14 flex items-center justify-between">
         <span className="font-mono text-[7px] tracking-[0.5em] uppercase text-[#F4F4F5]/15">
           DIMA Finance — Portafolio Crediticio
@@ -827,14 +635,14 @@ export default function ProductosShowcase({ products }: Props) {
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-[#E5997B] rounded-full animate-pulse"/>
           <span className="font-mono text-[7px] tracking-[0.4em] uppercase text-[#F4F4F5]/15">
-            {String(active + 1).padStart(2,'0')} / {String(products.length).padStart(2,'0')}
+            {String(active + 1).padStart(2,'0')} / {String(products.length).padStart(2,'00')}
           </span>
         </div>
       </div>
 
-      {/* ── Content ──────────────────────────────────────────── */}
+      {/* Content */}
       <div className="relative z-10 h-full flex pt-12 pb-20">
-        <div className="flex flex-col justify-center px-8 md:px-20 lg:px-28 w-full lg:w-[55%] overflow-hidden">
+        <div className="flex flex-col justify-center px-8 md:px-24 lg:px-32 w-full lg:w-[50%] overflow-hidden">
           <AnimatePresence mode="wait" custom={dir}>
             <motion.div key={`content-${active}`} custom={dir}
               variants={{
@@ -844,18 +652,18 @@ export default function ProductosShowcase({ products }: Props) {
               }}
               initial="enter" animate="center" exit="exit"
               transition={{ duration: 0.5, ease: [0.16,1,0.3,1] }}
-              className="max-w-xl"
+              className="w-full"
             >
               {/* Eyebrow */}
               <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[9px] tracking-[0.5em] uppercase text-[#E5997B]/80">{p.number}</span>
+                <span className="font-mono text-[11px] tracking-[0.5em] uppercase text-[#E5997B]/80">{p.number}</span>
                 <div className="w-8 h-px bg-[#E5997B]/40"/>
-                <span className="font-mono text-[9px] tracking-[0.4em] uppercase text-[#F4F4F5]/50">{p.tagline}</span>
+                <span className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#F4F4F5]/55">{p.tagline}</span>
               </div>
 
-              {/* Heading */}
+              {/* Heading — adaptive size */}
               <h2 className="font-display font-light text-[#F4F4F5] leading-[1.06] tracking-tight mb-5"
-                style={{ fontSize: 'clamp(2.2rem, 4vw, 4.6rem)' }}>
+                style={{ fontSize: headingSize }}>
                 {p.heading.split(' ').map((word, wi) => (
                   <span key={wi} className="inline-block mr-[0.14em]">
                     {wi === 0 ? <em className="not-italic text-[#E5997B]">{word}</em> : word}
@@ -873,49 +681,52 @@ export default function ProductosShowcase({ products }: Props) {
               </div>
 
               {/* Description */}
-              <p className="font-body text-[#F4F4F5] text-base md:text-[16px] leading-[1.92] mb-4 border-l-2 border-[#E5997B]/50 pl-5"
-                style={{ opacity: 0.82 }}>
+              <p className="font-body text-[#F4F4F5] text-[17px] md:text-[18px] leading-[1.88] mb-4 border-l-2 border-[#E5997B]/50 pl-5"
+                style={{ opacity: 0.85 }}>
                 {p.description[0]}
               </p>
               {p.description[1] && (
-                <p className="font-body text-[#F4F4F5]/65 text-sm md:text-[15px] leading-[1.85] mb-5 pl-5">
+                <p className="font-body text-[#F4F4F5]/70 text-[16px] md:text-[17px] leading-[1.82] mb-5 pl-5">
                   {p.description[1]}
                 </p>
               )}
 
               {/* Features */}
               <div className="mb-7">
-                <p className="font-mono text-[8px] tracking-[0.5em] uppercase text-[#E5997B]/70 mb-3">Características</p>
+                <p className="font-mono text-[10px] tracking-[0.5em] uppercase text-[#E5997B]/70 mb-3">Características</p>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
                   {p.features.map((f, fi) => (
-                    <div key={f} className="flex items-start gap-2 group">
-                      <span className="font-mono text-[#E5997B]/60 text-[8px] mt-0.5 shrink-0">{String(fi+1).padStart(2,'0')}</span>
-                      <span className="font-body text-[#F4F4F5]/78 text-[13px] leading-relaxed group-hover:text-[#F4F4F5] transition-colors duration-300">{f}</span>
+                    <div key={f} className="flex items-start gap-2">
+                      <span className="font-mono text-[#E5997B]/65 text-[10px] mt-0.5 shrink-0">{String(fi+1).padStart(2,'0')}</span>
+                      <span className="font-body text-[#F4F4F5] text-[14px] leading-relaxed">{f}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* CTA */}
+              {/* CTA — wider, bigger text, centered */}
               <Link to={p.ctaLink} className="group inline-flex items-center gap-0 w-fit">
                 <div className="relative overflow-hidden">
                   <div className="absolute inset-0 bg-[#E5997B] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"/>
-                  <div className="relative border border-[#E5997B]/50 group-hover:border-[#E5997B] px-7 py-3 transition-colors duration-300">
-                    <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#E5997B] group-hover:text-[#030035] transition-colors duration-300">Conocer más</span>
+                  <div className="relative border border-[#E5997B]/50 group-hover:border-[#E5997B] px-10 py-3 flex items-center justify-center transition-colors duration-300">
+                    <span className="font-mono text-[10px] tracking-[0.4em] uppercase text-[#E5997B] group-hover:text-[#030035] transition-colors duration-300">
+                      Conocer más
+                    </span>
                   </div>
                 </div>
-                <div className="border border-l-0 border-[#E5997B]/20 group-hover:border-[#E5997B]/50 px-3.5 py-3 transition-colors duration-300">
-                  <svg className="w-3 h-3 text-[#E5997B]/40 group-hover:text-[#E5997B] group-hover:translate-x-0.5 transition-all duration-300" viewBox="0 0 12 12" fill="none">
+                <div className="border border-l-0 border-[#E5997B]/20 group-hover:border-[#E5997B]/50 px-4 py-3 flex items-center justify-center transition-colors duration-300">
+                  <svg className="w-3.5 h-3.5 text-[#E5997B]/40 group-hover:text-[#E5997B] group-hover:translate-x-0.5 transition-all duration-300" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               </Link>
+
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* ── Bottom nav ───────────────────────────────────────── */}
+      {/* Bottom nav */}
       <div className="absolute bottom-0 left-0 right-0 z-30 border-t border-[#F4F4F5]/[0.05]">
         <div className="h-[2px] bg-[#F4F4F5]/[0.04]">
           <motion.div className="h-full bg-[#E5997B]"
