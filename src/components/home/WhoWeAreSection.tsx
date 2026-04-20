@@ -12,6 +12,7 @@ export default function WhoWeAreSection() {
   const wordRef     = useRef<HTMLSpanElement>(null)
   const emRef       = useRef<HTMLSpanElement>(null)
   const svgTextRef  = useRef<SVGTextElement>(null)
+  const scrollHintRef = useRef<HTMLDivElement>(null)
 
   // ── Reveal animations ────────────────────────────────────────
   useEffect(() => {
@@ -34,6 +35,34 @@ export default function WhoWeAreSection() {
     return () => ctx.revert()
   }, [])
 
+  // ── Scroll hint — hanya muncul saat section aktif ──────────
+  useEffect(() => {
+    const el = scrollHintRef.current
+    if (!el) return
+
+    // Default: hidden
+    gsap.set(el, { opacity: 0 })
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: pinnedRef.current,
+        start: 'top top',
+        end: '+=250%',
+        onEnter: () => gsap.to(el, { opacity: 1, duration: 0.6, ease: 'power2.out' }),
+        onLeave: () => gsap.to(el, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
+        onEnterBack: () => gsap.to(el, { opacity: 1, duration: 0.6, ease: 'power2.out' }),
+        onLeaveBack: () => gsap.to(el, { opacity: 0, duration: 0.4, ease: 'power2.in' }),
+        onUpdate: (self) => {
+          // Fade out saat user mulai scroll dalam section
+          if (self.progress > 0.06) {
+            gsap.to(el, { opacity: 0, duration: 0.4, ease: 'power2.in' })
+          }
+        },
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
   // ── Float + stroke trace + fill flip ────────────────────────
   useEffect(() => {
     if (!pinnedRef.current || !overlayRef.current || !wordRef.current || !emRef.current || !svgTextRef.current) return
@@ -48,25 +77,12 @@ export default function WhoWeAreSection() {
     const svgText   = svgTextRef.current
 
     let isMounted = true
-
-    // ──────────────────────────────────────────────────────────
-    //  Mutable vars dipakai oleh getter functions di tween.
-    //  Nilainya di-update setelah font load, lalu ST.refresh()
-    //  men-trigger getter functions buat re-evaluate.
-    // ──────────────────────────────────────────────────────────
     let travelX = 0
     let travelY = 0
 
-    // SYNC: overlay nutupin konten, word disembunyiin dulu
     gsap.set(overlayEl, { opacity: 1 })
     gsap.set(wordEl,    { opacity: 0 })
 
-    // ══════════════════════════════════════════════════════════
-    //  PIN DAN TIMELINE DIBUAT SYNC
-    //  Ini WAJIB sync supaya pinSpacing-nya masuk ke kalkulasi
-    //  ScrollTrigger section lain (DalioPrinciplesSection, dll)
-    //  SEBELUM mereka bikin ST instance mereka sendiri.
-    // ══════════════════════════════════════════════════════════
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -76,8 +92,6 @@ export default function WhoWeAreSection() {
         },
       })
 
-      // Getter functions: nilai dibaca ulang setiap ST.refresh()
-      // invalidateOnRefresh: true → tween re-evaluasi getter-nya
       tl.to(wordEl, {
         x: () => travelX,
         y: () => travelY,
@@ -95,26 +109,16 @@ export default function WhoWeAreSection() {
 
     }, pinEl)
 
-    // ══════════════════════════════════════════════════════════
-    //  FONT-DEPENDENT MEASUREMENTS — ASYNC
-    //  Runs setelah semua useEffect di semua section selesai
-    //  (Promise resolve = setelah seluruh sync code).
-    //  ScrollTrigger.refresh() di sini aman karena semua ST
-    //  instance sudah terbuat — refresh hanya recalculate,
-    //  tidak mengubah urutan/struktur pin.
-    // ══════════════════════════════════════════════════════════
     document.fonts
       .load('400 1em "Playfair Display"')
       .then(() => {
         if (!isMounted) return
 
-        // Baca font yang sudah pasti loaded
         const cs           = window.getComputedStyle(emEl)
         const emFontSize   = parseFloat(cs.fontSize)
         const emFontFamily = cs.fontFamily
         const emFontWeight = cs.fontWeight
 
-        // Apply ke SVG sebelum ukur bbox
         gsap.set(svgText, {
           attr: {
             fontSize:   `${emFontSize}`,
@@ -124,7 +128,6 @@ export default function WhoWeAreSection() {
           },
         })
 
-        // Path length akurat setelah font applied
         let pathLen = 4000
         try {
           const bbox = svgText.getBBox()
@@ -144,21 +147,14 @@ export default function WhoWeAreSection() {
           },
         })
 
-        // Ukur posisi dengan font yang benar
         const pinRect = pinEl.getBoundingClientRect()
         const emRect  = emEl.getBoundingClientRect()
         const centerX = pinRect.width / 2
-
-        // startY = posisi word saat section sedang pinned (pinRect.top = 0)
-        // = viewport center relatif ke pinnedRef.top
-        // Nilai ini konsisten karena word hanya visible saat section pinned
         const startY  = window.innerHeight / 2 + START_OFFSET_Y
 
-        // Update mutable vars → getter functions akan baca ini saat refresh
         travelX = emRect.left - pinRect.left + emRect.width  / 2 - centerX
         travelY = emRect.top  - pinRect.top  + emRect.height / 2 + LAND_OFFSET_Y - startY
 
-        // Set posisi awal word yang akurat, tampilkan
         gsap.set(wordEl, {
           position:        'absolute',
           top:             startY,
@@ -172,15 +168,9 @@ export default function WhoWeAreSection() {
           zIndex:          20,
         })
 
-        // Refresh semua ST instance sekaligus.
-        // Aman karena semua section sudah setup duluan (async > sync).
-        // invalidateOnRefresh:true pada wordEl tween akan re-evaluasi
-        // getter () => travelX / () => travelY dengan nilai baru.
         ScrollTrigger.refresh()
-
       })
       .catch(() => {
-        // Fallback browser lama: tampilkan word apa adanya
         if (!isMounted) return
         gsap.set(wordEl, { opacity: 1 })
       })
@@ -192,6 +182,7 @@ export default function WhoWeAreSection() {
   }, [])
 
   return (
+    <>
     <div ref={pinnedRef} className="relative w-full">
 
       <section
@@ -274,5 +265,18 @@ export default function WhoWeAreSection() {
       </span>
 
     </div>
+
+    {/* ── Scroll hint — OUTSIDE pinnedRef so fixed works correctly ── */}
+    <div
+      ref={scrollHintRef}
+      className="fixed bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
+      style={{ zIndex: 9999 }}
+    >
+      <span className="font-mono text-[8px] tracking-[0.5em] uppercase text-[#030035]/40">
+        Scroll
+      </span>
+      <div className="w-px h-7 bg-gradient-to-b from-[#030035]/35 to-transparent" />
+    </div>
+    </>
   )
 }
