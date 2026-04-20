@@ -207,9 +207,9 @@ export default function UltimateHorizontalProcess() {
               Ready to <br />
               <span className="text-bronze italic text-[8.5vw] md:text-[9.5vw]">Execute?</span>
             </h2>
-            <button className="group relative px-20 py-8 bg-navy text-white font-body text-xs tracking-[0.6em] uppercase overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(3,0,53,0.2)] rounded-2xl">
+            <button className="group relative px-20 py-8 bg-navy text-white font-body text-xs tracking-[0.6em] uppercase overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(3,0,53,0.2)]">
               <span className="relative z-10">Solicitar Diagnóstico</span>
-              <div className="absolute inset-0 bg-bronze translate-y-full group-hover:translate-y-0 transition-transform duration-500 rounded-2xl" />
+              <div className="absolute inset-0 bg-bronze translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             </button>
           </div>
         </section>
