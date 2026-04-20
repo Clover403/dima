@@ -82,7 +82,7 @@ export default function ProductosHero() {
           alt=""
           className="w-full h-full object-cover will-change-transform"
         />
-        <div className="absolute inset-0 bg-navy/65" />
+        <div className="absolute inset-0 bg-navy/80" />
         {/* Extra gradient for depth */}
         {/* <div className="absolute inset-0 bg-gradient-to-b from-navy/40 via-transparent to-navy/90" /> */}
       </div>
