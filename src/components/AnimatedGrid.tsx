@@ -64,7 +64,6 @@ export default function AnimatedGrid({
       opacity: number
       fromHover: boolean
       tailLength: number
-      // All visited intersection points (pixel coords)
       points: { x: number; y: number }[]
       turnChance: number
       dead: boolean
@@ -100,7 +99,6 @@ export default function AnimatedGrid({
       }
     }
 
-    // Spawn in a wider ring around center — not too centered
     const spawnAmbient = () => {
       if (!cols || !rows) return
       const centerCol = cols / 2
@@ -133,27 +131,26 @@ export default function AnimatedGrid({
       }
     }, 250)
 
+    // ── Hover interval: 80ms (was 150ms) ─────────────────────
+    // Lebih cepat terdeteksi tanpa mengubah kecepatan/tampilan snake
     const hoverInterval = setInterval(() => {
       if (mouse.x > 0 && mouse.x < canvas.width && mouse.y > 0 && mouse.y < canvas.height) {
         spawnHover()
         if (Math.random() < 0.5) spawnHover()
       }
-    }, 150)
+    }, 138)
 
-    // Draw a smooth bezier path through a list of points
-    // Rounds all corners with quadratic curves
     const drawSmoothPath = (
       points: { x: number; y: number }[],
       opacity: number,
       lineWidth: number,
-      fadeDead = 0 // 0 = alive, >0 = fading (0→1)
+      fadeDead = 0
     ) => {
       if (points.length < 2) return
 
       const finalOpacity = opacity * (1 - fadeDead)
       if (finalOpacity < 0.005) return
 
-      // Gradient from tail (transparent) to head (full opacity)
       const tail = points[0]
       const head = points[points.length - 1]
       const grad = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y)
@@ -164,11 +161,7 @@ export default function AnimatedGrid({
 
       ctx.beginPath()
       ctx.moveTo(points[0].x, points[0].y)
-
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y)
-      }
-
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y)
       ctx.strokeStyle = grad
       ctx.lineWidth = lineWidth
       ctx.lineJoin = 'round'
@@ -197,9 +190,7 @@ export default function AnimatedGrid({
           const nextCol = s.col + DX[s.dir]
           const nextRow = s.row + DY[s.dir]
 
-          // Add new intersection point
           s.points.push({ x: nextCol * cellSize, y: nextRow * cellSize })
-          // Trim tail
           while (s.points.length > s.tailLength + 1) s.points.shift()
 
           s.col = nextCol
@@ -221,25 +212,22 @@ export default function AnimatedGrid({
           }
         }
 
-        // Build points array including current interpolated head position
         const hx = (s.col + DX[s.dir] * s.t) * cellSize
         const hy = (s.row + DY[s.dir] * s.t) * cellSize
         const drawPoints = [...s.points, { x: hx, y: hy }]
-
         drawSmoothPath(drawPoints, s.opacity, s.fromHover ? 0.9 : 0.75)
       }
 
       animId = requestAnimationFrame(draw)
     }
 
-    // Pause rAF completely when off-screen — laptop fan fix
     const visObserver = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (!animId) draw()  // resume
+          if (!animId) draw()
         } else {
           cancelAnimationFrame(animId)
-          animId = 0           // stop completely
+          animId = 0
         }
       },
       { threshold: 0 }
