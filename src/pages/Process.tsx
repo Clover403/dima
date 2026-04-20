@@ -1,65 +1,13 @@
-import { useEffect, useRef, type ReactElement } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Link } from 'react-router-dom'
 import PageTransition from '../components/PageTransition'
 import ModeloProceso from '../components/modelo/ModeloProceso'
 import ProcessDiagramSVG from '../components/illustrations/ProcessDiagramSVG'
-import DiamondGeometricSVG from '../components/illustrations/DiamondGeometricSVG'
-import BalanceScaleSVG from '../components/illustrations/BalanceScaleSVG'
-import ArchitecturalColumnSVG from '../components/illustrations/ArchitecturalColumnSVG'
 import AnimatedGrid from '../components/AnimatedGrid'
+import ProcessCTASection from '../components/ProcessCTASection'
 
 gsap.registerPlugin(ScrollTrigger)
-
-type PhaseNarrative = {
-  label: string
-  title: string
-  subtitle: string
-  description: string
-  Illustration: (props: { className?: string }) => ReactElement
-}
-
-const phases: PhaseNarrative[] = [
-  {
-    label: 'Fase 01',
-    title: 'Diagnóstico e Ideación Estructural',
-    subtitle: 'Empatía financiera y mapeo preliminar',
-    description:
-      'Partimos de una revisión integral del perfil corporativo. Analizamos escalabilidad, contexto operativo y determinamos el producto financiero preliminar. Sincronizamos condiciones técnicas con fondeadores institucionales para alinear eligibilidad con factibilidad estructural.',
-    Illustration: ({ className }) => <ArchitecturalColumnSVG className={className} />,
-  },
-  {
-    label: 'Fase 02',
-    title: 'Due Diligence y Reingeniería del Riesgo',
-    subtitle: 'Filtros de exclusión y evaluación macroeconómica',
-    description:
-      'Aplicamos filtros críticos de integridad reputacional y buró de crédito, seguidos de una due diligence multidisciplinaria integral (legal, fiscal, contable, financiera). Aplicamos el modelo de ingeniería económica derivado de Ray Dalio para determinar viabilidad estructural y solvencia.',
-    Illustration: ({ className }) => <BalanceScaleSVG className={className} />,
-  },
-  {
-    label: 'Itera',
-    title: 'Protocolo de Reconfiguración y Alineación',
-    subtitle: 'El filtro de solvencia — no un rechazo, una intervención',
-    description:
-      'Cuando la Evaluación de Causalidad Productiva indica solvencia subóptima, ejecutamos una transformación estructurada del balance hasta que la entidad alcance la solvencia y resiliencia operativa necesarias. Ninguna entidad avanza a la Fase 3 sin superar esta evaluación.',
-    Illustration: ({ className }) => <DiamondGeometricSVG className={className} />,
-  },
-  {
-    label: 'Fase 03',
-    title: 'Modelado, Despliegue y Escalabilidad',
-    subtitle: 'Organización documental y mapeo financiero',
-    description:
-      'Formalizamos el expediente crediticio auditable. Aplicamos el Modelo de Ingeniería Económica y Financiera para el mapeo integral de la genética financiera del negocio — validando solvencia y determinando el qué, cómo, cuánto, dónde y por qué de la generación de valor.',
-    Illustration: ({ className }) => <ArchitecturalColumnSVG className={className} />,
-  },
-]
-
-const principles = [
-  'No dejes que la deuda crezca más rápido que el ingreso, porque la carga de tus deudas eventualmente te aplastará.',
-  'No dejes que los ingresos crezcan más rápido que la productividad, porque con el tiempo perderás competitividad.',
-  'Haz todo lo posible por aumentar tu productividad, porque en el largo plazo, es lo que más importa.',
-]
 
 function runStrokeDraw(
   root: Element,
@@ -256,7 +204,7 @@ export default function Process() {
 
        <section className="relative py-24 md:py-32 bg-lightgray overflow-hidden">
   <div className="max-w-7xl mx-auto px-6 md:px-12">
-    <div className="text-center mb-16 md:mb-20">
+    <div className="text-center mb-2 md:mb-4">
       <p className="font-body text-bronze text-xs tracking-[0.5em] uppercase mb-4">
         Arquitectura del Modelo
       </p>
@@ -275,29 +223,7 @@ export default function Process() {
   </div>
 </section>
 
-        {/* ═══════════════════════════════════════════
-            CTA
-        ═══════════════════════════════════════════ */}
-        <section className="relative py-24 md:py-32 bg-navy overflow-hidden border-t border-lightgray/5">
-          <div className="relative z-10 max-w-3xl mx-auto px-8 text-center">
-            <h2 className="cta-reveal font-display text-3xl md:text-4xl lg:text-5xl text-lightgray leading-tight mb-6">
-              ¿Listo para estructurar
-              <span className="text-bronze italic"> su crecimiento?</span>
-            </h2>
-            <p className="cta-reveal font-body text-lightgray/55 text-lg leading-relaxed max-w-xl mx-auto mb-10">
-              Iniciemos con un diagnóstico estructural. Cada conversación es el
-              primer nodo del proceso.
-            </p>
-            <div className="cta-reveal flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contacto" className="btn-bronze-fill">
-                Agendar Consulta
-              </Link>
-              <Link to="/productos" className="btn-bronze">
-                Ver Productos
-              </Link>
-            </div>
-          </div>
-        </section>
+        <ProcessCTASection />
       </div>
     </PageTransition>
   )
