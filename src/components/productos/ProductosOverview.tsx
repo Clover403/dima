@@ -63,7 +63,6 @@ const SLIDE_DUR  = 3     // units per slide transition
 export default function ProductosOverview() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
-  const [slidesVisible, setSlidesVisible] = useState(false)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -252,7 +251,7 @@ export default function ProductosOverview() {
 
           {/* Slides */}
           <div className="relative w-full h-full z-10">
-            {products.map((p, i) => (
+            {products.map((p) => (
               <div
                 key={p.num}
                 className="product-slide absolute inset-0 flex flex-col items-center justify-center px-8 md:px-24 lg:px-48"
@@ -348,7 +347,7 @@ export default function ProductosOverview() {
         <div className="relative z-10 flex flex-col items-center gap-8 text-center">
           <div className="flex items-center gap-4">
             <div className="w-8 h-px bg-[#030035]/20" />
-            <span className="font-mono text-[#030035]/35 text-[9px] tracking-[0.6em] uppercase">
+            <span className="font-mono text-[#030035]/35 text-[11px] tracking-[0.6em] uppercase">
               ¿Cuál es el adecuado para su empresa?
             </span>
             <div className="w-8 h-px bg-[#030035]/20" />
