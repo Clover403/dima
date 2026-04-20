@@ -63,14 +63,6 @@ export default function ServicesSection() {
       return { top, bottom: top + height }
     }
 
-    // Snap window scroll to a specific slide — instant (no smooth) for jail
-    const jailTo = (idx: number) => {
-      const outer = outerRef.current
-      if (!outer) return
-      const target = outer.offsetTop + idx * getSlideHeight()
-      window.scrollTo({ top: target })
-    }
-
     // Smooth snap for intentional slide change
     const snapToSlide = (idx: number) => {
       const outer = outerRef.current
@@ -380,7 +372,7 @@ export default function ServicesSection() {
                       transition: 'max-height 1100ms cubic-bezier(0.22,1,0.36,1), opacity 1100ms cubic-bezier(0.22,1,0.36,1)',
                     }}
                   >
-                    <p className="font-body text-sm md:text-base text-navy/50 leading-relaxed pt-1">
+                    <p className="font-body text-lg md:text-base text-navy/50 leading-relaxed pt-1">
                       {service.description}
                     </p>
                   </div>
