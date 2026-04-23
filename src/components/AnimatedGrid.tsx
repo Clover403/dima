@@ -4,12 +4,16 @@ interface AnimatedGridProps {
   cellSize?: number
   color?: string
   className?: string
+  mousePos?: { x: number; y: number } | null
+  ambientOnly?: boolean
 }
 
 export default function AnimatedGrid({
   cellSize = 60,
   color = '229,153,123',
   className = '',
+  mousePos,
+  ambientOnly = false,
 }: AnimatedGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -34,13 +38,14 @@ export default function AnimatedGrid({
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
 
+    // Listen on document so pointer-events-none on parent doesnt matter
     const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       mouse.x = e.clientX - rect.left
       mouse.y = e.clientY - rect.top
     }
     const onMouseLeave = () => { mouse.x = -9999; mouse.y = -9999 }
-    canvas.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mousemove', onMouseMove)
     canvas.addEventListener('mouseleave', onMouseLeave)
 
     type Dir = 'r' | 'l' | 'u' | 'd'
@@ -79,22 +84,25 @@ export default function AnimatedGrid({
       const dir = dirs[Math.floor(Math.random() * dirs.length)]
       return {
         col, row, t: 0, dir,
+        // ── FASTER speed on hover ──
         speed: fromHover
-          ? 0.012 + Math.random() * 0.008
+          ? 0.014 + Math.random() * 0.008
           : 0.008 + Math.random() * 0.005,
+        // ── HIGHER opacity ──
         opacity: fromHover
-          ? 0.65 + Math.random() * 0.20
-          : 0.50 + Math.random() * 0.20,
+          ? 0.70 + Math.random() * 0.15
+          : 0.65 + Math.random() * 0.20,
         fromHover,
+        // ── LONGER tail on hover ──
         tailLength: fromHover
-          ? 4 + Math.floor(Math.random() * 3)
+          ? 5 + Math.floor(Math.random() * 3)
           : 4 + Math.floor(Math.random() * 4),
         points: [{ x: col * cellSize, y: row * cellSize }],
         turnChance: 0.35,
         dead: false,
         deadAge: 0,
         stepsLeft: fromHover
-          ? 3 + Math.floor(Math.random() * 4)
+          ? 4 + Math.floor(Math.random() * 5)
           : 5 + Math.floor(Math.random() * 7),
       }
     }
@@ -131,14 +139,13 @@ export default function AnimatedGrid({
       }
     }, 250)
 
-    // ── Hover interval: 80ms (was 150ms) ─────────────────────
-    // Lebih cepat terdeteksi tanpa mengubah kecepatan/tampilan snake
     const hoverInterval = setInterval(() => {
+      if (ambientOnly) return
       if (mouse.x > 0 && mouse.x < canvas.width && mouse.y > 0 && mouse.y < canvas.height) {
         spawnHover()
-        if (Math.random() < 0.5) spawnHover()
+        if (Math.random() < 0.4) spawnHover()
       }
-    }, 138)
+    }, 90)
 
     const drawSmoothPath = (
       points: { x: number; y: number }[],
@@ -177,9 +184,10 @@ export default function AnimatedGrid({
 
         if (s.dead) {
           s.deadAge++
-          const fadeDead = Math.min(1, s.deadAge / 40)
+          const fadeDead = Math.min(1, s.deadAge / 15)
           if (fadeDead >= 1) { snakes.splice(i, 1); continue }
-          drawSmoothPath(s.points, s.opacity, s.fromHover ? 0.9 : 0.75, fadeDead)
+          // ── THICKER lines ──
+          drawSmoothPath(s.points, s.opacity, s.fromHover ? 1.2 : 0.85, fadeDead)
           continue
         }
 
@@ -215,7 +223,8 @@ export default function AnimatedGrid({
         const hx = (s.col + DX[s.dir] * s.t) * cellSize
         const hy = (s.row + DY[s.dir] * s.t) * cellSize
         const drawPoints = [...s.points, { x: hx, y: hy }]
-        drawSmoothPath(drawPoints, s.opacity, s.fromHover ? 0.9 : 0.75)
+        // ── THICKER lines ──
+        drawSmoothPath(drawPoints, s.opacity, s.fromHover ? 1.2 : 0.85)
       }
 
       animId = requestAnimationFrame(draw)
@@ -241,10 +250,10 @@ export default function AnimatedGrid({
       clearInterval(ambientInterval)
       clearInterval(hoverInterval)
       ro.disconnect()
-      canvas.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mousemove', onMouseMove)
       canvas.removeEventListener('mouseleave', onMouseLeave)
     }
-  }, [cellSize, color])
+  }, [cellSize, color, mousePos])
 
   return (
     <canvas
