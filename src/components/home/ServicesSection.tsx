@@ -10,7 +10,7 @@ const services = [
   {
     number: '01',
     name: 'Estructuración de Deuda',
-    image: '/foto/brand-nature.jpg',
+    image: '/foto/brand-corporate.jpg',
     description:
       'Rediseñamos la arquitectura financiera de tu empresa para maximizar la productividad y minimizar el costo de capital.',
   },
@@ -24,7 +24,7 @@ const services = [
   {
     number: '03',
     name: 'Planeación Financiera Estratégica',
-    image: '/foto/illust-buildings.jpg',
+    image: '/foto/brand-nature.jpg',
     description:
       'Diseñamos roadmaps financieros alineados a tus objetivos de crecimiento a mediano y largo plazo.',
   },
