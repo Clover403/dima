@@ -47,7 +47,7 @@ export default function Navbar() {
         {/* Logo — swaps between light version (on dark hero) and dark version (on light bg) */}
         <Link to="/" className="relative z-50">
           <img
-            src={scrolled ? '/logo/orange_black.svg' : '/logo/orange_white.svg'}
+            src={scrolled ? '/logo/orange_black.svg' : location.pathname === '/' ? '/logo/orange_black.svg' : '/logo/orange_white.svg'}
             alt="DIMA Finance"
             className="h-8 md:h-10 w-auto transition-opacity duration-300"
           />
@@ -64,6 +64,8 @@ export default function Navbar() {
                   ? 'text-bronze'
                   : scrolled
                   ? 'text-navy/65'
+                  : location.pathname === '/'
+                  ? 'text-navy/70'
                   : 'text-lightgray/70'
               }`}
             >
@@ -80,12 +82,12 @@ export default function Navbar() {
         >
           <span
             className={`block w-6 h-px transition-all duration-300 ${
-              scrolled ? 'bg-navy' : 'bg-lightgray'
+              scrolled ? 'bg-navy' : location.pathname === '/' ? 'bg-navy' : 'bg-lightgray'
             } ${mobileOpen ? 'rotate-45 translate-y-[3.5px]' : ''}`}
           />
           <span
             className={`block w-6 h-px transition-all duration-300 ${
-              scrolled ? 'bg-navy' : 'bg-lightgray'
+              scrolled ? 'bg-navy' : location.pathname === '/' ? 'bg-navy' : 'bg-lightgray'
             } ${mobileOpen ? '-rotate-45 -translate-y-[3.5px]' : ''}`}
           />
         </button>
