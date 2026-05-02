@@ -7,6 +7,39 @@ gsap.registerPlugin(ScrollTrigger)
 export default function ModeloFuerzas() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const waveRef = useRef<SVGPathElement>(null)
+  const vantaRef = useRef<any>(null)
+
+  // ── Vanta Birds init ──────────────────────────────────────
+  useEffect(() => {
+    if (!sectionRef.current || !(window as any).VANTA) return
+
+    vantaRef.current = (window as any).VANTA.BIRDS({
+      el: sectionRef.current,
+      THREE: (window as any).THREE,
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 600.0,
+      minWidth: 600.0,
+      scale: 1.0,
+      scaleMobile: 1.0,
+      backgroundColor: 0xF5F5F5,   // lightgray
+      color1: 0x1a1a4e,             // navy soft
+      color2: 0xE5997B,             // bronze
+      colorMode: 'lerp',
+      birdSize: 1.2,
+      wingSpan: 18,
+      speedLimit: 3,
+      separation: 35,
+      alignment: 40,
+      cohesion: 50,
+      quantity: 4,
+    })
+
+    return () => {
+      vantaRef.current?.destroy()
+    }
+  }, [])
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -113,8 +146,8 @@ export default function ModeloFuerzas() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="bg-white py-32 md:py-48 section-padding">
-      <div className="max-w-6xl mx-auto">
+    <section ref={sectionRef} className="relative w-full bg-lightgray py-32 md:py-48 section-padding overflow-hidden" style={{ zIndex: 1 }}>
+      <div className="relative z-10 max-w-6xl mx-auto">
         <p className="section-label text-bronze font-body text-sm tracking-[0.3em] uppercase mb-16">
           Las Fuerzas Económicas
         </p>
@@ -210,7 +243,7 @@ export default function ModeloFuerzas() {
         </div>
 
         {/* ─── Callout Box ─── */}
-        <div className="callout-box border-l-2 border-bronze bg-lightgray px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto">
+        <div className="callout-box border-l-2 border-bronze bg-lightgray/80 backdrop-blur-sm px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto">
           <p className="font-display text-xl md:text-2xl text-navy leading-relaxed italic">
             &ldquo;El crédito no es necesariamente algo malo. Es malo cuando financia
             consumo que no puede ser pagado. Cuando los recursos se asignan de manera
