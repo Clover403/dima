@@ -50,17 +50,6 @@ const TOTAL_SLIDES = services.length + 3   // 6 × 100vh — room for intro + ou
 const HEADING_FONT_FAMILY = "'Playfair Display', serif"
 const HEADING_FONT_WEIGHT = '400'
 
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve()
-    const s = document.createElement('script')
-    s.src = src
-    s.onload = () => resolve()
-    s.onerror = reject
-    document.head.appendChild(s)
-  })
-}
-
 function HeadingStrokeSVG({ svgRef }: { svgRef: RefObject<SVGSVGElement | null> }) {
   const lines = [
     { text: 'Acompañamiento', color: '#030035', y: 138, italic: false },
@@ -134,52 +123,10 @@ export default function ServicesSection() {
   const stepRef    = useRef(-1)    // current step
   const animRef    = useRef(false) // hard lock while animating
   const touchY     = useRef(0)
-  const vantaRef   = useRef<any>(null)
 
   // ── GSAP action refs ─────────────────────────────────────────────────
   const outroPlayRef    = useRef<() => void>(() => {})
   const outroReverseRef = useRef<() => void>(() => {})
-
-  // ── Vanta Birds setup ───────────────────────────────────────────────────
-  useEffect(() => {
-    let destroyed = false
-
-    async function initVanta() {
-      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-      await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
-      if (destroyed || !outerRef.current) return
-
-      vantaRef.current = (window as any).VANTA.BIRDS({
-        el: outerRef.current,
-        THREE: (window as any).THREE,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 600.0,
-        minWidth: 600.0,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        backgroundColor: 0xF5F5F5,
-        color1: 0x1a1a4e,
-        color2: 0xE5997B,
-        colorMode: 'lerp',
-        birdSize: 1.2,
-        wingSpan: 18,
-        speedLimit: 3,
-        separation: 35,
-        alignment: 40,
-        cohesion: 50,
-        quantity: 4,
-      })
-    }
-
-    initVanta()
-
-    return () => {
-      destroyed = true
-      vantaRef.current?.destroy()
-    }
-  }, [])
 
   // ── GSAP setup ───────────────────────────────────────────────────────
   useEffect(() => {
