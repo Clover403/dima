@@ -485,10 +485,10 @@ export default function UltimateHorizontalProcess() {
         }
       `}</style>
 
-      {/* Vanta BIRDS — 1 instance global, fixed di belakang semua layer */}
+      {/* Vanta BIRDS — fixed global di belakang section */}
       <VantaBirds />
 
-      <div ref={containerRef} className="bg-transparent overflow-hidden relative" style={{ zIndex: 2 }}>
+      <div ref={containerRef} className="bg-white overflow-hidden relative">
 
         <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
           <div className="progress-fill h-full bg-bronze origin-left scale-x-0" />
@@ -497,7 +497,7 @@ export default function UltimateHorizontalProcess() {
         <div ref={sliderRef} className="flex h-screen w-max items-center relative z-10">
 
           {/* ══ INTRO SLIDE ══════════════════════════════════════════════════ */}
-          <section className="w-[100vw] h-full flex flex-col justify-center px-12 md:px-32 border-r border-gray-100/30 bg-white/80 backdrop-blur-sm relative z-20">
+          <section className="w-[100vw] h-full flex flex-col justify-center px-12 md:px-32 border-r border-gray-100 bg-white relative z-20">
             <div className="max-w-[90%]">
               <span className="text-bronze font-body text-[12px] md:text-[14px] tracking-[0.6em] uppercase font-black mb-8 block">
                 Metodología de Élite
@@ -518,7 +518,7 @@ export default function UltimateHorizontalProcess() {
           {phases.map((phase) => (
             <section
               key={phase.num}
-              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100/30 bg-white/75 backdrop-blur-sm relative overflow-hidden"
+              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100/30 bg-white/65 backdrop-blur-md relative overflow-hidden"
             >
               <div className="absolute bottom-[8%] left-0 w-full overflow-hidden opacity-[0.045] select-none pointer-events-none z-0">
                 <div
@@ -567,7 +567,7 @@ export default function UltimateHorizontalProcess() {
           {/* ══ FINAL SLIDE ══════════════════════════════════════════════════ */}
           <section
             ref={finalSectionRef}
-            className="w-[100vw] h-full flex items-center justify-center bg-lightgray/80 backdrop-blur-sm relative z-20"
+            className="w-[100vw] h-full flex items-center justify-center bg-lightgray relative z-20"
           >
             <div className="text-center px-10">
               <span className="text-bronze font-body text-sm tracking-[0.8em] uppercase font-black mb-8 block">
