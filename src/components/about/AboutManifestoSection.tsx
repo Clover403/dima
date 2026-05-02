@@ -45,10 +45,12 @@ export default function AboutManifestoSection() {
       gsap.set(bgContainers[0], { opacity: 1 });
       gsap.set(bgContainers.map(c => c.querySelector('img')), { scale: 1.15 });
       gsap.set(bgContainers[0].querySelector('img'), { scale: 1 });
+      const dissolveContainer = sectionRef.current?.closest('[data-dissolve-container="true"]') ?? undefined;
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
+          pinnedContainer: dissolveContainer,
           start: 'top top',
           end: `+=${MANIFESTOS.length * 100}%`,
           pin: true,

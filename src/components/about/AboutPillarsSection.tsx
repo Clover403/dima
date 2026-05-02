@@ -53,10 +53,12 @@ export default function AboutPillarsSection({ pillarsRef }: Props) {
       // 1. SETUP AWAL
       gsap.set(cards, { opacity: 0, yPercent: 50 });
       gsap.set(cards[0], { opacity: 1, yPercent: 0 });
+      const dissolveContainer = targetTrigger.closest('[data-dissolve-container="true"]') ?? undefined;
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: targetTrigger,
+          pinnedContainer: dissolveContainer,
           start: "top top",
           end: () => `+=${window.innerHeight * (PILLARS.length * 1.25)}`,
           pin: true,

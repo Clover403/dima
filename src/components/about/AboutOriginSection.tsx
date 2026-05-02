@@ -14,10 +14,12 @@ export default function AboutOriginSection() {
       gsap.set('.origin-scale-wrapper', { opacity: 0, clearProps: 'filter,scale,blur' });
       gsap.set('.origin-reveal', { opacity: 0, y: 40, clearProps: 'filter' });
       gsap.set('.origin-title', { opacity: 0, y: 20, clearProps: 'filter,scale' });
+      const dissolveContainer = pinnedRef.current?.closest('[data-dissolve-container="true"]') ?? undefined;
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: pinnedRef.current,
+          pinnedContainer: dissolveContainer,
           start: 'top top',
           end: '+=300%',
           pin: true,
