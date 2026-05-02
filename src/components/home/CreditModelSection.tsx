@@ -5,12 +5,66 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve()
+    const s = document.createElement('script')
+    s.src = src
+    s.onload = () => resolve()
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
 export default function CreditModelSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const chartRef = useRef<SVGSVGElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
   const waveRef = useRef<SVGPathElement>(null)
+  const vantaRef = useRef<any>(null)
 
+  // ── Vanta Birds init ──────────────────────────────────────
+  useEffect(() => {
+    let destroyed = false
+
+    async function initVanta() {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+      await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
+      if (destroyed || !sectionRef.current) return
+
+      vantaRef.current = (window as any).VANTA.BIRDS({
+  el: sectionRef.current,
+  THREE: (window as any).THREE,
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: 600.0,
+  minWidth: 600.0,
+  scale: 1.0,
+  scaleMobile: 1.0,
+  backgroundColor: 0xF5F5F5,
+  color1: 0x1a1a4e,      // navy soft
+  color2: 0xE5997B,      // bronze
+  colorMode: 'lerp',
+  birdSize: 1.2,         // naik dari 0.8
+  wingSpan: 18,          // naik dari 15
+  speedLimit: 3,
+  separation: 35,
+  alignment: 40,
+  cohesion: 50,
+  quantity: 4,           // naik dari 3
+})
+    }
+
+    initVanta()
+
+    return () => {
+      destroyed = true
+      vantaRef.current?.destroy()
+    }
+  }, [])
+
+  // ── GSAP animations ─────────────────────────────────────
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (!sectionRef.current) return
@@ -109,9 +163,10 @@ export default function CreditModelSection() {
     <section
       ref={sectionRef}
       className="relative w-full min-h-screen bg-lightgray overflow-hidden flex items-center"
+      style={{ position: 'relative', zIndex: 1 }}
     >
-      <div className="w-full grid grid-cols-1 lg:grid-cols-[3fr_2fr] items-center px-0 lg:px-0">
-        {/* LEFT — Animated SVG chart, fills 55-60% of viewport */}
+      <div className="relative z-10 w-full grid grid-cols-1 lg:grid-cols-[3fr_2fr] items-center px-0 lg:px-0">
+        {/* LEFT — Animated SVG chart */}
         <div className="flex flex-col items-center justify-center py-16 lg:py-0 px-8 md:px-16 lg:pl-24 lg:pr-8">
           <svg
             ref={chartRef}

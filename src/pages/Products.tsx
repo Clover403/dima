@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/PageTransition'
 import ProductosHero from '../components/productos/ProductosHero'
-import ProductosIntro from '../components/productos/ProductosIntro'
-import ProductCard from '../components/productos/ProductCard'
+import ProductosIntroImmersive from '../components/productos/ProductosIntroImmersive'
+import ProductosShowcase from '../components/productos/ProductosShowcase'
 import ProductosOverview from '../components/productos/ProductosOverview'
 import ProductosCTA from '../components/productos/ProductosCTA'
 
@@ -19,7 +19,7 @@ const products = [
     heading: 'Capital para crecer hoy con la productividad de mañana',
     description: [
       'Es un préstamo a plazo fijo con tasa de interés definida, montos establecidos y pagos predecibles. Le permite obtener capital para proyectos específicos sin afectar su flujo de caja.',
-      'Estructuración de capital para adquisición de diversos activos y expansión de infraestructura. Trae el futuro al presente, asegurando que el retorno de inversión supere estructuralmente el costo de capital a lo largo del tiempo, para incrementar su productividad marginal sin comprometer la solvencia fundamental de su empresa.',
+      'Estructuración de capital para adquisición de diversos activos y expansión de infraestructura. Trae el futuro al presente, asegurando que el retorno de inversión supere estructuralmente el costo de capital a lo largo del tiempo.',
     ],
     features: [
       'Plazo fijo definido',
@@ -29,8 +29,6 @@ const products = [
     ],
     image: '/foto/brand-corporate.jpg',
     illustration: '/foto/illust-growth.jpg',
-    layout: 'left' as const,
-    theme: 'dark' as const,
     ctaLink: '/contacto',
   },
   {
@@ -40,7 +38,7 @@ const products = [
     heading: 'Financiamiento que avanza al ritmo de su proyecto',
     description: [
       'Es un tipo de crédito simple diseñado para cubrir los costos de un proyecto inmobiliario (construcción, desarrollo, etc.) y los ingresos esperados.',
-      'Financiamiento especializado para desarrollos inmobiliarios. Diseñado para alinear los desembolsos con el avance físico de la construcción, transformando el servicio de deuda en un motor de progreso alineado con los ciclos de comercialización y entrega del proyecto.',
+      'Financiamiento especializado para desarrollos inmobiliarios. Diseñado para alinear los desembolsos con el avance físico de la construcción, transformando el servicio de deuda en un motor de progreso.',
     ],
     features: [
       'Alineado con avance de obra',
@@ -50,8 +48,6 @@ const products = [
     ],
     image: '/foto/brand-nature.jpg',
     illustration: '/foto/illust-buildings.jpg',
-    layout: 'right' as const,
-    theme: 'light' as const,
     ctaLink: '/contacto',
   },
   {
@@ -60,8 +56,8 @@ const products = [
     tagline: 'Mitigación táctica en el ciclo de conversión de efectivo',
     heading: 'Liquidez que se adapta a su ritmo operativo',
     description: [
-      'Diseñado para facilitar la gestión diaria de las operaciones de una empresa. A diferencia de otros créditos, una vez que se reembolsa el principal, puede volver a acceder a los fondos mientras el contrato esté activo — similar a una tarjeta de crédito empresarial.',
-      'Línea de crédito revolvente para ciclos operativos. Un mecanismo de equilibrio para gestionar brechas de flujo de efectivo a corto plazo. Esta intervención estratégica le permite gestionar sus propios ciclos económicos, manteniendo la agilidad necesaria para que su gasto siempre se traduzca en ingresos impulsados por la productividad.',
+      'Diseñado para facilitar la gestión diaria de las operaciones de una empresa. A diferencia de otros créditos, una vez que se reembolsa el principal, puede volver a acceder a los fondos mientras el contrato esté activo.',
+      'Línea de crédito revolvente para ciclos operativos. Un mecanismo de equilibrio para gestionar brechas de flujo de efectivo a corto plazo, manteniendo la agilidad necesaria para que su gasto siempre se traduzca en ingresos.',
     ],
     features: [
       'Línea revolvente',
@@ -71,8 +67,6 @@ const products = [
     ],
     image: '/foto/brand-documents.jpg',
     illustration: '/foto/illust-piechart.jpg',
-    layout: 'left' as const,
-    theme: 'dark' as const,
     ctaLink: '/contacto',
   },
   {
@@ -82,7 +76,7 @@ const products = [
     heading: 'Financiamiento que respeta los ciclos de la tierra',
     description: [
       'Diseñado específicamente para el sector agrícola, este programa permite a productores y empresas del sector acceder a capital para inversiones, capital de trabajo y proyectos de modernización.',
-      'Financiamiento especializado para el sector agropecuario, estructurado para respetar rigurosamente los ciclos de activos biológicos y cosechas. Diseñamos el flujo de efectivo para que las obligaciones de pago coincidan precisamente con la maduración y comercialización de su cosecha, garantizando que el financiamiento sustente la viabilidad del negocio.',
+      'Financiamiento especializado para el sector agropecuario, estructurado para respetar rigurosamente los ciclos de activos biológicos y cosechas.',
     ],
     features: [
       'Pagos alineados a cosechas',
@@ -92,8 +86,6 @@ const products = [
     ],
     image: '/foto/brand-nature.jpg',
     illustration: '/foto/illust-house.jpg',
-    layout: 'right' as const,
-    theme: 'light' as const,
     ctaLink: '/contacto',
   },
   {
@@ -102,8 +94,8 @@ const products = [
     tagline: 'Uso de activos productivos con máxima eficiencia de capital',
     heading: 'El activo se paga con la riqueza que genera',
     description: [
-      'Producto diseñado para que el acreditado use y finalmente adquiera un activo mediante pagos periódicos que incluyen capital e intereses. A diferencia de un arrendamiento estándar, el objetivo es la transferencia de propiedad al término del contrato a cambio del pago de su valor residual.',
-      'Acceda a tecnología y maquinaria sin agotar su capital. Un esquema diseñado para que el activo productivo pague su propia amortización mediante la riqueza generada por su uso, optimizando la rentabilidad y fortaleciendo la competitividad sin arriesgar el capital de trabajo. Un camino directo a la productividad marginal del capital.',
+      'Producto diseñado para que el acreditado use y finalmente adquiera un activo mediante pagos periódicos que incluyen capital e intereses. El objetivo es la transferencia de propiedad al término del contrato.',
+      'Acceda a tecnología y maquinaria sin agotar su capital. Un esquema diseñado para que el activo productivo pague su propia amortización mediante la riqueza generada por su uso.',
     ],
     features: [
       'Transferencia de propiedad',
@@ -113,8 +105,6 @@ const products = [
     ],
     image: '/foto/brand-stationery.jpg',
     illustration: '/foto/illust-shipping.jpg',
-    layout: 'left' as const,
-    theme: 'dark' as const,
     ctaLink: '/contacto',
   },
   {
@@ -123,8 +113,8 @@ const products = [
     tagline: 'Aceleración estratégica del ciclo de conversión de efectivo',
     heading: 'Convierta sus cuentas por cobrar en poder de compra',
     description: [
-      'Le permite obtener liquidez inmediata mediante la cesión de sus cuentas por cobrar (facturas por cobrar) a una institución financiera. Recibe un anticipo sobre el valor de sus facturas, obteniendo capital de trabajo sin esperar a que sus clientes paguen.',
-      'Acelere su ciclo de conversión de efectivo anticipando cuentas por cobrar para convertirlas en poder de compra estratégico hoy. Convierta activos financieros en liquidez inmediata para reinvertir en su cadena de valor, eliminando la especulación y fortaleciendo el patrimonio financiero.',
+      'Le permite obtener liquidez inmediata mediante la cesión de sus cuentas por cobrar a una institución financiera. Recibe un anticipo sobre el valor de sus facturas, obteniendo capital de trabajo sin esperar a que sus clientes paguen.',
+      'Acelere su ciclo de conversión de efectivo anticipando cuentas por cobrar para convertirlas en poder de compra estratégico hoy.',
     ],
     features: [
       'Liquidez inmediata',
@@ -134,8 +124,6 @@ const products = [
     ],
     image: '/foto/brand-documents.jpg',
     illustration: '/foto/illust-truck.jpg',
-    layout: 'right' as const,
-    theme: 'light' as const,
     ctaLink: '/contacto',
   },
 ]
@@ -150,14 +138,10 @@ export default function Products() {
   return (
     <PageTransition>
       <ProductosHero />
-      <ProductosIntro />
-
-      {products.map((product) => (
-        <ProductCard key={product.number} {...product} />
-      ))}
-
+      <ProductosIntroImmersive />
+      <ProductosShowcase products={products} />
       <ProductosOverview />
-      <ProductosCTA />
+      {/* <ProductosCTA /> */}
     </PageTransition>
   )
 }

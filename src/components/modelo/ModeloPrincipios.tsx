@@ -25,6 +25,111 @@ const principles = [
   },
 ]
 
+// ── HEADING DENGAN STROKE (UKURAN DIPERKECIL) ───────────────────────────
+function HeadingStroke() {
+  const svgRef = useRef<SVGSVGElement>(null)
+
+  useEffect(() => {
+    if (!svgRef.current) return
+    const svg = svgRef.current
+    const strokeTspans = Array.from(svg.querySelectorAll<SVGTSpanElement>('[data-stroke]'))
+    const fillTspans = Array.from(svg.querySelectorAll<SVGTSpanElement>('[data-fill]'))
+
+    const lengths = strokeTspans.map(el => {
+      let len = el.getComputedTextLength()
+      if (!len || len < 10) len = 400
+      el.style.strokeDasharray = `${len}`
+      el.style.strokeDashoffset = `${len}`
+      return len
+    })
+
+    gsap.set(strokeTspans, { strokeDashoffset: (i) => lengths[i] })
+    gsap.set(fillTspans, { fillOpacity: 0 })
+
+    const tl = gsap.timeline({ paused: true })
+    tl
+      .to(strokeTspans, { strokeDashoffset: 0, duration: 1.4, stagger: 0.2, ease: 'power2.inOut' }, 0)
+      .to(fillTspans, { fillOpacity: 1, duration: 0.7, stagger: 0.1, ease: 'power2.out' }, 1.1)
+
+    // ❌ Baris ini dihapus:
+    // .to(strokeTspans, { opacity: 0, duration: 0.5, stagger: 0.06, ease: 'power1.in' }, 1.5)
+
+    ScrollTrigger.create({
+      trigger: svg,
+      start: 'top 80%',
+      end: 'bottom 20%',
+      toggleActions: 'play reverse play reverse',
+      onToggle: (self) => {
+        if (self.isActive) tl.play()
+        else tl.reverse()
+      },
+    })
+
+    return () => { tl.kill() }
+  }, [])
+
+  return (
+    <div style={{ fontSize: 'clamp(32px, 5vw, 64px)', lineHeight: 1.2 }}>
+      <svg
+        ref={svgRef}
+        width="100%"
+        height="auto"
+        viewBox="0 0 900 100"
+        preserveAspectRatio="xMidYMid meet"
+        style={{ overflow: 'visible' }}
+      >
+        <text
+          x="0"
+          y="1em"
+          textAnchor="start"
+          fontSize="1em"
+          fontWeight="400"
+          fontFamily="'Playfair Display', serif"
+          fill="none"
+          stroke="none"
+        >
+          <tspan
+            data-stroke
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="0.02em"
+            fillOpacity="0"
+          >
+            Tres principios,{' '}
+          </tspan>
+          <tspan
+            data-stroke
+            fill="none"
+            stroke="#E5997B"
+            strokeWidth="0.02em"
+            fontStyle="italic"
+            fillOpacity="0"
+          >
+            una arquitectura
+          </tspan>
+        </text>
+        <text
+          x="0"
+          y="1em"
+          textAnchor="start"
+          fontSize="1em"
+          fontWeight="400"
+          fontFamily="'Playfair Display', serif"
+          fill="none"
+          stroke="none"
+        >
+          <tspan data-fill fill="#FFFFFF" fillOpacity="0">
+            Tres principios,{' '}
+          </tspan>
+          <tspan data-fill fill="#E5997B" fontStyle="italic" fillOpacity="0">
+            una arquitectura
+          </tspan>
+        </text>
+      </svg>
+    </div>
+  )
+}
+
 export default function ModeloPrincipios() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const lineRef    = useRef<HTMLDivElement>(null)
@@ -40,7 +145,7 @@ export default function ModeloPrincipios() {
       const line   = lineRef.current!
       const blocks = Array.from(sectionRef.current!.querySelectorAll<HTMLElement>('.principle'))
 
-      // ── Content reveal per block ────────────────────────────────────────
+      // Content reveal per block
       innerRefs.current.forEach((inner) => {
         if (!inner) return
         gsap.from(inner, {
@@ -55,27 +160,21 @@ export default function ModeloPrincipios() {
         })
       })
 
-      // ── Line draw + dot sync ─────────────────────────────────────────────
-      // Satu ScrollTrigger mengontrol semuanya via onUpdate
-      // sehingga line progress dan dot activation SELALU sinkron
+      // Line draw + dot sync
       ScrollTrigger.create({
         trigger: wrap,
-        start: 'top 20%',   // line mulai bergerak pas wrap masuk 20% dari atas
-        end: 'bottom 80%',  // selesai pas wrap hampir keluar bawah
-        scrub: 2,           // angka lebih tinggi = lebih lambat / smooth
+        start: 'top 20%',
+        end: 'bottom 80%',
+        scrub: 2,
         onUpdate: (self) => {
-          const prog  = self.progress              // 0.0 → 1.0
+          const prog  = self.progress
           const wrapH = wrap.offsetHeight
-          const lineH = wrapH * prog               // sudah berapa px line berjalan
-
-          // Terapkan ke line
+          const lineH = wrapH * prog
           line.style.transform = `scaleY(${prog})`
 
-          // Check tiap dot — dot nyala kalau line sudah mencapai posisinya
           dotRefs.current.forEach((dot, i) => {
             if (!dot) return
             const block     = blocks[i]
-            // Posisi dot = offsetTop block + offset kecil (titik dot di dalam block)
             const dotOffset = block.offsetTop + 8
             const reached   = lineH >= dotOffset
 
@@ -110,12 +209,9 @@ export default function ModeloPrincipios() {
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-bronze/10 rounded-full blur-[150px]" />
       </div>
 
-      {/* Heading */}
+      {/* Heading dengan stroke (ukuran sudah diperkecil) */}
       <div className="max-w-7xl mx-auto mb-32 relative z-10">
-        <h2 className="font-display text-[clamp(40px,7vw,80px)] text-white tracking-tighter leading-none">
-          Tres principios,{' '}
-          <span className="text-bronze italic">una arquitectura</span>
-        </h2>
+        <HeadingStroke />
       </div>
 
       {/* Principles wrap */}
@@ -190,7 +286,7 @@ export default function ModeloPrincipios() {
   )
 }
 
-// ── Premium CTA ───────────────────────────────────────────────────────────────
+// ── Premium CTA (persis seperti semula) ─────────────────────────────────────
 function PremiumCTA() {
   const cardRef   = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -223,61 +319,30 @@ function PremiumCTA() {
         onMouseLeave={() => gsap.to(buttonRef.current, { x: 0, y: 0, duration: 0.6 })}
         className="group relative overflow-hidden rounded-[2rem] border border-navy/10 bg-[#F4F4F5] transition-all duration-500 hover:border-navy/40"
       >
-        {/* Spotlight radial — blue glow */}
+        {/* Spotlight radial */}
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           style={{ background: `radial-gradient(500px circle at ${coords.x}px ${coords.y}px, rgba(59,130,246,0.15), transparent 50%)` }}
         />
 
-        {/* ── Abstract flowing lines ────────────────────────────────────── */}
+        {/* Abstract flowing lines */}
         <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-[60%] flex items-center justify-end opacity-[0.22] group-hover:opacity-[0.42] transition-opacity duration-700 z-[1]">
           <svg viewBox="0 0 560 420" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-[520px] h-auto">
-
-            {/* ── Primary flowing curves — large sweeping paths ─────────── */}
-            <path d="M -20 380 C 80 320, 160 80, 300 60 C 420 42, 480 180, 580 140"
-              stroke="#030035" strokeWidth="1.2" strokeOpacity="0.7" fill="none"/>
-            <path d="M -20 340 C 100 290, 180 100, 320 85 C 440 68, 490 200, 580 165"
-              stroke="#030035" strokeWidth="0.6" strokeOpacity="0.4" fill="none"/>
-            <path d="M -20 300 C 120 260, 200 120, 340 110 C 460 95, 500 220, 580 190"
-              stroke="#030035" strokeWidth="0.3" strokeOpacity="0.25" fill="none"/>
-
-            {/* ── Secondary wave — opposite direction ───────────────────── */}
-            <path d="M -20 40 C 80 100, 200 340, 340 350 C 460 358, 510 240, 580 280"
-              stroke="#030035" strokeWidth="1" strokeOpacity="0.6" fill="none"/>
-            <path d="M -20 70 C 100 120, 210 340, 350 352 C 470 362, 515 250, 580 295"
-              stroke="#030035" strokeWidth="0.5" strokeOpacity="0.35" fill="none"/>
-            <path d="M -20 100 C 110 140, 220 340, 360 354 C 480 364, 520 260, 580 310"
-              stroke="#030035" strokeWidth="0.25" strokeOpacity="0.2" fill="none"/>
-
-            {/* ── Crossing flow — middle tension ────────────────────────── */}
-            <path d="M -20 210 C 140 210, 200 80, 340 200 C 460 300, 500 160, 580 210"
-              stroke="#030035" strokeWidth="1.4" strokeOpacity="0.8" fill="none"/>
-            <path d="M -20 225 C 140 225, 200 95, 340 215 C 460 315, 500 175, 580 225"
-              stroke="#030035" strokeWidth="0.5" strokeOpacity="0.3" fill="none"/>
-
-            {/* ── Bronze accent lines — thinner, warmer ─────────────────── */}
-            <path d="M 60 420 C 120 340, 240 120, 380 80 C 480 50, 530 160, 580 120"
-              stroke="#E5997B" strokeWidth="1.5" strokeOpacity="0.9" fill="none"/>
-            <path d="M 80 420 C 140 350, 250 130, 390 90 C 490 60, 535 170, 580 130"
-              stroke="#E5997B" strokeWidth="0.6" strokeOpacity="0.5" fill="none"/>
-
-            <path d="M 40 0 C 100 80, 220 300, 360 330 C 470 352, 520 230, 580 265"
-              stroke="#E5997B" strokeWidth="1.2" strokeOpacity="0.8" fill="none"/>
-            <path d="M 60 0 C 115 85, 230 305, 370 335 C 478 356, 524 236, 580 272"
-              stroke="#E5997B" strokeWidth="0.5" strokeOpacity="0.4" fill="none"/>
-
-            {/* ── Fine parallel detail lines — texture ──────────────────── */}
+            <path d="M -20 380 C 80 320, 160 80, 300 60 C 420 42, 480 180, 580 140" stroke="#030035" strokeWidth="1.2" strokeOpacity="0.7" fill="none"/>
+            <path d="M -20 340 C 100 290, 180 100, 320 85 C 440 68, 490 200, 580 165" stroke="#030035" strokeWidth="0.6" strokeOpacity="0.4" fill="none"/>
+            <path d="M -20 300 C 120 260, 200 120, 340 110 C 460 95, 500 220, 580 190" stroke="#030035" strokeWidth="0.3" strokeOpacity="0.25" fill="none"/>
+            <path d="M -20 40 C 80 100, 200 340, 340 350 C 460 358, 510 240, 580 280" stroke="#030035" strokeWidth="1" strokeOpacity="0.6" fill="none"/>
+            <path d="M -20 70 C 100 120, 210 340, 350 352 C 470 362, 515 250, 580 295" stroke="#030035" strokeWidth="0.5" strokeOpacity="0.35" fill="none"/>
+            <path d="M -20 100 C 110 140, 220 340, 360 354 C 480 364, 520 260, 580 310" stroke="#030035" strokeWidth="0.25" strokeOpacity="0.2" fill="none"/>
+            <path d="M -20 210 C 140 210, 200 80, 340 200 C 460 300, 500 160, 580 210" stroke="#030035" strokeWidth="1.4" strokeOpacity="0.8" fill="none"/>
+            <path d="M -20 225 C 140 225, 200 95, 340 215 C 460 315, 500 175, 580 225" stroke="#030035" strokeWidth="0.5" strokeOpacity="0.3" fill="none"/>
+            <path d="M 60 420 C 120 340, 240 120, 380 80 C 480 50, 530 160, 580 120" stroke="#E5997B" strokeWidth="1.5" strokeOpacity="0.9" fill="none"/>
+            <path d="M 80 420 C 140 350, 250 130, 390 90 C 490 60, 535 170, 580 130" stroke="#E5997B" strokeWidth="0.6" strokeOpacity="0.5" fill="none"/>
+            <path d="M 40 0 C 100 80, 220 300, 360 330 C 470 352, 520 230, 580 265" stroke="#E5997B" strokeWidth="1.2" strokeOpacity="0.8" fill="none"/>
+            <path d="M 60 0 C 115 85, 230 305, 370 335 C 478 356, 524 236, 580 272" stroke="#E5997B" strokeWidth="0.5" strokeOpacity="0.4" fill="none"/>
             {[0, 6, 12, 18, 24].map((offset) => (
-              <path
-                key={offset}
-                d={`M -20 ${195 + offset} C 140 ${195 + offset}, 200 ${65 + offset}, 340 ${185 + offset} C 460 ${285 + offset}, 500 ${145 + offset}, 580 ${195 + offset}`}
-                stroke="#030035"
-                strokeWidth="0.2"
-                strokeOpacity="0.15"
-                fill="none"
-              />
+              <path key={offset} d={`M -20 ${195 + offset} C 140 ${195 + offset}, 200 ${65 + offset}, 340 ${185 + offset} C 460 ${285 + offset}, 500 ${145 + offset}, 580 ${195 + offset}`} stroke="#030035" strokeWidth="0.2" strokeOpacity="0.15" fill="none"/>
             ))}
-
           </svg>
         </div>
 
@@ -291,8 +356,6 @@ function PremiumCTA() {
               Request structural diagnostics
             </p>
           </div>
-
-          {/* Magnetic button */}
           <button
             ref={buttonRef}
             className="group/btn relative px-8 py-4 bg-bronze text-navy font-black text-[10px] uppercase tracking-[0.25em] overflow-hidden transition-shadow duration-300 hover:shadow-[0_0_20px_rgba(3,0,53,0.2)] flex-shrink-0"
@@ -301,8 +364,6 @@ function PremiumCTA() {
             <div className="absolute inset-0 bg-white translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />
           </button>
         </div>
-
-        {/* Bottom border accent */}
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-bronze/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-1000 z-10" />
       </div>
     </div>
