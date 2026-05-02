@@ -38,7 +38,6 @@ export default function AnimatedGrid({
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
 
-    // Listen on document so pointer-events-none on parent doesnt matter
     const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       mouse.x = e.clientX - rect.left
@@ -84,16 +83,13 @@ export default function AnimatedGrid({
       const dir = dirs[Math.floor(Math.random() * dirs.length)]
       return {
         col, row, t: 0, dir,
-        // ── FASTER speed on hover ──
         speed: fromHover
           ? 0.014 + Math.random() * 0.008
           : 0.008 + Math.random() * 0.005,
-        // ── HIGHER opacity ──
         opacity: fromHover
           ? 0.70 + Math.random() * 0.15
           : 0.65 + Math.random() * 0.20,
         fromHover,
-        // ── LONGER tail on hover ──
         tailLength: fromHover
           ? 5 + Math.floor(Math.random() * 3)
           : 4 + Math.floor(Math.random() * 4),
@@ -109,14 +105,9 @@ export default function AnimatedGrid({
 
     const spawnAmbient = () => {
       if (!cols || !rows) return
-      const centerCol = cols / 2
-      const centerRow = rows / 2
-      const minR = 3.0
-      const maxR = 7.5
-      const angle = Math.random() * Math.PI * 2
-      const radius = minR + Math.random() * (maxR - minR)
-      const col = Math.round(Math.max(0, Math.min(cols, centerCol + Math.cos(angle) * radius)))
-      const row = Math.round(Math.max(0, Math.min(rows, centerRow + Math.sin(angle) * radius)))
+      // ── Spawn tersebar di seluruh grid, bukan hanya di tengah ──
+      const col = Math.round(Math.random() * cols)
+      const row = Math.round(Math.random() * rows)
       const s = makeSnake(false, col, row)
       if (s) snakes.push(s)
     }
@@ -131,13 +122,18 @@ export default function AnimatedGrid({
       if (s) snakes.push(s)
     }
 
+    // ── Interval lebih cepat (150ms → dari 250ms) ──
     const ambientInterval = setInterval(() => {
-      if (snakes.filter(s => !s.fromHover && !s.dead).length < 14) {
+      // ── Batas naik dari 14 → 40 ──
+      if (snakes.filter(s => !s.fromHover && !s.dead).length < 40) {
         spawnAmbient()
-        if (Math.random() < 0.7) spawnAmbient()
-        if (Math.random() < 0.4) spawnAmbient()
+        // ── Selalu spawn 2-4 sekaligus ──
+        spawnAmbient()
+        if (Math.random() < 0.85) spawnAmbient()
+        if (Math.random() < 0.60) spawnAmbient()
+        if (Math.random() < 0.35) spawnAmbient()
       }
-    }, 250)
+    }, 150)
 
     const hoverInterval = setInterval(() => {
       if (ambientOnly) return
@@ -186,7 +182,6 @@ export default function AnimatedGrid({
           s.deadAge++
           const fadeDead = Math.min(1, s.deadAge / 15)
           if (fadeDead >= 1) { snakes.splice(i, 1); continue }
-          // ── THICKER lines ──
           drawSmoothPath(s.points, s.opacity, s.fromHover ? 1.2 : 0.85, fadeDead)
           continue
         }
@@ -223,7 +218,6 @@ export default function AnimatedGrid({
         const hx = (s.col + DX[s.dir] * s.t) * cellSize
         const hy = (s.row + DY[s.dir] * s.t) * cellSize
         const drawPoints = [...s.points, { x: hx, y: hy }]
-        // ── THICKER lines ──
         drawSmoothPath(drawPoints, s.opacity, s.fromHover ? 1.2 : 0.85)
       }
 

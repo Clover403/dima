@@ -12,17 +12,17 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-navy border-t border-white/5">
+    <footer className="bg-lightgray border-t border-navy/10">
       <div className="section-padding py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {/* Brand */}
           <div className="space-y-6">
             <img
-              src="/logo/orange_white.svg"
+              src="/logo/orange_black.svg"
               alt="DIMA Finance"
               className="h-10 w-auto"
             />
-            <p className="text-lightgray/50 text-sm leading-relaxed max-w-xs">
+            <p className="text-navy/50 text-sm leading-relaxed max-w-xs">
               Ingeniería financiera para el crecimiento real.
               Estructuramos soluciones basadas en equilibrio macroeconómico.
             </p>
@@ -38,7 +38,7 @@ export default function Footer() {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm text-lightgray/50 hover:text-bronze transition-colors duration-300"
+                    className="text-sm text-navy/50 hover:text-bronze transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -52,7 +52,7 @@ export default function Footer() {
             <h4 className="font-display text-sm text-bronze tracking-widest uppercase mb-6">
               Contacto
             </h4>
-            <ul className="space-y-3 text-sm text-lightgray/50">
+            <ul className="space-y-3 text-sm text-navy/50">
               <li>
                 <a
                   href="mailto:corporativo@dimafinance.com.mx"
@@ -86,20 +86,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-lightgray/30">
+        <div className="mt-16 pt-8 border-t border-navy/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-navy/30">
             &copy; {new Date().getFullYear()} DIMA Finance. Todos los derechos reservados.
           </p>
           <div className="flex gap-6">
             <Link
               to="/aviso-legal"
-              className="text-xs text-lightgray/30 hover:text-bronze transition-colors duration-300"
+              className="text-xs text-navy/30 hover:text-bronze transition-colors duration-300"
             >
               Aviso Legal
             </Link>
             <Link
               to="/privacidad"
-              className="text-xs text-lightgray/30 hover:text-bronze transition-colors duration-300"
+              className="text-xs text-navy/30 hover:text-bronze transition-colors duration-300"
             >
               Aviso de Privacidad
             </Link>
