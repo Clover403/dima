@@ -28,25 +28,17 @@ export default function About() {
       // 1. HERO ANIMATIONS
       // ==========================================
 
-      gsap.to(".hero-ghost-svg", {
-        rotation: 360, duration: 120, repeat: -1, ease: "none",
-        transformOrigin: "center center"
-      });
-      gsap.to(".hero-svg-diamond", {
-        rotation: -360, duration: 70, repeat: -1, ease: "none",
-        transformOrigin: "center center"
-      });
-      gsap.to(".hero-svg-needle", {
-        rotation: 360, duration: 15, repeat: -1, ease: "none",
-        transformOrigin: "center center"
-      });
       gsap.fromTo(".hero-marquee-text",
         { xPercent: 0 },
         { xPercent: -50, repeat: -1, duration: 40, ease: "none" }
       );
-      gsap.fromTo(".hero-word-anim",
+      gsap.fromTo(".hero-word",
         { y: 100, opacity: 0, filter: "blur(15px)" },
         { y: 0, opacity: 1, filter: "blur(0px)", stagger: 0.1, duration: 1.5, ease: "power4.out", delay: 0.2 }
+      );
+      gsap.fromTo(".hero-subtext",
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.2, ease: "power3.out", delay: 0.6 }
       );
 
       // ==========================================
@@ -132,7 +124,7 @@ export default function About() {
 
   return (
     <PageTransition>
-      <div ref={pageRef} className="bg-[#F4F4F5] text-[#030035] font-sans overflow-x-hidden">
+      <div ref={pageRef}>
         <AboutHeroSection heroRef={heroRef} />
         <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
         <AboutOriginSection />
