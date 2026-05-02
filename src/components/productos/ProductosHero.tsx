@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion } from 'framer-motion'
+import InteractiveConstellationText from '../InteractiveConstellationText'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,7 +16,7 @@ export default function ProductosHero() {
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
 
-      /* Background parallax */
+      /* 1. Background parallax */
       if (bgRef.current) {
         gsap.fromTo(
           bgRef.current,
@@ -35,7 +36,7 @@ export default function ProductosHero() {
         )
       }
 
-      /* Fade out on scroll */
+      /* 2. Fade out seluruh konten saat scroll */
       gsap.to(el.querySelector('.hero-content'), {
         y: -60,
         opacity: 0,
@@ -53,22 +54,6 @@ export default function ProductosHero() {
     return () => ctx.revert()
   }, [])
 
-  const wordStagger = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.12, delayChildren: 0.3 },
-    },
-  }
-
-  const wordChild = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
-    },
-  }
-
   return (
     <section
       ref={sectionRef}
@@ -83,12 +68,10 @@ export default function ProductosHero() {
           className="w-full h-full object-cover will-change-transform"
         />
         <div className="absolute inset-0 bg-navy/80" />
-        {/* Extra gradient for depth */}
-        {/* <div className="absolute inset-0 bg-gradient-to-b from-navy/40 via-transparent to-navy/90" /> */}
       </div>
 
       {/* Content */}
-      <div className="hero-content relative z-10 text-center max-w-4xl section-padding">
+      <div className="hero-content relative z-10 text-center max-w-5xl section-padding">
         <motion.p
           initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
           animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
@@ -98,23 +81,16 @@ export default function ProductosHero() {
           Productos
         </motion.p>
 
-        <motion.h1
-          variants={wordStagger}
-          initial="hidden"
-          animate="visible"
-          className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl leading-[1.05] mb-8"
-        >
-          <motion.span variants={wordChild} className="inline-block text-white">
-            Soluciones&nbsp;
-          </motion.span>
-          <motion.span variants={wordChild} className="inline-block text-white">
-            que
-          </motion.span>
-          <br />
-          <motion.span variants={wordChild} className="inline-block text-bronze italic">
-            construyen
-          </motion.span>
-        </motion.h1>
+        <InteractiveConstellationText
+          lines={[
+            { text: 'Soluciones que', y: 150, color: '#FFFFFF' },
+            { text: 'construyen', y: 285, fontStyle: 'italic', color: '#E5997B' },
+          ]}
+          viewBox="0 0 1100 335"
+          defaultFontSize={160}
+          fontFamily="'Playfair Display', serif"
+          containerClassName="pointer-events-auto mb-10"
+        />
 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
