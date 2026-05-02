@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -30,196 +30,319 @@ const services = [
   },
 ]
 
-const SCROLL_PER_SLIDE = 100 // vh per slide
+//
+// ── STEP MODEL ───────────────────────────────────────────────────────────────
+//  -1  : not yet entered (or reset)
+//   0  : service 1 active
+//   1  : service 2 active
+//   2  : service 3 active
+//   3  : outro complete (image closed, free scroll allowed)
+//
+//  Transitions enforced by animRef:
+//  while animRef.current === true → every wheel event is ignored (hard block)
+//  animRef is released only by the GSAP onComplete / onReverseComplete callback
+//  or by the setTimeout for service-switch (1100 ms = CSS transition duration).
+//
+//  This guarantees: ONE step per scroll, no matter how fast.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TOTAL_SLIDES = services.length + 3   // 6 × 100vh — room for intro + outro tail
+const HEADING_FONT_FAMILY = "'Playfair Display', serif"
+const HEADING_FONT_WEIGHT = '400'
+
+function HeadingStrokeSVG({ svgRef }: { svgRef: RefObject<SVGSVGElement | null> }) {
+  const lines = [
+    { text: 'Acompañamiento', color: '#030035', y: 138, italic: false },
+    { text: 'estratégico', color: '#E5997B', y: 276, italic: true },
+  ]
+
+  return (
+    <svg
+      ref={svgRef}
+      viewBox="0 0 1600 340"
+      preserveAspectRatio="xMidYMid meet"
+      className="w-full h-auto"
+      style={{ overflow: 'visible' }}
+      aria-label="Acompañamiento estratégico"
+    >
+      {lines.map((line, idx) => (
+        <g key={idx}>
+          <text
+            x="800"
+            y={line.y}
+            textAnchor="middle"
+            fontFamily={HEADING_FONT_FAMILY}
+            fontStyle={line.italic ? 'italic' : 'normal'}
+            fontSize="124"
+            fontWeight={HEADING_FONT_WEIGHT}
+            letterSpacing="0"
+            fill="none"
+            stroke={line.color}
+            strokeWidth="0.9"
+            data-stroke-line={idx}
+          >
+            {line.text}
+          </text>
+          <text
+            x="800"
+            y={line.y}
+            textAnchor="middle"
+            fontFamily={HEADING_FONT_FAMILY}
+            fontStyle={line.italic ? 'italic' : 'normal'}
+            fontSize="124"
+            fontWeight={HEADING_FONT_WEIGHT}
+            letterSpacing="0"
+            fill={line.color}
+            stroke="none"
+            fillOpacity="0"
+            data-fill-line={idx}
+          >
+            {line.text}
+          </text>
+        </g>
+      ))}
+    </svg>
+  )
+}
 
 export default function ServicesSection() {
-  const [activeServiceIndex, setActiveServiceIndex] = useState(0)
+  const [activeIdx, setActiveIdx] = useState(0)
 
-  const outerRef         = useRef<HTMLDivElement>(null)
-  const stickyRef        = useRef<HTMLDivElement>(null)
-  const imageWrapRef     = useRef<HTMLDivElement>(null)
-  const imageParallaxRef = useRef<HTMLDivElement>(null)
-  const textWrapRef      = useRef<HTMLDivElement>(null)
-  const activeIndexRef   = useRef(0)
-  const isLockedRef        = useRef(false)
-  const exitIntentRef      = useRef(false)
-  const exitIntentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // ── DOM ─────────────────────────────────────────────────────────────
+  const outerRef   = useRef<HTMLDivElement>(null)
+  const stickyRef  = useRef<HTMLDivElement>(null)
+  const imgWrapRef = useRef<HTMLDivElement>(null)
+  const imgParRef  = useRef<HTMLDivElement>(null)
+  const textRef    = useRef<HTMLDivElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const headingStrokeWrapperRef = useRef<HTMLDivElement>(null)
+  const headingStrokeRef = useRef<HTMLDivElement>(null)
+  const headingStrokeSvgRef = useRef<SVGSVGElement>(null)
 
-  const touchStartYRef     = useRef(0)
+  // ── State refs ───────────────────────────────────────────────────────
+  const stepRef    = useRef(-1)    // current step
+  const animRef    = useRef(false) // hard lock while animating
+  const touchY     = useRef(0)
 
-  const setActive = (i: number) => {
-    activeIndexRef.current = i
-    setActiveServiceIndex(i)
-  }
+  // ── GSAP action refs ─────────────────────────────────────────────────
+  const outroPlayRef    = useRef<() => void>(() => {})
+  const outroReverseRef = useRef<() => void>(() => {})
 
-  useEffect(() => {
-    const getSlideHeight = () => (SCROLL_PER_SLIDE / 100) * window.innerHeight
-
-    const getZoneBounds = () => {
-      const outer = outerRef.current
-      if (!outer) return null
-      const top = outer.offsetTop
-      const height = outer.offsetHeight
-      return { top, bottom: top + height }
-    }
-
-    // Smooth snap for intentional slide change
-    const snapToSlide = (idx: number) => {
-      const outer = outerRef.current
-      if (!outer) return
-      const target = outer.offsetTop + idx * getSlideHeight()
-      window.scrollTo({ top: target, behavior: 'smooth' })
-    }
-
-    // ── Scroll jail — safety net ──────────────────────────────────────────
-    // If native scroll fires and moves us off the correct position while locked,
-    // we immediately force it back.
-    const handleScroll = () => {
-      if (!isLockedRef.current) return
-      const bounds = getZoneBounds()
-      if (!bounds) return
-      const scrollY = window.scrollY
-      if (scrollY < bounds.top || scrollY > bounds.bottom - window.innerHeight) return
-
-      // We're in zone and locked — force back to current active slide
-      const target = outerRef.current!.offsetTop + activeIndexRef.current * getSlideHeight()
-      if (Math.abs(scrollY - target) > 3) {
-        window.scrollTo({ top: target })
-      }
-    }
-
-    // ── Wheel handler ─────────────────────────────────────────────────────
-    const handleWheel = (e: WheelEvent) => {
-      const bounds = getZoneBounds()
-      if (!bounds) return
-      const scrollY = window.scrollY
-
-      // Not in sticky zone at all — let through
-      if (scrollY < bounds.top - 10 || scrollY > bounds.bottom - window.innerHeight + 10) return
-
-      // Always block native scroll while in zone
-      e.preventDefault()
-      if (isLockedRef.current) return
-
-      const dir = e.deltaY > 0 ? 1 : -1
-      const next = activeIndexRef.current + dir
-
-      if (next < 0 || next >= services.length) {
-        // At boundary — hold position, start exit intent timer
-        if (!exitIntentRef.current) {
-          exitIntentRef.current = true
-          if (exitIntentTimerRef.current) clearTimeout(exitIntentTimerRef.current)
-          exitIntentTimerRef.current = setTimeout(() => {
-            exitIntentRef.current = false
-            // Quietly release lock so next scroll goes through naturally
-          }, 700)
-        }
-        return
-      }
-
-      // Cancel exit intent if scrolling back inside
-      if (exitIntentTimerRef.current) clearTimeout(exitIntentTimerRef.current)
-      exitIntentRef.current = false
-
-      isLockedRef.current = true
-      setActive(next)
-      snapToSlide(next)
-      setTimeout(() => { isLockedRef.current = false }, 1400)
-    }
-
-    // ── Touch ─────────────────────────────────────────────────────────────
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartYRef.current = e.touches[0].clientY
-    }
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      const bounds = getZoneBounds()
-      if (!bounds) return
-      const scrollY = window.scrollY
-      if (scrollY < bounds.top - 10 || scrollY > bounds.bottom - window.innerHeight + 10) return
-
-      const diff = touchStartYRef.current - e.changedTouches[0].clientY
-      if (Math.abs(diff) < 40) return
-
-      const dir = diff > 0 ? 1 : -1
-      const next = activeIndexRef.current + dir
-      if (next < 0 || next >= services.length) return
-      if (isLockedRef.current) return
-
-      isLockedRef.current = true
-      setActive(next)
-      const outer = outerRef.current!
-      window.scrollTo({ top: outer.offsetTop + next * getSlideHeight(), behavior: 'smooth' })
-      setTimeout(() => { isLockedRef.current = false }, 1400)
-    }
-
-    window.addEventListener('wheel', handleWheel, { passive: false })
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('touchstart', handleTouchStart, { passive: true })
-    window.addEventListener('touchend', handleTouchEnd, { passive: true })
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel)
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('touchstart', handleTouchStart)
-      window.removeEventListener('touchend', handleTouchEnd)
-      if (exitIntentTimerRef.current) clearTimeout(exitIntentTimerRef.current)
-    }
-  }, [])
-
+  // ── GSAP setup ───────────────────────────────────────────────────────
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (!outerRef.current) return
-
       const mm = gsap.matchMedia()
 
       mm.add('(min-width: 1024px)', () => {
-        // ── Intro clip reveal ────────────────────────────────────────────
-        gsap.set(imageWrapRef.current, {
+        const tw   = textRef.current!
+        const lbl  = tw.querySelector('p')
+        const prog = tw.querySelector('.lg\\:flex')
+        const btns = Array.from(tw.querySelectorAll('button'))
+        const cta  = tw.querySelector('.mt-10')
+        const h2   = headingRef.current!
+        const strokeWrapper = headingStrokeWrapperRef.current!
+        const strokeWrap = headingStrokeRef.current!
+        const strokeSvg  = headingStrokeSvgRef.current!
+
+        const strokeLines = Array.from(strokeSvg.querySelectorAll<SVGTextElement>('[data-stroke-line]'))
+        const fillLines   = Array.from(strokeSvg.querySelectorAll<SVGTextElement>('[data-fill-line]'))
+        const LINE_LENGTH = 2200
+
+        strokeLines.forEach((el) => {
+          el.style.strokeDasharray = `${LINE_LENGTH}`
+          el.style.strokeDashoffset = `${LINE_LENGTH}`
+        })
+
+        const getHeadingMetrics = () => {
+          const targetRect = h2.getBoundingClientRect()
+          const headingFontPx = parseFloat(window.getComputedStyle(h2).fontSize) || 64
+          const baseW = Math.max(strokeWrap.offsetWidth, 1)
+          const baseH = Math.max(strokeWrap.offsetHeight, 1)
+          const targetX = targetRect.left + targetRect.width / 2 - window.innerWidth / 2
+          const targetY = targetRect.top + targetRect.height / 2 - window.innerHeight / 2
+          const fontScale = headingFontPx / 124
+          const widthScale = targetRect.width / baseW
+          const heightScale = targetRect.height / baseH
+          const targetScale = Math.max(
+            0.35,
+            Math.min(1.35, Math.min(1, fontScale, widthScale, heightScale) * 1.37)
+          )
+          return { targetX, targetY, targetScale }
+        }
+
+        const getHeadingShiftX = () => {
+          const measured = getHeadingMetrics().targetX
+          const minimumRightShift = window.innerWidth * 0.25
+          return Math.max(measured, minimumRightShift)
+        }
+
+        // Initial state — everything hidden
+        gsap.set(h2, { opacity: 0 })
+        gsap.set(strokeWrapper, { opacity: 0 })
+        gsap.set(strokeWrap, {
+          x: 0,
+          y: 0,
+          scale: 1.22,
+          transformOrigin: 'center center',
+        })
+        gsap.set(strokeLines, { strokeDashoffset: LINE_LENGTH, opacity: 1 })
+        gsap.set(fillLines,   { fillOpacity: 0 })
+        gsap.set([lbl, prog, ...btns, cta], { opacity: 0, y: 16 })
+        gsap.set(imgWrapRef.current, {
           opacity: 0,
           clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)',
         })
         gsap.set(stickyRef.current, { gridTemplateColumns: '0fr 1fr' })
 
+        // ── INTRO — scroll-driven ──────────────────────────────────────
+        // Completely independent of the step system.
+        // 0–30 %: heading alone fades up
+        // 30–100%: image unfolds + items stagger in
         const introTl = gsap.timeline({
           scrollTrigger: {
             trigger: outerRef.current,
-            start: 'top 80%',
-            end: 'top 30%',
-            scrub: 1.2,
+            start: 'top top',
+            end:   'top -140%',
+            scrub: 2,
+            invalidateOnRefresh: true,
           },
         })
-        introTl.to(stickyRef.current, {
-          gridTemplateColumns: '1fr 1fr',
+        introTl.to(strokeWrapper, {
+          opacity: 1,
+          duration: 0.08,
+          ease: 'none',
+        }, 0)
+        introTl.to(strokeLines, {
+          strokeDashoffset: 0,
+          duration: 6.5,
+          stagger: 0.45,
+          ease: 'power2.inOut',
+        }, 0.08)
+        introTl.to(fillLines, {
+          fillOpacity: 1,
+          duration: 1.4,
+          stagger: 0.16,
+          ease: 'power2.out',
+        }, 2.20)
+        introTl.to(strokeLines, {
+          opacity: 0,
           duration: 1.2,
+          stagger: 0.12,
+          ease: 'power1.in',
+        }, 2.80)
+        introTl.to(strokeWrap, {
+          x: () => getHeadingShiftX(),
+          y: () => getHeadingMetrics().targetY,
+          scale: () => getHeadingMetrics().targetScale,
+          duration: 1.16,
           ease: 'power3.inOut',
-        })
-        introTl.to(imageWrapRef.current, {
+        }, 3.60)
+        introTl.to(stickyRef.current, {
+          gridTemplateColumns: '1fr 1fr', duration: 0.70, ease: 'power3.inOut',
+        }, 4.90)
+        introTl.to(imgWrapRef.current, {
           opacity: 1,
           clipPath: 'polygon(0 0, 100% 0, 88% 100%, 0 100%)',
-          duration: 1.2,
-          ease: 'power3.inOut',
-        }, 0)
-        introTl.to(textWrapRef.current, {
-          duration: 0.6,
-          ease: 'power2.out',
-          onStart: () => {
-            textWrapRef.current?.classList.remove('text-center')
-            textWrapRef.current?.classList.add('text-left')
-          },
-        }, 0.2)
+          duration: 0.55, ease: 'power3.inOut',
+        }, 4.90)
+        introTl.to([lbl, prog, ...btns, cta], {
+          opacity: 1, y: 0, duration: 0.40, stagger: 0.04, ease: 'power2.out',
+        }, 5.22)
+        introTl.to(h2, {
+          opacity: 1,
+          duration: 0.16,
+          ease: 'none',
+        }, 5.46)
+        introTl.to(strokeWrapper, {
+          opacity: 0,
+          duration: 0.16,
+          ease: 'none',
+        }, 5.46)
 
-        // ── Parallax ──────────────────────────────────────────────────────
-        if (imageParallaxRef.current) {
-          gsap.fromTo(imageParallaxRef.current,
+        // ── OUTRO — paused GSAP timeline (NOT scroll-driven) ──────────
+        // Fired programmatically from the step machine.
+        // onComplete / onReverseComplete release animRef — this is the
+        // ONLY way the lock is released for outro. Guarantees 1 step at a time.
+        const outroTl = gsap.timeline({
+          paused: true,
+          onComplete:        () => { animRef.current = false },
+          onReverseComplete: () => { animRef.current = false },
+        })
+        outroTl.to([lbl, prog, ...btns, cta], {
+          opacity: 0, y: 14, duration: 0.50, stagger: 0.06, ease: 'power2.in',
+        }, 0)
+        outroTl.to(imgWrapRef.current, {
+          opacity: 0,
+          clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)',
+          duration: 0.80, ease: 'power3.inOut',
+        }, 0.25)
+        outroTl.to(stickyRef.current, {
+          gridTemplateColumns: '0fr 1fr', duration: 0.90, ease: 'power3.inOut',
+        }, 0.25)
+        outroTl.to(strokeWrapper, {
+          opacity: 1,
+          duration: 0.06,
+          ease: 'none',
+        }, 0)
+        outroTl.to(h2, {
+          opacity: 0,
+          duration: 0.06,
+          ease: 'none',
+        }, 0)
+        outroTl.to(strokeWrap, {
+          x: 0,
+          y: () => getHeadingMetrics().targetY,
+          scale: () => {
+            const s = getHeadingMetrics().targetScale
+            return Math.min(1, Math.max(s + 0.08, s * 1.12))
+          },
+          duration: 0.50,
+          ease: 'power2.inOut',
+        }, 0.30)
+        outroTl.to(strokeWrap, {
+          x: 0,
+          y: 0,
+          scale: 1.22,
+          duration: 0.42,
+          ease: 'power3.inOut',
+        }, 0.82)
+        outroTl.to(fillLines, {
+          fillOpacity: 0,
+          duration: 0.36,
+          stagger: 0.06,
+          ease: 'power1.out',
+        }, 0.78)
+        outroTl.to(strokeLines, {
+          opacity: 1,
+          duration: 0.20,
+          ease: 'none',
+        }, 0.90)
+        outroTl.to(strokeLines, {
+          strokeDashoffset: LINE_LENGTH,
+          duration: 1.45,
+          stagger: 0.14,
+          ease: 'power2.inOut',
+        }, 0.96)
+        outroTl.to(strokeWrapper, {
+          opacity: 0,
+          duration: 0.20,
+          ease: 'power1.out',
+        }, 2.12)
+
+        outroPlayRef.current    = () => outroTl.timeScale(1).play(0)
+        outroReverseRef.current = () => outroTl.timeScale(1.5).reverse()
+
+        // ── Parallax ──────────────────────────────────────────────────
+        if (imgParRef.current) {
+          gsap.fromTo(imgParRef.current,
             { scale: 1.12, y: 60 },
             {
               scale: 1.0, y: -60, ease: 'none',
               scrollTrigger: {
                 trigger: outerRef.current,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 1.5,
+                start: 'top bottom', end: 'bottom top',
+                scrub: 2,
               },
             }
           )
@@ -227,14 +350,11 @@ export default function ServicesSection() {
       })
 
       mm.add('(max-width: 1023px)', () => {
-        outerRef.current!.querySelectorAll('.service-row').forEach((item) => {
-          gsap.fromTo(item,
-            { opacity: 0, y: 50 },
-            {
-              opacity: 1, y: 0, duration: 1, ease: 'power2.out',
-              scrollTrigger: { trigger: item, start: 'top 88%', scrub: 1 },
-            }
-          )
+        outerRef.current!.querySelectorAll('.service-row').forEach((el) => {
+          gsap.fromTo(el, { opacity: 0, y: 50 }, {
+            opacity: 1, y: 0, duration: 1, ease: 'power2.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', scrub: 1.5 },
+          })
         })
       })
     }, outerRef)
@@ -242,30 +362,174 @@ export default function ServicesSection() {
     return () => ctx.revert()
   }, [])
 
+  // ── Step machine + wheel handler ─────────────────────────────────────
+  useEffect(() => {
+    // Transition to a step.
+    // For service steps: lock for 1100 ms (= CSS transition duration).
+    // For outro step  : lock released by GSAP onComplete.
+    const go = (next: number) => {
+      animRef.current = true
+      stepRef.current = next
+
+      if (next >= 0 && next < services.length) {
+        // Service switch — CSS transition handles visual
+        setActiveIdx(next)
+        setTimeout(() => { animRef.current = false }, 1100)
+      } else if (next === services.length) {
+        // Outro forward
+        outroPlayRef.current()
+        // animRef released by outroTl.onComplete
+      }
+    }
+
+    // Reverse outro (step services.length → services.length - 1)
+    const reverseOutro = () => {
+      animRef.current = true
+      stepRef.current = services.length - 1
+      setActiveIdx(services.length - 1)
+      outroReverseRef.current()
+      // animRef released by outroTl.onReverseComplete
+    }
+
+    const onWheel = (e: WheelEvent) => {
+      const outer = outerRef.current
+      if (!outer) return
+
+      const sy        = window.scrollY
+      const VH        = window.innerHeight
+      const secTop    = outer.getBoundingClientRect().top + sy
+      const secBot    = secTop + outer.offsetHeight
+      // Active zone starts just after the intro ScrollTrigger finishes
+      // intro end = 'top -80%' = secTop + 0.8*VH
+      const activeStart = secTop + 0.9 * VH
+
+      // ── Truly outside section — don't touch ─────────────────────
+      if (sy > secBot - VH + 50) {
+        // Below section: if step was active, keep state but free scroll
+        return
+      }
+      if (sy < secTop - 50) {
+        // Above section: reset step
+        if (stepRef.current !== -1) {
+          stepRef.current = -1
+          animRef.current = false
+        }
+        return
+      }
+
+      // ── In intro zone — let scroll happen naturally ──────────────
+      if (sy < activeStart) {
+        // If coming back up and step is set, reset
+        if (e.deltaY < 0 && stepRef.current !== -1) {
+          stepRef.current = -1
+          animRef.current = false
+        }
+        return
+      }
+
+      // ── ACTIVE ZONE — intercept all wheel ───────────────────────
+      // Always preventDefault here so browser never scrolls while in active zone
+      e.preventDefault()
+
+      const dir = e.deltaY > 0 ? 1 : -1
+
+      // Outro complete: downward = free scroll (release), upward = reverse
+      if (stepRef.current === services.length) {
+        if (dir > 0) {
+          // Let browser scroll by releasing — do nothing (no preventDefault was called above... wait we already called it)
+          // We need to manually scroll the page forward
+          window.scrollBy(0, VH * 0.3)
+          return
+        }
+        // Scrolling up: reverse outro
+        if (!animRef.current) reverseOutro()
+        return
+      }
+
+      // Hard block while animating (service switch or outro)
+      if (animRef.current) return
+
+      // ── First entry into active zone ─────────────────────────────
+      if (stepRef.current === -1) {
+        if (dir > 0) go(0)
+        // dir < 0: scrolling up past active zone — do nothing, let intro handle
+        return
+      }
+
+      // ── Normal step advance ──────────────────────────────────────
+      const next = stepRef.current + dir
+
+      if (next < 0) {
+        // Exit upward: release to intro zone
+        stepRef.current = -1
+        return
+      }
+      if (next > services.length) return // shouldn't happen
+
+      go(next)
+    }
+
+    const onTouchStart = (e: TouchEvent) => { touchY.current = e.touches[0].clientY }
+    const onTouchEnd   = (e: TouchEvent) => {
+      const diff = touchY.current - e.changedTouches[0].clientY
+      if (Math.abs(diff) < 40) return
+      // Simulate a wheel event with the touch direction
+      const fakeWheel = new WheelEvent('wheel', {
+        deltaY:     diff,
+        cancelable: true,
+        bubbles:    true,
+      })
+      onWheel(fakeWheel)
+    }
+
+    window.addEventListener('wheel',      onWheel,      { passive: false })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend',   onTouchEnd,   { passive: false })
+
+    return () => {
+      window.removeEventListener('wheel',      onWheel)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend',   onTouchEnd)
+    }
+  }, [])
+
   return (
     <div
       ref={outerRef}
       className="relative w-full bg-lightgray"
-      style={{ height: `${services.length * SCROLL_PER_SLIDE}vh` }}
+      style={{ height: `${TOTAL_SLIDES * 100}vh` }}
     >
       <div
         ref={stickyRef}
-        className="sticky top-0 w-full h-screen grid grid-cols-1 lg:grid-cols-2 overflow-hidden"
+        className="sticky top-0 w-full h-screen grid overflow-hidden"
         style={{ gridTemplateColumns: '0fr 1fr' }}
       >
+        <div
+          ref={headingStrokeWrapperRef}
+          className="pointer-events-none absolute inset-0 z-50 hidden lg:flex items-center justify-center"
+          aria-hidden="true"
+        >
+          <div
+            ref={headingStrokeRef}
+            className="will-change-transform"
+            style={{ width: 'clamp(680px, 64vw, 1160px)' }}
+          >
+            <HeadingStrokeSVG svgRef={headingStrokeSvgRef} />
+          </div>
+        </div>
 
-        {/* ── LEFT: Image ──────────────────────────────────────────────── */}
+        {/* ── LEFT: Image ──────────────────────────────────────────── */}
         <div className="relative h-[60vh] lg:h-full overflow-hidden">
-          <div ref={imageWrapRef} className="absolute inset-0 overflow-hidden">
+          <div ref={imgWrapRef} className="absolute inset-0 overflow-hidden">
             <div
-              ref={imageParallaxRef}
+              ref={imgParRef}
               className="absolute inset-0 w-full h-[115%] will-change-transform"
             >
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={services[activeServiceIndex].image}
-                  src={services[activeServiceIndex].image}
-                  alt={`DIMA Finance — ${services[activeServiceIndex].name}`}
+                  key={services[activeIdx].image}
+                  src={services[activeIdx].image}
+                  alt={`DIMA Finance — ${services[activeIdx].name}`}
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                   initial={{ opacity: 0, scale: 1.04, filter: 'blur(2px)' }}
@@ -286,28 +550,33 @@ export default function ServicesSection() {
           </div>
         </div>
 
-        {/* ── RIGHT: Text ──────────────────────────────────────────────── */}
+        {/* ── RIGHT: Text ──────────────────────────────────────────── */}
         <div
-          ref={textWrapRef}
+          ref={textRef}
           className="flex flex-col justify-center px-8 md:px-12 lg:px-16 xl:px-20 py-24 lg:py-0 text-center"
         >
           <p className="text-bronze font-body text-xs tracking-[0.3em] uppercase mb-10 service-row">
             SERVICIOS
           </p>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-navy leading-tight mb-12 service-row">
-            Acompañamiento{' '}
+
+          {/* Heading — first in, always visible */}
+          <h2
+            ref={headingRef}
+            className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-navy leading-tight mb-12 service-row"
+          >
+            Acompañamiento<br />
             <em className="text-bronze">estratégico</em>
           </h2>
 
-          {/* Progress indicators */}
+          {/* Progress dots */}
           <div className="hidden lg:flex items-center gap-3 mb-10 service-row">
             {services.map((_, i) => (
               <div
                 key={i}
                 className="h-px transition-all duration-[1100ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{
-                  width: activeServiceIndex === i ? '2rem' : '0.75rem',
-                  background: activeServiceIndex === i ? '#E5997B' : 'rgba(3,0,53,0.15)',
+                  width:      activeIdx === i ? '2rem' : '0.75rem',
+                  background: activeIdx === i ? '#E5997B' : 'rgba(3,0,53,0.15)',
                 }}
               />
             ))}
@@ -316,64 +585,61 @@ export default function ServicesSection() {
             </span>
           </div>
 
+          {/* Service list */}
           <div className="space-y-0">
-            {services.map((service, index) => (
+            {services.map((svc, i) => (
               <button
                 type="button"
-                key={service.number}
+                key={svc.number}
                 onClick={() => {
-                  if (isLockedRef.current) return
-                  isLockedRef.current = true
-                  setActive(index)
-                  const outer = outerRef.current
-                  if (outer) {
-                    const sh = (SCROLL_PER_SLIDE / 100) * window.innerHeight
-                    window.scrollTo({ top: outer.offsetTop + index * sh, behavior: 'smooth' })
+                  // Click just switches active index — no scroll, no lock
+                  if (!animRef.current) {
+                    setActiveIdx(i)
+                    stepRef.current = i
                   }
-                  setTimeout(() => { isLockedRef.current = false }, 1400)
                 }}
                 className="service-row group w-full py-8 border-b border-navy/10 flex gap-8 items-start text-left transition-all duration-[1100ms]"
-                aria-pressed={activeServiceIndex === index}
+                aria-pressed={activeIdx === i}
               >
                 <span
                   className={`font-display text-4xl transition-all duration-[1100ms] shrink-0 leading-none mt-1 ${
-                    activeServiceIndex === index
+                    activeIdx === i
                       ? 'text-bronze/30'
                       : 'text-navy/[0.06] group-hover:text-bronze/20'
                   }`}
                 >
-                  {service.number}
+                  {svc.number}
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-4">
                     <h3
                       className={`font-display text-xl md:text-2xl mb-2 transition-colors duration-[1100ms] ${
-                        activeServiceIndex === index
+                        activeIdx === i
                           ? 'text-bronze'
                           : 'text-navy group-hover:text-bronze'
                       }`}
                     >
-                      {service.name}
+                      {svc.name}
                     </h3>
                     <div
                       className="h-px shrink-0 transition-all duration-[1100ms]"
                       style={{
-                        width: activeServiceIndex === index ? '2rem' : '0px',
+                        width:      activeIdx === i ? '2rem' : '0px',
                         background: '#E5997B',
-                        opacity: activeServiceIndex === index ? 1 : 0,
+                        opacity:    activeIdx === i ? 1 : 0,
                       }}
                     />
                   </div>
                   <div
                     className="overflow-hidden"
                     style={{
-                      maxHeight: activeServiceIndex === index ? '6rem' : '0px',
-                      opacity: activeServiceIndex === index ? 1 : 0,
+                      maxHeight:  activeIdx === i ? '6rem' : '0px',
+                      opacity:    activeIdx === i ? 1 : 0,
                       transition: 'max-height 1100ms cubic-bezier(0.22,1,0.36,1), opacity 1100ms cubic-bezier(0.22,1,0.36,1)',
                     }}
                   >
-                    <p className="font-body text-lg md:text-base text-navy/50 leading-relaxed pt-1">
-                      {service.description}
+                    <p className="font-body text-base text-navy/50 leading-relaxed pt-1">
+                      {svc.description}
                     </p>
                   </div>
                 </div>

@@ -1,102 +1,102 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import AnimatedGrid from '../AnimatedGrid'
+import DimaGeometric from '../DimaGeometric'
 
-gsap.registerPlugin(ScrollTrigger)
+export const HERO_LINE_LENGTH = 3000
 
-export default function PhotoBreakSection() {
-  const sectionRef  = useRef<HTMLElement>(null)
-  const photoRef    = useRef<HTMLImageElement>(null)
-  const textRef     = useRef<HTMLDivElement>(null)
-  const lineLeftRef = useRef<HTMLDivElement>(null)
-  const lineRightRef= useRef<HTMLDivElement>(null)
+export function HeroTitleSVG() {
+  return (
+    <svg
+      viewBox="0 0 1000 310"
+      preserveAspectRatio="xMinYMid meet"
+      className="w-full h-auto select-none"
+      style={{ overflow: 'visible' }}
+      aria-label="Deuda que genera valor"
+    >
+      {/* Line 0: DEUDA QUE — stroke layer */}
+      <text
+        x="0" y="148"
+        fontFamily="'Playfair Display', serif"
+        fontWeight="700"
+        fontSize="155"
+        letterSpacing="-6"
+        fill="none"
+        stroke="white"
+        strokeWidth="0.6"
+        style={{ strokeDasharray: HERO_LINE_LENGTH, strokeDashoffset: HERO_LINE_LENGTH }}
+        data-hero-stroke data-hero-line="0"
+      >DEUDA QUE</text>
+      {/* Line 0: fill layer */}
+      <text
+        x="0" y="148"
+        fontFamily="'Playfair Display', serif"
+        fontWeight="700"
+        fontSize="155"
+        letterSpacing="-6"
+        fill="white"
+        fillOpacity="0"
+        data-hero-fill data-hero-line="0"
+      >DEUDA QUE</text>
+
+      {/* Line 1: GENERA VALOR. — stroke layer */}
+      <text
+        x="0" y="296"
+        fontFamily="'Playfair Display', serif"
+        fontWeight="400"
+        fontStyle="italic"
+        fontSize="155"
+        letterSpacing="-6"
+        fill="none"
+        stroke="#E5997B"
+        strokeWidth="0.6"
+        style={{ strokeDasharray: HERO_LINE_LENGTH, strokeDashoffset: HERO_LINE_LENGTH }}
+        data-hero-stroke data-hero-line="1"
+      >GENERA VALOR.</text>
+      {/* Line 1: fill layer */}
+      <text
+        x="0" y="296"
+        fontFamily="'Playfair Display', serif"
+        fontWeight="400"
+        fontStyle="italic"
+        fontSize="155"
+        letterSpacing="-6"
+        fill="#E5997B"
+        fillOpacity="0"
+        data-hero-fill data-hero-line="1"
+      >GENERA VALOR.</text>
+    </svg>
+  )
+}
+
+export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 80, damping: 25 })
+  const springY = useSpring(mouseY, { stiffness: 80, damping: 25 })
+
+  const maskWebkit = useTransform([springX, springY], ([x, y]) =>
+    `radial-gradient(650px at ${x}px ${y}px, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 80%)`
+  )
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = sectionRef.current?.getBoundingClientRect()
+    if (rect) {
+      mouseX.set(e.clientX - rect.left)
+      mouseY.set(e.clientY - rect.top)
+    }
+  }
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (!sectionRef.current) return
-
-      // Photo parallax
-      if (photoRef.current) {
-        gsap.fromTo(photoRef.current,
-          { y: '-8%' },
-          {
-            y: '8%',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          }
-        )
-      }
-
-      // Horizontal lines expand from center
-      if (lineLeftRef.current && lineRightRef.current) {
-        gsap.fromTo([lineLeftRef.current, lineRightRef.current],
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.4,
-            ease: 'power3.out',
-            stagger: 0,
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 55%',
-            },
-          }
-        )
-      }
-
-      // Quote lines — each line staggers in from bottom
-      const lines = sectionRef.current.querySelectorAll('.quote-line')
-      gsap.fromTo(lines,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.1,
-          ease: 'power3.out',
-          stagger: 0.15,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 50%',
-          },
-        }
-      )
-
-      // Attribution fade
-      gsap.fromTo('.photo-attribution',
-        { opacity: 0 },
-        {
-          opacity: 1,
-          duration: 1,
-          ease: 'power2.out',
-          delay: 0.6,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 50%',
-          },
-        }
-      )
-
-      // Metadata bars slide in
-      gsap.fromTo('.photo-meta',
-        { opacity: 0, x: -20 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 1,
-          ease: 'power2.out',
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 50%',
-          },
-        }
-      )
-
+      // Hanya reveal-item (subtitle, CTA, dll) — stroke dihandle HeroCurtain
+      gsap.from('.reveal-item', {
+        y: 40, opacity: 0, duration: 1.4, stagger: 0.15, ease: 'expo.out', delay: 0.5,
+      })
     }, sectionRef)
     return () => ctx.revert()
   }, [])
@@ -104,134 +104,84 @@ export default function PhotoBreakSection() {
   return (
     <section
       ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      style={{ background: 'linear-gradient(105deg, #05051a 0%, #020111 40%, #010010 85%)' }}
       className="relative w-full h-screen overflow-hidden"
     >
-      {/* Full-bleed photo */}
-      <img
-        ref={photoRef}
-        src="/foto/brand-nature.jpg"
-        alt=""
-        className="absolute inset-0 w-full h-[116%] object-cover will-change-transform"
-        loading="lazy"
-      />
-
-      {/* Layered overlays for depth */}
-      <div className="absolute inset-0 bg-[#030035]/75" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#030035]/80 via-transparent to-[#030035]/40" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#030035]/30 via-transparent to-[#030035]/30" />
-
-      {/* Bronze grid overlay — DIMA signature */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.04]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(229,153,123,1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(229,153,123,1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* Corner brackets */}
-      {(['top-8 left-8', 'top-8 right-8', 'bottom-8 left-8', 'bottom-8 right-8'] as const).map((pos, i) => (
-        <svg key={i} className={`absolute ${pos} w-10 h-10 pointer-events-none`} viewBox="0 0 40 40" fill="none">
-          <path
-            d={['M0 20 L0 0 L20 0','M40 20 L40 0 L20 0','M0 20 L0 40 L20 40','M40 20 L40 40 L20 40'][i]}
-            stroke="#E5997B" strokeWidth="0.8" strokeOpacity="0.35"
-          />
-        </svg>
-      ))}
-
-      {/* Left metadata column */}
-      <div className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-5">
-        {[
-          'DIMA Finance — México',
-          '19°26\'N 99°08\'O',
-          'SOFOM E.N.R.',
-        ].map((text, i) => (
-          <div key={i} className="photo-meta flex items-center gap-3">
-            <div className="w-4 h-px bg-[#E5997B]/40" />
-            <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#F4F4F5]/25">
-              {text}
-            </span>
-          </div>
-        ))}
+      <div className="absolute inset-0 z-[1] opacity-[0.04] pointer-events-none">
+        <AnimatedGrid cellSize={60} color="229,153,123" />
       </div>
 
-      {/* Right metadata column */}
-      <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-5 items-end">
-        {[
-          'Arquitectura de Equilibrio',
-          'Ingeniería Crediticia',
-          'Est. MMXXIV',
-        ].map((text, i) => (
-          <div key={i} className="photo-meta flex items-center gap-3">
-            <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#F4F4F5]/25">
-              {text}
-            </span>
-            <div className="w-4 h-px bg-[#E5997B]/40" />
-          </div>
-        ))}
-      </div>
-
-      {/* Main content — centered */}
-      <div
-        ref={textRef}
-        className="relative z-10 h-full flex flex-col items-center justify-center text-center px-8 md:px-24 lg:px-40"
+      <motion.div
+        style={{ WebkitMaskImage: maskWebkit, maskImage: maskWebkit }}
+        className="absolute inset-0 z-[2] pointer-events-none opacity-[0.3]"
       >
+        <AnimatedGrid cellSize={60} color="229,153,123" />
+      </motion.div>
 
-        {/* Top ornament line */}
-        <div className="flex items-center gap-6 mb-14">
-          <div
-            ref={lineLeftRef}
-            className="w-24 md:w-40 h-px bg-[#E5997B]/50 origin-right"
-          />
-          <svg className="w-3 h-3 shrink-0" viewBox="0 0 12 12" fill="none">
-            <path d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5Z" fill="#E5997B" fillOpacity="0.5" />
-          </svg>
-          <div
-            ref={lineRightRef}
-            className="w-24 md:w-40 h-px bg-[#E5997B]/50 origin-left"
-          />
+      <div className="absolute inset-y-0 right-0 w-[60%] z-[3] pointer-events-none select-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#05051a] via-transparent to-transparent z-10" />
+        <div className="w-full h-full flex items-center justify-end pr-0">
+          <div style={{ width: '85%', height: '85%', transform: 'translateX(9%)' }}>
+            <DimaGeometric />
+          </div>
         </div>
-
-        {/* Quote — split into animatable lines */}
-        <blockquote className="max-w-4xl mb-10">
-          <p className="quote-line font-display text-[clamp(2.2rem,5vw,5.5rem)] text-[#F4F4F5] italic leading-[1.1] tracking-tight">
-            "Donde otros ven deuda,
-          </p>
-          <p className="quote-line font-display text-[clamp(2.2rem,5vw,5.5rem)] leading-[1.1] tracking-tight">
-            <span className="text-[#E5997B] italic">nosotros diseñamos</span>
-            <span className="text-[#F4F4F5] italic"> productividad."</span>
-          </p>
-        </blockquote>
-
-        {/* Attribution */}
-        <div className="photo-attribution flex items-center gap-5">
-          <div className="w-8 h-px bg-[#E5997B]/40" />
-          <span className="font-mono text-[#E5997B]/70 text-[9px] tracking-[0.6em] uppercase">
-            DIMA Finance — Principio Fundacional
-          </span>
-          <div className="w-8 h-px bg-[#E5997B]/40" />
-        </div>
-
       </div>
 
-      {/* Bottom metadata bar */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-[#F4F4F5]/5 py-4 px-8 md:px-16 flex items-center justify-between">
-        <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#F4F4F5]/15">
-          Sociedad Financiera de Objeto Múltiple
-        </span>
-        <div className="flex items-center gap-2">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="w-1 h-1 bg-[#E5997B]/20" style={{ opacity: 0.1 + i * 0.15 }} />
-          ))}
+      <div className="relative z-[10] w-full h-full flex flex-col justify-between p-10 md:p-16 lg:p-24">
+        <div className="invisible flex flex-col gap-1">
+          <span className="font-mono text-[9px]">x</span>
+          <span className="font-mono text-[8px]">x</span>
         </div>
-        <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#F4F4F5]/15">
-          Arquitectos de Equilibrio
-        </span>
+
+        <div className="max-w-4xl select-none">
+          <div className="reveal-item overflow-hidden mb-8">
+            <p className="text-[#E5997B] font-mono text-[11px] tracking-[1em] uppercase flex items-center gap-6">
+              <span className="w-16 h-[1px] bg-[#E5997B]/30" />
+              Ingeniería de Capital
+            </p>
+          </div>
+
+          {/* SVG title — dihandle animasinya oleh HeroCurtain */}
+          <HeroTitleSVG />
+
+          <div className="reveal-item mt-14 flex items-start gap-10">
+            <div className="w-[1px] h-20 bg-gradient-to-b from-[#E5997B] to-transparent opacity-40" />
+            <p className="text-white/40 font-body text-base lg:text-lg max-w-[380px] leading-relaxed">
+              Diseñamos arquitecturas financieras que transforman el balance corporativo en una plataforma de crecimiento estratégico.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row justify-between items-end gap-10">
+          <div className="reveal-item hidden md:block">
+            <div className="flex flex-col gap-1 opacity-30">
+              <span className="font-mono text-[8px] text-white tracking-[0.8em] uppercase">Crédito Empresarial</span>
+              <span className="font-mono text-[10px] text-white tracking-[0.2em]">Todos los sectores · Todas las escalas</span>
+            </div>
+          </div>
+
+          <div className="reveal-item flex items-center gap-6 w-full md:w-auto">
+            <Link to="/contacto" className="flex-1 md:flex-none text-center px-8 py-5 font-mono text-[10px] tracking-[0.5em] uppercase text-white/40 hover:text-white transition-all border border-white/0 hover:border-white/10">
+              Contacto
+            </Link>
+            <Link to="/modelo-crediticio" className="group relative flex-1 md:flex-none flex items-center justify-center gap-6 px-12 py-5 bg-white/[0.03] backdrop-blur-3xl border border-white/10 overflow-hidden">
+              <div className="absolute inset-0 bg-[#E5997B] translate-y-full group-hover:translate-y-0 transition-transform duration-[900ms] ease-[cubic-bezier(0.23,1,0.32,1)]" />
+              <span className="relative z-10 font-body text-[10px] tracking-[0.6em] uppercase text-white group-hover:text-[#000000] transition-colors duration-[900ms] font-bold">Ver Modelo</span>
+              <svg className="relative z-10 w-4 h-4 text-[#E5997B] group-hover:text-[#000000] transition-all duration-[900ms] group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+        </div>
       </div>
 
+      <div className="absolute inset-10 pointer-events-none opacity-20 z-[20]">
+        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-[#E5997B]" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#E5997B]" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-[#E5997B]" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-[#E5997B]" />
+      </div>
     </section>
   )
 }
