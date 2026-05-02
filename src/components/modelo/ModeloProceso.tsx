@@ -4,18 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ─── Helper: dynamic script loader ───
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve()
-    const s = document.createElement('script')
-    s.src = src
-    s.onload = () => resolve()
-    s.onerror = reject
-    document.head.appendChild(s)
-  })
-}
-
 const phases = [
   {
     num: '01',
@@ -198,66 +186,6 @@ function buildStrokeTl(svg: SVGSVGElement) {
     .to(strokeLines, { opacity: 0,            duration: 0.6, stagger: 0.06, ease: 'power1.in'    }, 1.7)
 
   return tl
-}
-
-// ─── Vanta Birds Container ────────────────────────────────────────────────────
-function VantaBirds() {
-  const vantaRef = useRef<HTMLDivElement>(null)
-  const vantaInstance = useRef<any>(null)
-
-  useEffect(() => {
-    let destroyed = false
-
-    async function initVanta() {
-      try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
-
-        if (destroyed || !vantaRef.current) return
-        if (!(window as any).VANTA?.BIRDS) return
-
-        vantaInstance.current = (window as any).VANTA.BIRDS({
-          el: vantaRef.current,
-          THREE: (window as any).THREE,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 600.0,
-          minWidth: 600.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          backgroundColor: 0xF5F5F5,
-          color1: 0x1a1a4e,
-          color2: 0xE5997B,
-          colorMode: 'lerp',
-          birdSize: 1.0,
-          wingSpan: 16,
-          speedLimit: 3,
-          separation: 35,
-          alignment: 40,
-          cohesion: 50,
-          quantity: 3,
-        })
-      } catch (err) {
-        console.error('Vanta BIRDS init failed:', err)
-      }
-    }
-
-    initVanta()
-
-    return () => {
-      destroyed = true
-      vantaInstance.current?.destroy()
-    }
-  }, [])
-
-  return (
-    <div
-      ref={vantaRef}
-      className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 1 }}
-    />
-  )
 }
 
 // ─── 3D Process Card ──────────────────────────────────────────────────────────
@@ -485,9 +413,6 @@ export default function UltimateHorizontalProcess() {
         }
       `}</style>
 
-      {/* Vanta BIRDS — fixed global di belakang section */}
-      <VantaBirds />
-
       <div ref={containerRef} className="bg-white overflow-hidden relative">
 
         <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
@@ -518,7 +443,7 @@ export default function UltimateHorizontalProcess() {
           {phases.map((phase) => (
             <section
               key={phase.num}
-              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100/30 bg-white/65 backdrop-blur-md relative overflow-hidden"
+              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100 bg-white relative overflow-hidden"
             >
               <div className="absolute bottom-[8%] left-0 w-full overflow-hidden opacity-[0.045] select-none pointer-events-none z-0">
                 <div
