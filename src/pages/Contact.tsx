@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import PageTransition from '../components/PageTransition'
-import AnimatedGrid from '../components/AnimatedGrid'
 import GridDissolve from '../components/GridDissolve'
 // import InteractiveConstellationText from '../components/InteractiveConstellationText'
-import { type RefObject } from 'react'
 import UnifiedMagmaGrid from '../components/UnifiedMagmaGrid'
 import InteractiveConstellationText from '../components/InteractiveConstellationText'
 
@@ -27,36 +24,6 @@ export default function Contact() {
   })
 
   const vantaRef = useRef<any>(null)
-  const rafRef   = useRef<number | null>(null)
-
-  // ── Spotlight mouse tracking ───────────────────────────────
-  const mouseX  = useMotionValue(-9999)
-  const mouseY  = useMotionValue(-9999)
-  const springX = useSpring(mouseX, { stiffness: 60, damping: 20 })
-  const springY = useSpring(mouseY, { stiffness: 60, damping: 20 })
-
-  const maskWebkit = useTransform([springX, springY], ([x, y]) =>
-    `radial-gradient(650px at ${x}px ${y}px,
-      rgba(255,255,255,1) 0%,
-      rgba(255,255,255,0.7) 20%,
-      rgba(255,255,255,0.2) 55%,
-      rgba(255,255,255,0) 100%
-    )`
-  )
-
-  const handleHeroMouseMove = useCallback((e: React.MouseEvent) => {
-    if (rafRef.current) return
-    rafRef.current = requestAnimationFrame(() => {
-      const rect = heroRef.current?.getBoundingClientRect()
-      if (rect) { mouseX.set(e.clientX - rect.left); mouseY.set(e.clientY - rect.top) }
-      rafRef.current = null
-    })
-  }, [mouseX, mouseY])
-
-  const handleHeroMouseLeave = useCallback(() => {
-    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null }
-    mouseX.set(-9999); mouseY.set(-9999)
-  }, [mouseX, mouseY])
 
   // ── Vanta Birds — lazy: aktif hanya saat section terlihat ──
   useEffect(() => {
@@ -198,11 +165,7 @@ export default function Contact() {
   const inputValid    = 'border-[#E5997B]'
   const inputDisabled = 'border-[#030035]/5 text-[#030035]/20'
 
-  type Props = {
-  heroRef: RefObject<HTMLDivElement | null>
-}
-
- const heroSection = (
+  const heroSection = (
   <section
     ref={heroRef}
     className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#030035]"

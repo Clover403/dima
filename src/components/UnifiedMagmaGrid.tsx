@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
 
 interface Snake {
   col: number; row: number;
@@ -14,17 +14,23 @@ interface TrailPoint {
   x: number;
   y: number;
   age: number;
+  opacity: number;
 }
 
-export default function LongMagmaTrailGrid({
-  cellSize = 60,
+const MagmaFlowWide = memo(({
+  cellSize = 55, // Sedikit lebih rapat biar gridnya makin cakep
   color = '229,153,123',
   className = '',
-  proximityRadius = 550,
-}) {
+  // Jangkauan ditingkatkan drastis bray
+  proximityRadius = 1100, 
+}: {
+  cellSize?: number;
+  color?: string;
+  className?: string;
+  proximityRadius?: number;
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const mouseTrail = useRef<TrailPoint[]>([])
-  const mouse = useRef({ x: -1000, y: -1000, active: false })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -37,8 +43,9 @@ export default function LongMagmaTrailGrid({
     let w: number, h: number
     let cols: number, rows: number
 
-    const TRAIL_MAX_AGE = 80; // Ekor jauh lebih lama (sebelumnya 25)
-    const TRAIL_MAX_POINTS = 60; // Titik lebih banyak biar smooth
+    // Durasi awet banget bray
+    const TRAIL_MAX_AGE = 300; 
+    const TRAIL_MAX_POINTS = 180; 
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1
@@ -59,43 +66,44 @@ export default function LongMagmaTrailGrid({
         col, row, t: 0, dir: dirs[Math.floor(Math.random() * dirs.length)],
         points: [{ x: col * cellSize, y: row * cellSize }],
         life: 0,
-        maxLife: 120 + Math.random() * 60,
-        speed: 0.003 + Math.random() * 0.005 // Makin kental bray
+        maxLife: 250 + Math.random() * 100, 
+        speed: 0.002 + Math.random() * 0.004 
       })
     }
 
     const draw = (time: number) => {
       ctx.clearRect(0, 0, w, h)
       
-      // Update Trail: Aging process
-      mouseTrail.current.forEach(p => p.age++)
+      mouseTrail.current.forEach(p => {
+        p.age++
+        if (p.opacity < 1) p.opacity += 0.04 
+      })
       mouseTrail.current = mouseTrail.current.filter(p => p.age < TRAIL_MAX_AGE)
 
-      // --- 1. GRID LAYER (Lava Persistence) ---
+      // 1. GRID LAYER (Ultra Wide)
       for (let i = 0; i <= cols; i++) {
         for (let j = 0; j <= rows; j++) {
           const gx = i * cellSize
           const gy = j * cellSize
-          
           let maxCore = 0
           let maxAmbient = 0
 
-          // Loop Trail untuk cari intensitas tertinggi di koordinat ini
-          mouseTrail.current.forEach((tp) => {
+          mouseTrail.current.forEach((tp, idx) => {
             const dist = Math.hypot(gx - tp.x, gy - tp.y)
+            const lifeRatio = 1 - (tp.age / TRAIL_MAX_AGE)
+            const trailProgress = idx / mouseTrail.current.length 
             
-            // Age factor: 1.0 (baru) -> 0.0 (mati)
-            const ageLife = 1 - (tp.age / TRAIL_MAX_AGE)
-            // Easing: bikin redupnya lebih smooth (nggak linear)
-            const smoothAge = ageLife * ageLife; 
-
-            const currentRadius = proximityRadius * (0.3 + 0.7 * smoothAge)
+            // Radius yang sangat lebar
+            const currentRadius = proximityRadius * (0.25 + 0.75 * trailProgress)
             
             if (dist < currentRadius) {
               const distRatio = 1 - dist / currentRadius
-              // Core tajam, Ambient luas
-              const core = Math.pow(distRatio, 6) * smoothAge
-              const ambient = Math.pow(distRatio, 2) * smoothAge
+              
+              // Core: Dibuat super tajam (Power 25)
+              const core = Math.pow(distRatio, 25) * Math.pow(lifeRatio, 2) * tp.opacity
+              
+              // Ambient: Power dikecilkan ke 0.7 agar areanya melebar rata bray
+              const ambient = Math.pow(distRatio, 0.7) * Math.pow(lifeRatio, 1.1) * tp.opacity
               
               if (core > maxCore) maxCore = core
               if (ambient > maxAmbient) maxAmbient = ambient
@@ -105,9 +113,10 @@ export default function LongMagmaTrailGrid({
           if (maxAmbient > 0.001) {
             const pulse = Math.sin(time * 0.001 + (i + j)) * 0.05 + 0.95
             
-            // Ultra-thick di kursor, tapered (mengkerucut) ke belakang
-            ctx.lineWidth = 0.2 + (maxCore * 7.0) 
-            ctx.strokeStyle = `rgba(${color}, ${maxAmbient * 0.9 * pulse})`
+            // Garis core yang tebal tepat di kursor
+            ctx.lineWidth = 0.2 + (maxCore * 7.5) 
+            // Opacity ambient dikurangi dikit biar nggak silau karena areanya luas
+            ctx.strokeStyle = `rgba(${color}, ${maxAmbient * 0.45 * pulse})`
             
             if (i < cols) {
               ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + cellSize, gy); ctx.stroke()
@@ -119,7 +128,7 @@ export default function LongMagmaTrailGrid({
         }
       }
 
-      // --- 2. SNAKE LAYER (Thin Threads) ---
+      // 2. SNAKE LAYER (Ghost Mode)
       snakes.forEach((s, idx) => {
         s.t += s.speed
         const curX = (s.col + s.dir.x * s.t) * cellSize
@@ -128,8 +137,8 @@ export default function LongMagmaTrailGrid({
         if (s.t >= 1) {
           s.t = 0; s.col += s.dir.x; s.row += s.dir.y
           s.points.push({ x: s.col * cellSize, y: s.row * cellSize })
-          if (s.points.length > 10) s.points.shift()
-          if (Math.random() > 0.7) {
+          if (s.points.length > 12) s.points.shift()
+          if (Math.random() > 0.8) {
             const dirs = [{x:1, y:0}, {x:-1, y:0}, {x:0, y:1}, {x:0, y:-1}]
             s.dir = dirs[Math.floor(Math.random() * dirs.length)]
           }
@@ -140,13 +149,11 @@ export default function LongMagmaTrailGrid({
         if (alpha <= 0) { snakes.splice(idx, 1); return }
 
         ctx.beginPath()
-        ctx.lineWidth = 1.2 * alpha
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round'
-        
+        ctx.lineWidth = 1.0 * alpha 
+        ctx.lineCap = 'round'
         const grad = ctx.createLinearGradient(s.points[0].x, s.points[0].y, curX, curY)
         grad.addColorStop(0, `rgba(${color}, 0)`)
-        grad.addColorStop(1, `rgba(${color}, ${alpha * 0.6})`)
-        
+        grad.addColorStop(1, `rgba(${color}, ${alpha * 0.15})`) // Makin redup bray
         ctx.strokeStyle = grad
         ctx.moveTo(s.points[0].x, s.points[0].y)
         s.points.forEach(p => ctx.lineTo(p.x, p.y))
@@ -154,7 +161,7 @@ export default function LongMagmaTrailGrid({
         ctx.stroke()
       })
 
-      if (snakes.length < 12) createSnake()
+      if (snakes.length < 6) createSnake()
       frame = requestAnimationFrame(draw)
     }
 
@@ -163,21 +170,16 @@ export default function LongMagmaTrailGrid({
       const nx = e.clientX - rect.left
       const ny = e.clientY - rect.top
       
-      mouse.current = { x: nx, y: ny, active: true }
-      
-      // Filter trail: jangan simpan titik jika jarak terlalu dekat (biar hemat memori)
       const lastPoint = mouseTrail.current[mouseTrail.current.length - 1]
-      if (!lastPoint || Math.hypot(nx - lastPoint.x, ny - lastPoint.y) > 5) {
-        mouseTrail.current.push({ x: nx, y: ny, age: 0 })
+      if (!lastPoint || Math.hypot(nx - lastPoint.x, ny - lastPoint.y) > 6) {
+        mouseTrail.current.push({ x: nx, y: ny, age: 0, opacity: 0 })
       }
       
       if (mouseTrail.current.length > TRAIL_MAX_POINTS) mouseTrail.current.shift()
-      if (Math.random() > 0.97) createSnake(nx, ny)
     }
 
     window.addEventListener('resize', resize)
     window.addEventListener('mousemove', handleMouseMove)
-    
     resize()
     frame = requestAnimationFrame(draw)
 
@@ -191,7 +193,10 @@ export default function LongMagmaTrailGrid({
   return (
     <canvas 
       ref={canvasRef} 
-      className={`absolute inset-0 w-full h-full pointer-events-none ${className}`} 
+      className={`absolute inset-0 w-full h-full pointer-events-none transform-gpu ${className}`}
+      style={{ backfaceVisibility: 'hidden', perspective: 1000 }}
     />
   )
-}
+})
+
+export default MagmaFlowWide

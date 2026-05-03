@@ -5,8 +5,6 @@ import PageTransition from '../components/PageTransition';
 
 import AboutHeroSection from '../components/about/AboutHeroSection';
 import AboutPinnedNarrativeSection from '../components/about/AboutPinnedNarrativeSection';
-import AboutOriginSection from '../components/about/AboutOriginSection';
-import AboutPillarsSection from '../components/about/AboutPillarsSection';
 import AboutManifestoSection from '../components/about/AboutManifestoSection';
 import AboutStatsSection from '../components/about/AboutStatsSection';
 import AboutCTASection from '../components/about/AboutCTASection';

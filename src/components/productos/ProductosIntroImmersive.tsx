@@ -19,7 +19,7 @@ function loadScript(src: string): Promise<void> {
 // ─── SVG Stroke Reveal — HEADLINES ONLY ──────────────────────────────────
 // pathLength="1000" → path length dipaksa jadi 1000 unit, jadi strokeDash 
 // ga perlu tebak-tebakan panjang path. Konsisten & smooth.
-function HeadlineSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement> }) {
+function HeadlineSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement | null> }) {
   return (
     <svg
       ref={svgRef}
