@@ -310,7 +310,7 @@ function ProcessCard({
 
         <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]">
           <div className="overflow-hidden">
-            <p className="font-body text-navy/60 text-lg leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">
+            <p className="font-body text-navy/60 text-xl leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-150">
               {node.desc}
             </p>
           </div>

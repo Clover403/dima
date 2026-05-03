@@ -411,7 +411,7 @@ export default function ServiciosNav() {
             <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
               {name}
             </h3>
-            <p className="font-body text-navy/60 text-sm leading-relaxed group-hover:text-navy/80 transition-colors">
+            <p className="font-body text-navy/60 text-md leading-relaxed group-hover:text-navy/80 transition-colors">
               {descriptor}
             </p>
           </div>

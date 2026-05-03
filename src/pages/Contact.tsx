@@ -277,17 +277,17 @@ export default function Contact() {
           <section ref={formRef} className="relative min-h-screen py-28 md:py-36 bg-[#F4F4F5] overflow-hidden">
             <div className="absolute inset-0 pointer-events-none opacity-[0.22]"
               style={{ backgroundImage: 'radial-gradient(circle, rgba(3,0,53,0.05) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-            <div className="relative z-10 max-w-5xl mx-auto px-8 md:px-16">
+            <div className="relative z-10 max-w-6xl mx-auto px-8 md:px-20">
 
               <div className="form-reveal text-center mb-20">
                 <div className="inline-flex items-center gap-3 px-6 py-3 bg-[#030035]/5 border border-[#030035]/10 mb-10">
                   <div className="w-1.5 h-1.5 bg-[#E5997B] animate-pulse" />
-                  <span className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50">Precalificación Rápida</span>
+                  <span className="font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/50">Precalificación Rápida</span>
                 </div>
                 <h2 className="font-display text-[clamp(2.8rem,6vw,5.5rem)] text-[#030035] leading-tight mb-6">
                   Formulario de <span className="text-[#E5997B] italic">Precalificación</span>
                 </h2>
-                <p className="font-body text-[#030035]/55 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+                <p className="font-body text-[#030035]/85 text-xl md:text-2xl max-w-xl mx-auto leading-relaxed">
                   Completa la información y agenda directamente tu sesión con nuestro equipo.
                 </p>
               </div>
@@ -298,42 +298,42 @@ export default function Contact() {
                   {/* GROUP 1 */}
                   <div className="form-reveal space-y-12">
                     <div className="flex items-center gap-4">
-                      <p className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#E5997B] shrink-0">01 — Información de Contacto</p>
+                      <p className="font-mono text-[14px] tracking-[0.4em] uppercase text-[#E5997B] shrink-0">01 — Información de Contacto</p>
                       <div className="flex-1 h-px bg-[#030035]/8" />
                     </div>
                     <div>
-                      <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Sector / Industria</label>
+                      <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Sector / Industria</label>
                       <input type="text" name="sector" value={formData.sector} onChange={handleChange}
                         placeholder="Ej. Manufactura, Agroindustria, Inmobiliario..."
-                        className={`${inputBase} ${inputIdle} text-2xl`} required />
+                        className={`${inputBase} ${inputIdle} text-3xl`} required />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Nombre de Contacto</label>
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Nombre de Contacto</label>
                         <input type="text" name="contactName" value={formData.contactName} onChange={handleChange}
-                          className={`${inputBase} ${inputIdle} text-2xl`} required />
+                          className={`${inputBase} ${inputIdle} text-3xl`} required />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Cargo</label>
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Cargo</label>
                         <input type="text" name="position" value={formData.position} onChange={handleChange}
                           placeholder="Ej. Director General, CFO..."
-                          className={`${inputBase} ${inputIdle} text-2xl`} required />
+                          className={`${inputBase} ${inputIdle} text-3xl`} required />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Email Corporativo</label>
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Email Corporativo</label>
                         <input type="email" name="email" value={formData.email}
                           onChange={handleEmailChange}
                           onBlur={() => { if (formData.email && !validateEmail(formData.email)) setErrors(prev => ({ ...prev, email: 'Ingrese un correo electrónico válido' })) }}
                           placeholder="nombre@empresa.com"
-                          className={`${inputBase} text-2xl ${errors.email ? 'border-red-400' : formData.email && isEmailValid ? inputValid : inputIdle}`}
+                          className={`${inputBase} text-3xl ${errors.email ? 'border-red-400' : formData.email && isEmailValid ? inputValid : inputIdle}`}
                           required />
-                        {errors.email && <p className="mt-2 font-mono text-[10px] tracking-[0.3em] uppercase text-red-400">{errors.email}</p>}
-                        {formData.email && isEmailValid && !errors.email && <p className="mt-2 font-mono text-[10px] tracking-[0.3em] uppercase text-[#E5997B]/70">✓ Correo válido</p>}
+                        {errors.email && <p className="mt-2 font-mono text-[13px] tracking-[0.3em] uppercase text-red-400">{errors.email}</p>}
+                        {formData.email && isEmailValid && !errors.email && <p className="mt-2 font-mono text-[13px] tracking-[0.3em] uppercase text-[#E5997B]/70">✓ Correo válido</p>}
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Teléfono</label>
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Teléfono</label>
                         <input type="tel" name="phone" value={formData.phone}
                           onChange={handlePhoneChange}
                           onKeyDown={(e) => {
@@ -341,10 +341,10 @@ export default function Contact() {
                             if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault()
                           }}
                           placeholder="+52 55 0000 0000" inputMode="tel"
-                          className={`${inputBase} text-2xl ${formData.phone && isPhoneValid ? inputValid : inputIdle}`}
+                          className={`${inputBase} text-3xl ${formData.phone && isPhoneValid ? inputValid : inputIdle}`}
                           required />
-                        {formData.phone && !isPhoneValid && <p className="mt-2 font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/35">Mínimo 8 dígitos</p>}
-                        {formData.phone && isPhoneValid && <p className="mt-2 font-mono text-[10px] tracking-[0.3em] uppercase text-[#E5997B]/70">✓ Teléfono válido</p>}
+                        {formData.phone && !isPhoneValid && <p className="mt-2 font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/60">Mínimo 8 dígitos</p>}
+                        {formData.phone && isPhoneValid && <p className="mt-2 font-mono text-[13px] tracking-[0.3em] uppercase text-[#E5997B]/70">✓ Teléfono válido</p>}
                       </div>
                     </div>
                   </div>
@@ -352,13 +352,13 @@ export default function Contact() {
                   {/* GROUP 2 */}
                   <div className="form-reveal space-y-12">
                     <div className="flex items-center gap-4">
-                      <p className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#E5997B] shrink-0">02 — Información del Producto</p>
+                      <p className="font-mono text-[14px] tracking-[0.4em] uppercase text-[#E5997B] shrink-0">02 — Información del Producto</p>
                       <div className="flex-1 h-px bg-[#030035]/8" />
                     </div>
                     <div>
-                      <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Tipo de Producto</label>
+                      <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Tipo de Producto</label>
                       <select name="productType" value={formData.productType} onChange={handleChange}
-                        className={`${inputBase} ${inputIdle} text-2xl appearance-none cursor-pointer`} required>
+                        className={`${inputBase} ${inputIdle} text-3xl appearance-none cursor-pointer`} required>
                         <option value="" disabled>Seleccione un producto...</option>
                         <option value="Crédito Simple">Crédito Simple</option>
                         <option value="Crédito Puente">Crédito Puente</option>
@@ -369,9 +369,9 @@ export default function Contact() {
                         <option value="Por definir">Por definir / TBD</option>
                       </select>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">Monto Requerido</label>
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">Monto Requerido</label>
                         <div className="flex gap-4 items-end">
                           <input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange}
                             placeholder="0" disabled={formData.loanTBD}
@@ -387,19 +387,19 @@ export default function Contact() {
                         </div>
                         <label className="flex items-center gap-3 mt-4 cursor-pointer">
                           <input type="checkbox" name="loanTBD" checked={formData.loanTBD} onChange={handleChange} className="w-4 h-4 accent-[#E5997B]" />
-                          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/40">Por definir / TBD</span>
+                          <span className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/65">Por definir / TBD</span>
                         </label>
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] tracking-[0.4em] uppercase text-[#030035]/50 mb-4">
+                        <label className="block font-mono text-[14px] tracking-[0.4em] uppercase text-[#030035]/80 mb-4">
                           Plazo Deseado <span className="text-[#030035]/30 normal-case tracking-normal">(en meses)</span>
                         </label>
                         <input type="number" name="termMonths" value={formData.termMonths} onChange={handleChange}
                           placeholder="0" disabled={formData.termTBD}
-                          className={`${inputBase} text-2xl ${formData.termTBD ? inputDisabled : inputIdle}`} />
+                          className={`${inputBase} text-3xl ${formData.termTBD ? inputDisabled : inputIdle}`} />
                         <label className="flex items-center gap-3 mt-4 cursor-pointer">
                           <input type="checkbox" name="termTBD" checked={formData.termTBD} onChange={handleChange} className="w-4 h-4 accent-[#E5997B]" />
-                          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/40">Por definir / TBD</span>
+                          <span className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/65">Por definir / TBD</span>
                         </label>
                       </div>
                     </div>
@@ -407,12 +407,12 @@ export default function Contact() {
 
                   {/* Submit */}
                   <div className="form-reveal pt-4 pb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-t border-[#030035]/8">
-                    <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/30 max-w-xs leading-relaxed">
+                    <p className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/55 max-w-xs leading-relaxed">
                       Al continuar, aceptas que nuestro equipo se ponga en contacto contigo para coordinar la sesión.
                     </p>
                     <button type="submit" disabled={!isFormValid}
-                      className={`inline-flex items-center gap-4 px-14 py-6 font-mono text-[13px] tracking-[0.3em] uppercase transition-all duration-300 shrink-0 ${
-                        isFormValid ? 'bg-[#030035] text-[#F4F4F5] hover:bg-[#E5997B] cursor-pointer' : 'bg-[#030035]/8 text-[#030035]/25 cursor-not-allowed'
+                      className={`inline-flex items-center gap-4 px-14 py-6 font-mono text-[16px] tracking-[0.3em] uppercase transition-all duration-300 shrink-0 ${
+                        isFormValid ? 'bg-[#030035] text-[#F4F4F5] hover:bg-[#E5997B] cursor-pointer' : 'bg-[#030035]/12 text-[#030035]/45 cursor-not-allowed'
                       }`}>
                       <span>Agendar Sesión</span>
                       <svg className="w-5 h-5" viewBox="0 0 16 16" fill="none">
@@ -426,13 +426,13 @@ export default function Contact() {
                 <div className="space-y-10">
                   <div className="form-reveal border border-[#030035]/8 p-10 space-y-4 bg-white/40">
                     <div className="flex items-center justify-between mb-6">
-                      <span className="font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/40">Resumen de su solicitud</span>
+                      <span className="font-mono text-[13px] tracking-[0.4em] uppercase text-[#030035]/65">Resumen de su solicitud</span>
                       <button onClick={() => setShowCalendly(false)}
-                        className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#E5997B] hover:text-[#030035] transition-colors">
+                        className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#E5997B] hover:text-[#030035] transition-colors">
                         Editar información
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20">
                       {[
                         { label: 'Contacto', value: formData.contactName },
                         { label: 'Sector',   value: formData.sector },
@@ -444,8 +444,8 @@ export default function Contact() {
                         { label: 'Plazo',    value: formData.termTBD ? 'Por definir' : `${formData.termMonths} meses` },
                       ].map((item) => (
                         <div key={item.label} className="flex justify-between items-baseline border-b border-[#030035]/5 py-3">
-                          <span className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/35">{item.label}</span>
-                          <span className="font-body text-[#030035] text-sm md:text-base">{item.value}</span>
+                          <span className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/60">{item.label}</span>
+                          <span className="font-body text-[#030035] text-base md:text-lg">{item.value}</span>
                         </div>
                       ))}
                     </div>
@@ -456,7 +456,7 @@ export default function Contact() {
                         <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
                         <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
-                      <span className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#F4F4F5]/60">
+                      <span className="font-mono text-[14px] tracking-[0.4em] uppercase text-[#F4F4F5]/60">
                         Seleccione fecha y hora — Sesión de 30 minutos
                       </span>
                     </div>
@@ -497,7 +497,7 @@ export default function Contact() {
                     <div className="w-12 h-12 mb-6 flex items-center justify-center text-[#030035] group-hover:text-[#E5997B] transition-colors duration-500">
                       <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">{item.icon}</svg>
                     </div>
-                    <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/40 mb-2">{item.label}</p>
+                    <p className="font-mono text-[13px] tracking-[0.3em] uppercase text-[#030035]/65 mb-2">{item.label}</p>
                     <p className="font-body text-[#030035] text-base md:text-lg font-medium">{item.value}</p>
                   </a>
                 ))}
