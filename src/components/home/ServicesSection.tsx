@@ -50,6 +50,17 @@ const TOTAL_SLIDES = services.length + 3   // 6 × 100vh — room for intro + ou
 const HEADING_FONT_FAMILY = "'Playfair Display', serif"
 const HEADING_FONT_WEIGHT = '400'
 
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve()
+    const s = document.createElement('script')
+    s.src = src
+    s.onload = () => resolve()
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
 function HeadingStrokeSVG({ svgRef }: { svgRef: RefObject<SVGSVGElement | null> }) {
   const lines = [
     { text: 'Acompañamiento', color: '#030035', y: 138, italic: false },
@@ -123,10 +134,52 @@ export default function ServicesSection() {
   const stepRef    = useRef(-1)    // current step
   const animRef    = useRef(false) // hard lock while animating
   const touchY     = useRef(0)
+  const vantaRef   = useRef<any>(null)
 
   // ── GSAP action refs ─────────────────────────────────────────────────
   const outroPlayRef    = useRef<() => void>(() => {})
   const outroReverseRef = useRef<() => void>(() => {})
+
+  // ── Vanta Birds setup ───────────────────────────────────────────────────
+  useEffect(() => {
+    let destroyed = false
+
+    async function initVanta() {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+      await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
+      if (destroyed || !outerRef.current) return
+
+      vantaRef.current = (window as any).VANTA.BIRDS({
+        el: outerRef.current,
+        THREE: (window as any).THREE,
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 600.0,
+        minWidth: 600.0,
+        scale: 1.0,
+        scaleMobile: 1.0,
+        backgroundColor: 0xF5F5F5,
+        color1: 0x1a1a4e,
+        color2: 0xE5997B,
+        colorMode: 'lerp',
+        birdSize: 1,      // ← naik dari 0.55
+wingSpan: 25,       // ← naik dari 22
+speedLimit: 3,
+separation: 25,     // ← turun dari 60 (lebih rapat = kesan lebih dekat)
+alignment: 40,
+cohesion: 45,
+quantity: 4,        // ← naik dari 3
+      })
+    }
+
+    initVanta()
+
+    return () => {
+      destroyed = true
+      vantaRef.current?.destroy()
+    }
+  }, [])
 
   // ── GSAP setup ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -525,19 +578,20 @@ export default function ServicesSection() {
               ref={imgParRef}
               className="absolute inset-0 w-full h-[115%] will-change-transform"
             >
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={services[activeIdx].image}
-                  src={services[activeIdx].image}
-                  alt={`DIMA Finance — ${services[activeIdx].name}`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
-                  initial={{ opacity: 0, scale: 1.04, filter: 'blur(2px)' }}
-                  animate={{ opacity: 1, scale: 1,    filter: 'blur(0px)' }}
-                  exit={{    opacity: 0, scale: 0.985, filter: 'blur(2px)' }}
-                  transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </AnimatePresence>
+              <AnimatePresence initial={false}>
+  <motion.img
+    key={services[activeIdx].image}
+    src={services[activeIdx].image}
+    alt={`DIMA Finance — ${services[activeIdx].name}`}
+    className="absolute inset-0 w-full h-full object-cover"
+    loading="lazy"
+    initial={{ opacity: 0, scale: 1.03 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 1.02 }}
+    transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+    style={{ zIndex: 1 }}
+  />
+</AnimatePresence>
             </div>
             <div
               className="absolute inset-y-0 right-0 w-[36%] hidden lg:block"
@@ -602,7 +656,7 @@ export default function ServicesSection() {
                 aria-pressed={activeIdx === i}
               >
                 <span
-                  className={`font-display text-4xl transition-all duration-[1100ms] shrink-0 leading-none mt-1 ${
+                  className={`font-display text-5xl transition-all duration-[1100ms] shrink-0 leading-none mt-1 ${
                     activeIdx === i
                       ? 'text-bronze/30'
                       : 'text-navy/[0.06] group-hover:text-bronze/20'
@@ -613,7 +667,7 @@ export default function ServicesSection() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-4">
                     <h3
-                      className={`font-display text-xl md:text-2xl mb-2 transition-colors duration-[1100ms] ${
+                      className={`font-display text-xl md:text-3xl mb-3 transition-colors duration-[1100ms] ${
                         activeIdx === i
                           ? 'text-bronze'
                           : 'text-navy group-hover:text-bronze'
@@ -633,12 +687,12 @@ export default function ServicesSection() {
                   <div
                     className="overflow-hidden"
                     style={{
-                      maxHeight:  activeIdx === i ? '6rem' : '0px',
+                      maxHeight:  activeIdx === i ? '9rem' : '0px',
                       opacity:    activeIdx === i ? 1 : 0,
                       transition: 'max-height 1100ms cubic-bezier(0.22,1,0.36,1), opacity 1100ms cubic-bezier(0.22,1,0.36,1)',
                     }}
                   >
-                    <p className="font-body text-base text-navy/50 leading-relaxed pt-1">
+                    <p className="font-body text-lg md:text-xl text-navy/50 leading-relaxed pt-2">
                       {svc.description}
                     </p>
                   </div>

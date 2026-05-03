@@ -5,11 +5,22 @@ import { motion } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// ─── Helper: dynamic script loader ───
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve()
+    const s = document.createElement('script')
+    s.src = src
+    s.onload = () => resolve()
+    s.onerror = reject
+    document.head.appendChild(s)
+  })
+}
+
 /* ─── Service-specific SVG icons ─── */
 function Icon01() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* Restructure: two arrows cycling around a diamond */}
       <path d="M18 32C18 22 26 14 36 14" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M46 32C46 42 38 50 28 50" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M32 9L36 14L32 19" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -22,9 +33,7 @@ function Icon01() {
 function Icon02() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* Cycle wave: economic sine */}
       <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      {/* Baseline */}
       <line x1="8" y1="50" x2="56" y2="50" stroke="#E5997B" strokeWidth="0.6" opacity="0.4" />
       <circle cx="56" cy="18" r="2.5" stroke="#E5997B" strokeWidth="1" />
     </svg>
@@ -34,7 +43,6 @@ function Icon02() {
 function Icon03() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* Treasury: flow diamond with directional arrows */}
       <path d="M32 10L54 32L32 54L10 32Z" stroke="#E5997B" strokeWidth="1.2" />
       <path d="M22 32L42 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
       <path d="M36 26L42 32L36 38" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,7 +54,6 @@ function Icon03() {
 function Icon04() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* Valuation: balance scale */}
       <line x1="32" y1="12" x2="32" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
       <line x1="20" y1="52" x2="44" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
       <line x1="32" y1="22" x2="14" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
@@ -61,7 +68,6 @@ function Icon04() {
 function Icon05() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* CapEx: machinery / productive asset */}
       <rect x="10" y="36" width="44" height="16" rx="1" stroke="#E5997B" strokeWidth="1.2" />
       <rect x="22" y="24" width="20" height="12" rx="1" stroke="#E5997B" strokeWidth="1.2" />
       <line x1="32" y1="12" x2="32" y2="24" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
@@ -76,7 +82,6 @@ function Icon05() {
 function Icon06() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      {/* Governance: nested institutional diamonds */}
       <path d="M32 6L58 32L32 58L6 32Z" stroke="#E5997B" strokeWidth="1.2" />
       <path d="M32 18L46 32L32 46L18 32Z" stroke="#E5997B" strokeWidth="1" opacity="0.6" />
       <path d="M32 28L36 32L32 36L28 32Z" stroke="#E5997B" strokeWidth="1" />
@@ -85,18 +90,70 @@ function Icon06() {
 }
 
 const serviceItems = [
-  { number: '01', name: 'Reingeniería de Deuda',          descriptor: 'Estructura óptima de capital',           Icon: Icon01 },
-  { number: '02', name: 'Estrategia Financiera Cíclica',  descriptor: 'Anticipación de ciclos económicos',       Icon: Icon02 },
-  { number: '03', name: 'Tesorería Avanzada',             descriptor: 'Maximización de liquidez operativa',      Icon: Icon03 },
-  { number: '04', name: 'Valuación Estratégica',          descriptor: 'Determinación del valor real',            Icon: Icon04 },
-  { number: '05', name: 'Auditoría de CapEx',             descriptor: 'Rentabilidad de inversión productiva',    Icon: Icon05 },
-  { number: '06', name: 'Gobernanza Financiera',          descriptor: 'Institucionalización de decisiones',      Icon: Icon06 },
+  { number: '01', name: 'Reingeniería de Deuda', descriptor: 'Estructura óptima de capital', Icon: Icon01 },
+  { number: '02', name: 'Estrategia Financiera Cíclica', descriptor: 'Anticipación de ciclos económicos', Icon: Icon02 },
+  { number: '03', name: 'Tesorería Avanzada', descriptor: 'Maximización de liquidez operativa', Icon: Icon03 },
+  { number: '04', name: 'Valuación Estratégica', descriptor: 'Determinación del valor real', Icon: Icon04 },
+  { number: '05', name: 'Auditoría de CapEx', descriptor: 'Rentabilidad de inversión productiva', Icon: Icon05 },
+  { number: '06', name: 'Gobernanza Financiera', descriptor: 'Institucionalización de decisiones', Icon: Icon06 },
 ]
 
 export default function ServiciosNav() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const pathRef    = useRef<SVGPathElement>(null)
+  const vantaRef = useRef<any>(null)
+  const pathRef = useRef<SVGPathElement>(null)
 
+  // ── Vanta BIRDS init ──────────────────────────────────────
+  useEffect(() => {
+    let destroyed = false
+
+    async function initVanta() {
+      try {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
+        
+        if (destroyed || !sectionRef.current) return
+        if (!(window as any).VANTA?.BIRDS) {
+          console.error('Vanta BIRDS not available after load')
+          return
+        }
+
+        vantaRef.current = (window as any).VANTA.BIRDS({
+          el: sectionRef.current,
+          THREE: (window as any).THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 600.0,
+          minWidth: 600.0,
+          scale: 1.0,
+          scaleMobile: 1.0,
+          backgroundColor: 0xF5F5F5,
+          color1: 0x1a1a4e,
+          color2: 0xE5997B,
+          colorMode: 'lerp',
+          birdSize: 1.2,
+          wingSpan: 18,
+          speedLimit: 3,
+          separation: 35,
+          alignment: 40,
+          cohesion: 50,
+          quantity: 4,
+        })
+      } catch (err) {
+        console.error('Vanta BIRDS init failed:', err)
+      }
+    }
+
+    initVanta()
+
+    return () => {
+      destroyed = true
+      vantaRef.current?.destroy()
+    }
+  }, [])
+
+  // ── GSAP animations ─────────────────────────────────────
   useEffect(() => {
     if (!sectionRef.current) return
 
@@ -185,7 +242,7 @@ export default function ServiciosNav() {
   }
 
   return (
-    <section ref={sectionRef} className="relative bg-white overflow-hidden py-24 md:py-32 section-padding">
+    <section ref={sectionRef} className="relative bg-[#F5F5F5] overflow-hidden py-24 md:py-32 section-padding">
 
       {/* ══════════════════════════════════
           BACKGROUND DECORATIONS
@@ -281,65 +338,105 @@ export default function ServiciosNav() {
         </h2>
       </div>
 
-      {/* ══════════════════════════════════
-          SERVICE CARDS GRID
-      ══════════════════════════════════ */}
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-navy/[0.07]">
-        {serviceItems.map(({ number, name, descriptor, Icon }) => (
-              <button
-            key={number}
-            onClick={handleClick}
-            className="service-card group relative text-left bg-white hover:bg-lightgray overflow-hidden will-change-transform transition-colors duration-500"
+     {/* ══════════════════════════════════
+    SERVICE CARDS GRID (3D Tactile Glass Version)
+══════════════════════════════════ */}
+<div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+  {serviceItems.map(({ number, name, descriptor, Icon }) => (
+    <motion.div 
+      key={number} 
+      className="group perspective-1000"
+      whileHover={{ y: -5 }}
+      whileTap={{ scale: 0.97 }}
+    >
+      <button
+        onClick={handleClick}
+        className="service-card relative w-full text-left 
+                   bg-white/30 backdrop-blur-md border border-white/40 
+                   rounded-2xl overflow-hidden transition-all duration-300 ease-out
+                   shadow-[0_8px_32px_rgba(0,0,0,0.05)]
+                   hover:bg-white/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)]
+                   active:shadow-inner active:bg-white/20"
+        style={{ 
+          transformStyle: 'preserve-3d',
+          perspective: '1000px',
+        }}
+        onMouseMove={(e) => {
+          const card = e.currentTarget
+          const rect = card.getBoundingClientRect()
+          const x = e.clientX - rect.left
+          const y = e.clientY - rect.top
+          const centerX = rect.width / 2
+          const centerY = rect.height / 2
+          const rotateX = ((y - centerY) / centerY) * -4
+          const rotateY = ((x - centerX) / centerX) * 4
+          
+          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
+        }}
+      >
+        {/* Konten dengan TranslateZ agar terasa berlapis */}
+        <div 
+          className="relative p-8 md:p-10 h-full min-h-[260px] flex flex-col gap-5"
+          style={{ transform: 'translateZ(40px)' }}
+        >
+          
+          {/* Background Number (Paling Dalam) */}
+          <span
+            className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none 
+                       text-navy/[0.02] group-hover:text-navy/[0.07] transition-all duration-700"
+            style={{ 
+                fontSize: 'clamp(5rem, 10vw, 9rem)',
+                transform: 'translateZ(-20px)' 
+            }}
           >
-            <div className="relative p-8 md:p-10 h-full min-h-[220px] flex flex-col gap-5">
+            {number}
+          </span>
 
-              {/* Large faded background number */}
-              <span
-                className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none will-change-transform text-navy/[0.05] group-hover:text-navy/[0.08] transition-colors duration-500"
-                style={{ fontSize: 'clamp(5rem, 10vw, 9rem)' }}
-              >
-                {number}
-              </span>
-
-              {/* Top row: icon + number */}
-              <div className="flex items-start justify-between">
-                <div className="transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 origin-center">
-                  <Icon />
-                </div>
-                <span className="font-display text-xs tracking-[0.4em] text-bronze/40 group-hover:text-bronze/80 transition-colors duration-400">
-                  {number}
-                </span>
-              </div>
-
-              {/* Name + descriptor */}
-              <div>
-                <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2">
-                  {name}
-                </h3>
-                <p className="font-body text-navy/45 text-sm leading-relaxed group-hover:text-navy/65 transition-colors duration-300">
-                  {descriptor}
-                </p>
-              </div>
-
-              {/* Bottom row: arrow reveal on hover */}
-              <div className="flex items-center gap-2 mt-auto overflow-hidden">
-                <span className="font-body text-bronze text-xs tracking-[0.2em] uppercase opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                  Ver servicio
-                </span>
-                <svg viewBox="0 0 20 8" fill="none" className="w-5 h-2.5 text-bronze opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-[50ms]">
-                  <path d="M0 4H18M14 1L18 4L14 7" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-
-              {/* Bottom accent line */}
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-bronze origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]" />
-
-              {/* Left accent line */}
-              <div className="absolute top-0 left-0 bottom-0 w-px bg-bronze/40 origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]" />
+          {/* Top row: icon + number (Paling Depan) */}
+          <div className="flex items-start justify-between" style={{ transform: 'translateZ(20px)' }}>
+            <div className="p-3 rounded-xl bg-white/60 shadow-[4px_4px_10px_rgba(0,0,0,0.05)] transition-all duration-500 
+                            group-hover:scale-110 group-hover:rotate-6 group-hover:bg-bronze/10">
+              <Icon />
             </div>
-          </button>
-        ))}
-      </div>
+            <span className="font-display text-xs tracking-[0.4em] text-bronze/60 group-hover:text-bronze transition-colors">
+              {number}
+            </span>
+          </div>
+
+          {/* Name + descriptor */}
+          <div className="relative z-10" style={{ transform: 'translateZ(10px)' }}>
+            <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
+              {name}
+            </h3>
+            <p className="font-body text-navy/60 text-sm leading-relaxed group-hover:text-navy/80 transition-colors">
+              {descriptor}
+            </p>
+          </div>
+
+          {/* Bottom row: arrow reveal */}
+          <div className="flex items-center gap-3 mt-auto" style={{ transform: 'translateZ(15px)' }}>
+            <span className="font-body text-bronze text-[10px] font-bold tracking-[0.2em] uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
+              Ver servicio
+            </span>
+            <div className="w-8 h-px bg-bronze/40 group-hover:w-12 transition-all duration-500" />
+          </div>
+
+          {/* Gloss Light Reflection */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
+        </div>
+
+        {/* Inner shadow saat ditekan */}
+        <div className="absolute inset-0 opacity-0 active:opacity-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.1)] rounded-2xl pointer-events-none transition-opacity" />
+        
+        {/* Bottom Accent Line */}
+        <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-transparent via-bronze/60 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
+      </button>
+    </motion.div>
+  ))}
+</div>
 
       {/* ── Subtle bottom divider ── */}
       <div className="relative z-10 flex items-center justify-center gap-6 mt-20">

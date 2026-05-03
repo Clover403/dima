@@ -159,7 +159,6 @@ export default function ModeloProtagonistas() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const titleSvgRef = useRef<SVGSVGElement>(null)
-  const progressRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!sectionRef.current || !trackRef.current) return
@@ -206,12 +205,7 @@ export default function ModeloProtagonistas() {
           start: 'top top',
           end: () => `+=${totalScroll}`,
           pin: true,
-          scrub: 1.2,
-          onUpdate: (self) => {
-            if (progressRef.current) {
-              gsap.set(progressRef.current, { scaleX: self.progress })
-            }
-          }
+          scrub: 1.2
         },
       })
     }, sectionRef)
@@ -231,10 +225,6 @@ export default function ModeloProtagonistas() {
           WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
         }}
       />
-
-      <div className="absolute top-0 left-0 w-full h-[3px] bg-[#030035]/5 z-50">
-        <div ref={progressRef} className="h-full bg-[#E5997B] origin-left scale-x-0" />
-      </div>
 
       <div className="relative z-10 px-6 md:px-12 lg:px-24 pt-32 pb-16">
         <div className="flex items-center gap-4 mb-6">

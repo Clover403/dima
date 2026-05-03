@@ -18,8 +18,8 @@ const products = [
     tagline: 'Anticipo del gasto enfocado en expandir la capacidad instalada',
     heading: 'Capital para crecer hoy con la productividad de mañana',
     description: [
-      'Es un préstamo a plazo fijo con tasa de interés definida, montos establecidos y pagos predecibles. Le permite obtener capital para proyectos específicos sin afectar su flujo de caja.',
-      'Estructuración de capital para adquisición de diversos activos y expansión de infraestructura. Trae el futuro al presente, asegurando que el retorno de inversión supere estructuralmente el costo de capital a lo largo del tiempo.',
+      'Préstamo a plazo fijo con pagos predecibles para financiar proyectos específicos sin afectar su flujo de caja.',
+      'El retorno de inversión supera estructuralmente el costo de capital — trae el futuro al presente.',
     ],
     features: [
       'Plazo fijo definido',
@@ -37,8 +37,8 @@ const products = [
     tagline: 'Sincronización del flujo de efectivo con el avance de obra',
     heading: 'Financiamiento que avanza al ritmo de su proyecto',
     description: [
-      'Es un tipo de crédito simple diseñado para cubrir los costos de un proyecto inmobiliario (construcción, desarrollo, etc.) y los ingresos esperados.',
-      'Financiamiento especializado para desarrollos inmobiliarios. Diseñado para alinear los desembolsos con el avance físico de la construcción, transformando el servicio de deuda en un motor de progreso.',
+      'Crédito especializado para proyectos inmobiliarios: los desembolsos se alinean con el avance físico de la obra.',
+      'Transforma el servicio de deuda en un motor de progreso, sincronizando costos con los ciclos de comercialización.',
     ],
     features: [
       'Alineado con avance de obra',
@@ -56,8 +56,8 @@ const products = [
     tagline: 'Mitigación táctica en el ciclo de conversión de efectivo',
     heading: 'Liquidez que se adapta a su ritmo operativo',
     description: [
-      'Diseñado para facilitar la gestión diaria de las operaciones de una empresa. A diferencia de otros créditos, una vez que se reembolsa el principal, puede volver a acceder a los fondos mientras el contrato esté activo.',
-      'Línea de crédito revolvente para ciclos operativos. Un mecanismo de equilibrio para gestionar brechas de flujo de efectivo a corto plazo, manteniendo la agilidad necesaria para que su gasto siempre se traduzca en ingresos.',
+      'Línea revolvente para operaciones diarias: al reembolsar el principal, los fondos quedan disponibles nuevamente.',
+      'Elimina brechas de flujo de caja a corto plazo manteniendo la agilidad operativa de su empresa.',
     ],
     features: [
       'Línea revolvente',
@@ -75,8 +75,8 @@ const products = [
     tagline: 'Calibración del financiamiento a la maduración de activos biológicos',
     heading: 'Financiamiento que respeta los ciclos de la tierra',
     description: [
-      'Diseñado específicamente para el sector agrícola, este programa permite a productores y empresas del sector acceder a capital para inversiones, capital de trabajo y proyectos de modernización.',
-      'Financiamiento especializado para el sector agropecuario, estructurado para respetar rigurosamente los ciclos de activos biológicos y cosechas.',
+      'Capital diseñado para el sector agrícola: inversión, capital de trabajo y modernización con pagos alineados a las cosechas.',
+      'Estructura financiera yang respeta los ciclos biológicos, reduciendo la presión de liquidez en temporadas de menor ingreso.',
     ],
     features: [
       'Pagos alineados a cosechas',
@@ -94,8 +94,8 @@ const products = [
     tagline: 'Uso de activos productivos con máxima eficiencia de capital',
     heading: 'El activo se paga con la riqueza que genera',
     description: [
-      'Producto diseñado para que el acreditado use y finalmente adquiera un activo mediante pagos periódicos que incluyen capital e intereses. El objetivo es la transferencia de propiedad al término del contrato.',
-      'Acceda a tecnología y maquinaria sin agotar su capital. Un esquema diseñado para que el activo productivo pague su propia amortización mediante la riqueza generada por su uso.',
+      'Use y adquiera activos productivos mediante pagos periódicos, preservando su capital de trabajo y con beneficios fiscales.',
+      'El activo se autofinancia con la riqueza que genera — acceda a tecnología sin agotar su liquidez.',
     ],
     features: [
       'Transferencia de propiedad',
@@ -113,8 +113,8 @@ const products = [
     tagline: 'Aceleración estratégica del ciclo de conversión de efectivo',
     heading: 'Convierta sus cuentas por cobrar en poder de compra',
     description: [
-      'Le permite obtener liquidez inmediata mediante la cesión de sus cuentas por cobrar a una institución financiera. Recibe un anticipo sobre el valor de sus facturas, obteniendo capital de trabajo sin esperar a que sus clientes paguen.',
-      'Acelere su ciclo de conversión de efectivo anticipando cuentas por cobrar para convertirlas en poder de compra estratégico hoy.',
+      'Obtenga liquidez inmediata cediendo sus facturas — sin esperar a que sus clientes paguen.',
+      'Acelere su ciclo de cobro y convierta cuentas por cobrar en capital estratégico hoy mismo.',
     ],
     features: [
       'Liquidez inmediata',
@@ -139,8 +139,18 @@ export default function Products() {
     <PageTransition>
       <ProductosHero />
       <ProductosIntroImmersive />
+      
+      {/* Showcase pinned — user scroll through all 6 products */}
       <ProductosShowcase products={products} />
-      <ProductosOverview />
+
+      {/* SPACER: extra scroll space biar product 06 kebaca dulu sebelum ketutup */}
+      <div className="h-[60vh] bg-[#030035] relative z-0" />
+
+      {/* Overview naik menutupi dengan efek slideup/zoom */}
+      <div className="relative z-10" style={{ marginTop: '-100vh' }}>
+        <ProductosOverview />
+      </div>
+
       {/* <ProductosCTA /> */}
     </PageTransition>
   )

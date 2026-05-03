@@ -5,53 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const counters = [
-  { target: 500, suffix: "M", prefix: "+", label: "Capital estructurado (MXN)" },
-  { target: 150, suffix: "", prefix: "+", label: "Empresas fortalecidas" },
-  { target: 98, suffix: "%", prefix: "", label: "Tasa de cumplimiento" },
-  { target: 360, suffix: "°", prefix: "", label: "Visión integral de riesgo" },
-];
-
-function AnimatedCounter({ target, suffix, prefix, label }: { target: number; suffix: string; prefix: string; label: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const triggered = useRef(false);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const el = ref.current;
-
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: "top 85%",
-      onEnter: () => {
-        if (triggered.current) return;
-        triggered.current = true;
-        const obj = { val: 0 };
-        gsap.to(obj, {
-          val: target,
-          duration: 2.5,
-          ease: "power3.out",
-          onUpdate: () => {
-            el.textContent = prefix + Math.round(obj.val).toLocaleString() + suffix;
-          },
-        });
-      },
-    });
-
-    return () => st.kill();
-  }, [target, suffix, prefix]);
-
-  return (
-    <div className="text-center px-4">
-      <span ref={ref} className="font-display text-6xl md:text-7xl lg:text-8xl text-navy block mb-4">
-        {prefix}0{suffix}
-      </span>
-      <div className="w-12 h-px bg-bronze/40 mx-auto mb-4" />
-      <p className="font-body text-sm md:text-base text-navy/50 tracking-wide">{label}</p>
-    </div>
-  );
-}
-
 function CTATitleSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement | null> }) {
   return (
     <svg
@@ -129,20 +82,9 @@ export default function FinaleSection() {
     return () => ctx.revert();
   }, []);
 
-  return (
-    <section ref={sectionRef} className="w-full min-h-screen flex flex-col">
-      {/* TOP HALF — Counters on gray */}
-      <div className="flex-1 bg-lightgray flex items-center py-24 md:py-32 px-8 md:px-16 lg:px-24">
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 md:gap-8">
-            {counters.map((c, i) => (
-              <AnimatedCounter key={i} {...c} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* BOTTOM HALF — CTA on bronze gradient */}
+ return (
+    <section ref={sectionRef} className="w-full flex flex-col">
+      {/* CTA on bronze gradient */}
       <div className="bg-lightgray px-8 md:px-16 lg:px-24 py-16">
         <div
           ref={ctaRef}

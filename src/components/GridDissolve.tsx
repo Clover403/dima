@@ -23,42 +23,40 @@ const shuffle = <T,>(items: T[]) => {
 export default function GridDissolve({
   children,
   cellSize = 60,
-  pinDistance = '+=150%',
+  pinDistance = '+=120%',
   className,
 }: GridDissolveProps) {
-  const transitionRef = useRef<HTMLDivElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
-  const heroLayerRef = useRef<HTMLDivElement>(null)
+  const pinContainerRef = useRef<HTMLDivElement>(null)  // hanya hero — di-pin
+  const overlayRef      = useRef<HTMLDivElement>(null)  // grid sel dissolve
+  const heroLayerRef    = useRef<HTMLDivElement>(null)  // layer hero di atas
 
   const childArray = Children.toArray(children)
+
+  // Kurang dari 2 child → tidak ada yang bisa di-reveal, render langsung
   if (childArray.length < 2) {
     return <>{children}</>
   }
 
-  const heroSection = childArray[0]
-  const followingSections = childArray.slice(1)
+  const heroSection      = childArray[0]
+  const followingSections = childArray.slice(1)  // render DI LUAR container pin
 
   useLayoutEffect(() => {
-    if (!transitionRef.current || !overlayRef.current || !heroLayerRef.current) return
+    if (!pinContainerRef.current || !overlayRef.current || !heroLayerRef.current) return
 
-    const overlay = overlayRef.current
+    const overlay   = overlayRef.current
     const heroLayer = heroLayerRef.current
     let resizeTimer: number | null = null
     let timeline: gsap.core.Timeline | null = null
 
     const setup = () => {
-      if (timeline) {
-        timeline.kill()
-        timeline = null
-      }
+      if (timeline) { timeline.kill(); timeline = null }
 
-      const width = window.innerWidth
+      const width  = window.innerWidth
       const height = window.innerHeight
-      const cols = Math.ceil(width / cellSize)
-      const rows = Math.ceil(height / cellSize)
+      const cols   = Math.ceil(width  / cellSize)
+      const rows   = Math.ceil(height / cellSize)
 
       overlay.innerHTML = ''
-      overlay.style.height = `${rows * cellSize}px`
 
       const fragment = document.createDocumentFragment()
       const cells: HTMLDivElement[] = []
@@ -66,71 +64,64 @@ export default function GridDissolve({
       for (let row = 0; row < rows; row += 1) {
         for (let col = 0; col < cols; col += 1) {
           const cell = document.createElement('div')
-          cell.style.position = 'absolute'
-          cell.style.left = `${col * cellSize}px`
-          cell.style.top = `${row * cellSize}px`
-          cell.style.width = `${cellSize}px`
-          cell.style.height = `${cellSize}px`
-          cell.style.background = '#030035'
-          cell.style.transform = 'scale(1)'
-          cell.style.opacity = '1'
-          cell.style.willChange = 'opacity, transform'
+          cell.style.cssText = `
+            position: absolute;
+            left: ${col * cellSize}px;
+            top: ${row * cellSize}px;
+            width: ${cellSize}px;
+            height: ${cellSize}px;
+            background: #030035;
+            will-change: opacity, transform;
+          `
           fragment.appendChild(cell)
           cells.push(cell)
         }
       }
-
       overlay.appendChild(fragment)
 
-      const randomCells = shuffle(cells)
+      const randomCells   = shuffle(cells)
+      const heroContent   = heroLayer.querySelector('.hero-content')
 
-      const heroContent = heroLayer.querySelector('.hero-content')
-
-      gsap.set(overlay, { autoAlpha: 0 })
-      gsap.set(heroLayer, { autoAlpha: 1 })
-      gsap.set(randomCells, { opacity: 1, scale: 1 })
-      if (heroContent) {
-        gsap.set(heroContent, { autoAlpha: 1 })
-      }
+      // State awal: overlay tersembunyi, hero terlihat
+      gsap.set(overlay,    { autoAlpha: 0 })
+      gsap.set(heroLayer,  { autoAlpha: 1 })
+      gsap.set(randomCells, { opacity: 1, scale: 1, borderRadius: '0%' })
+      if (heroContent) gsap.set(heroContent, { autoAlpha: 1, scale: 1 })
 
       timeline = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
-          trigger: transitionRef.current,
+          trigger: pinContainerRef.current,
           start: 'top top',
           end: pinDistance,
           scrub: 1,
-          pin: true,
+          pin: true,             // hanya pinContainerRef (h-screen) yang di-pin
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       })
 
-      // Fade out hero content first
+      // 1. Hero content fade + scale out
       if (heroContent) {
-        timeline.to(heroContent, { autoAlpha: 0, scale: 0.95, duration: 0.2 }, 0)
+        timeline.to(heroContent, { autoAlpha: 0, scale: 0.96, duration: 0.15 }, 0)
       }
 
-      // CRITICAL FIX: Hide the solid heroLayer perfectly as the grid takes over.
-      // If heroLayer stys visible, the dissolving grid just reveals the solid navy background behind it!
+      // 2. Swap: sembunyikan solid heroLayer, tampilkan overlay grid
       timeline
-        .set(overlay, { autoAlpha: 1 }, 0.2)
-        .set(heroLayer, { autoAlpha: 0 }, 0.2)
-        .to(
-          randomCells,
-          {
-            opacity: 0,
-            scale: 0, // Shrink to nothing
-            borderRadius: "50%", // Turn into smooth circles/bubbles as they melt
-            stagger: {
-              amount: 1.5,
-              from: "random",
-            },
-            ease: "power2.inOut",
-            duration: 0.6,
-          },
-          0.2
-        )
+        .set(overlay,   { autoAlpha: 1 }, 0.15)
+        .set(heroLayer, { autoAlpha: 0 }, 0.15)
+
+      // 3. Sel-sel dissolve secara acak
+        .to(randomCells, {
+          opacity: 0,
+          scale: 0,
+          borderRadius: '50%',
+          stagger: { amount: 1.4, from: 'random' },
+          ease: 'power2.inOut',
+          duration: 0.6,
+        }, 0.15)
+
+      // 4. Sembunyikan overlay saat selesai
         .set(overlay, { autoAlpha: 0 })
     }
 
@@ -143,7 +134,6 @@ export default function GridDissolve({
         ScrollTrigger.refresh()
       }, 180)
     }
-
     window.addEventListener('resize', handleResize)
 
     return () => {
@@ -155,23 +145,50 @@ export default function GridDissolve({
 
   return (
     <div className={className}>
-      <div data-dissolve-container="true" ref={transitionRef} className="relative">
-        {followingSections}
 
+      {/*
+        ┌─────────────────────────────────────────┐
+        │  pinContainerRef — h-screen, di-pin     │
+        │  ┌───────────────────────────────────┐  │
+        │  │ heroLayerRef (absolute inset-0)   │  │
+        │  │   └─ heroSection                  │  │
+        │  ├───────────────────────────────────┤  │
+        │  │ overlayRef (grid sel dissolve)    │  │
+        │  └───────────────────────────────────┘  │
+        └─────────────────────────────────────────┘
+        followingSections — di LUAR pin, flow normal
+        ┌─────────────────────────────────────────┐
+        │  formSection                            │
+        │  contactSection                         │
+        └─────────────────────────────────────────┘
+      */}
+
+      {/* Container yang di-pin — hanya setinggi viewport */}
+      <div
+        ref={pinContainerRef}
+        className="relative overflow-hidden"
+        style={{ height: '100vh' }}
+      >
+        {/* Layer hero */}
         <div
           ref={heroLayerRef}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-30 overflow-hidden"
+          className="pointer-events-none absolute inset-0 z-30"
         >
           {heroSection}
         </div>
 
+        {/* Overlay grid sel dissolve */}
         <div
           ref={overlayRef}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 z-40 overflow-hidden"
+          className="pointer-events-none absolute inset-0 z-40 overflow-hidden"
         />
       </div>
+
+      {/* Following sections — di luar container pin, scroll normal */}
+      {followingSections}
+
     </div>
   )
 }

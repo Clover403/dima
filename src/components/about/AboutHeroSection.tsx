@@ -1,6 +1,5 @@
-import { type RefObject } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import AnimatedGrid from '../AnimatedGrid'
+import { useRef, type RefObject } from 'react'
+import UnifiedMagmaGrid from '../UnifiedMagmaGrid' // Pastikan file ini dibuat dari kode sebelumnya
 import InteractiveConstellationText from '../InteractiveConstellationText'
 
 type Props = {
@@ -8,63 +7,46 @@ type Props = {
 }
 
 export default function AboutHeroSection({ heroRef }: Props) {
-  const mouseX = useMotionValue(-9999)
-  const mouseY = useMotionValue(-9999)
-  const springX = useSpring(mouseX, { stiffness: 80, damping: 25 })
-  const springY = useSpring(mouseY, { stiffness: 80, damping: 25 })
-
-  const maskWebkit = useTransform([springX, springY], ([x, y]) =>
-    `radial-gradient(700px at ${x}px ${y}px, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 80%)`
-  )
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = heroRef.current?.getBoundingClientRect()
-    if (rect) {
-      mouseX.set(e.clientX - rect.left)
-      mouseY.set(e.clientY - rect.top)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    mouseX.set(-9999)
-    mouseY.set(-9999)
-  }
+  // Kita tetap simpan ref, tapi logika mouse sekarang dihandle 
+  // langsung oleh komponen UnifiedMagmaGrid agar tidak terjadi re-render di React.
 
   return (
     <section
       ref={heroRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#030035]"
     >
-      {/* ── Grid base — redup selalu ─────────────────────────── */}
-      <div className="absolute inset-0 z-[1] opacity-[0.06] pointer-events-none">
-        <AnimatedGrid cellSize={60} color="229,153,123" />
-      </div>
-
-      {/* ── Grid spotlight — muncul di area kursor ───────────── */}
-      <motion.div
-        style={{ WebkitMaskImage: maskWebkit, maskImage: maskWebkit }}
-        className="absolute inset-0 z-[2] pointer-events-none opacity-[0.7]"
-      >
-        <AnimatedGrid cellSize={60} color="229,153,123" />
-      </motion.div>
-
-      {/* ── Static CSS grid overlay ──────────────────────────── */}
+      {/* ── 1. BASE STATIC GRID (Sangat redup, untuk tekstur dasar) ── */}
       <div
-        className="absolute inset-0 opacity-[0.12] pointer-events-none"
+        className="absolute inset-0 z-[1] pointer-events-none opacity-[0.05]"
         style={{
-          zIndex: 3,
+          backgroundImage: `
+            linear-gradient(to right, rgba(229,153,123,1) 1px, transparent 1px), 
+            linear-gradient(to bottom, rgba(229,153,123,1) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+        }}
+      />
+
+      {/* ── 2. UNIFIED MAGMA ENGINE (Efek Cahaya Sela Kotak + Snakes) ── */}
+      {/* Komponen ini menggantikan ProximityGrid dan AnimatedGrid sekaligus */}
+      <UnifiedMagmaGrid 
+        cellSize={60} 
+        color="229,153,123" 
+      />
+
+      {/* ── 3. STATIC CSS GRID OVERLAY (Garis Putih Tipis untuk kontras) ── */}
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none z-[5]"
+        style={{
           backgroundImage:
             'linear-gradient(to right, #F4F4F5 1px, transparent 1px), linear-gradient(to bottom, #F4F4F5 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
       />
 
-      {/* ── Marquee ──────────────────────────────────────────── */}
+      {/* ── 4. MARQUEE (Tetap Sama) ── */}
       <div
-        className="absolute top-[18%] w-full overflow-hidden opacity-[0.04] pointer-events-none select-none"
-        style={{ zIndex: 4 }}
+        className="absolute top-[18%] w-full overflow-hidden opacity-[0.04] pointer-events-none select-none z-[6]"
       >
         <div
           className="hero-marquee-text flex whitespace-nowrap font-display text-[14vw] text-[#F4F4F5] uppercase"
@@ -75,10 +57,9 @@ export default function AboutHeroSection({ heroRef }: Props) {
         </div>
       </div>
 
-      {/* ── Hero content ─────────────────────────────────────── */}
+      {/* ── 5. HERO CONTENT (Tetap Sama) ── */}
       <div
-        className="hero-content relative text-center max-w-6xl px-8 pointer-events-none flex flex-col items-center"
-        style={{ zIndex: 5 }}
+        className="hero-content relative text-center max-w-6xl px-8 pointer-events-none flex flex-col items-center z-[20]"
       >
         <div className="flex items-center justify-center gap-4 mb-8">
           <div className="w-8 h-px bg-[#E5997B]/50" />
@@ -87,20 +68,23 @@ export default function AboutHeroSection({ heroRef }: Props) {
           </p>
           <div className="w-8 h-px bg-[#E5997B]/50" />
         </div>
+
         <InteractiveConstellationText
-  lines={[
-    { text: 'Arquitectos del', y: 155, color: '#F4F4F5' },
-    { text: 'equilibrio', y: 285, fontStyle: 'italic', color: '#E5997B' },
-  ]}
-  viewBox="0 0 900 320"
-  defaultFontSize={150}
-  fontFamily="'Playfair Display', serif"
-  containerClassName="pointer-events-auto mb-10 w-full"
-/>
+          lines={[
+            { text: 'Arquitectos del', y: 155, color: '#F4F4F5' },
+            { text: 'equilibrio', y: 285, fontStyle: 'italic', color: '#E5997B' },
+          ]}
+          viewBox="0 0 900 320"
+          defaultFontSize={150}
+          fontFamily="'Playfair Display', serif"
+          containerClassName="pointer-events-auto mb-10 w-full"
+        />
+
         <p className="hero-subtext text-[#F4F4F5]/40 max-w-xl text-lg md:text-xl font-light leading-relaxed">
           Somos una Institución de Ingeniería Financiera fundada sobre la ideología
-          y filosofía del economista filantrópico Raymond Thomas Dalio.
+          y filosofìa del economista filantrópico Raymond Thomas Dalio.
         </p>
+
         <div className="mt-12 flex flex-col items-center gap-2">
           <span className="text-[#F4F4F5]/20 text-[9px] tracking-[0.5em] uppercase font-mono">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />

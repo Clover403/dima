@@ -415,10 +415,6 @@ export default function UltimateHorizontalProcess() {
 
       <div ref={containerRef} className="bg-white overflow-hidden relative">
 
-        <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
-          <div className="progress-fill h-full bg-bronze origin-left scale-x-0" />
-        </div>
-
         <div ref={sliderRef} className="flex h-screen w-max items-center relative z-10">
 
           {/* ══ INTRO SLIDE ══════════════════════════════════════════════════ */}
@@ -443,7 +439,7 @@ export default function UltimateHorizontalProcess() {
           {phases.map((phase) => (
             <section
               key={phase.num}
-              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100 relative overflow-hidden"
+              className="h-full flex flex-col justify-center px-32 md:px-56 border-r border-gray-100 bg-white relative overflow-hidden"
             >
               <div className="absolute bottom-[8%] left-0 w-full overflow-hidden opacity-[0.045] select-none pointer-events-none z-0">
                 <div

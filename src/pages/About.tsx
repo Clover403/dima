@@ -10,6 +10,7 @@ import AboutPillarsSection from '../components/about/AboutPillarsSection';
 import AboutManifestoSection from '../components/about/AboutManifestoSection';
 import AboutStatsSection from '../components/about/AboutStatsSection';
 import AboutCTASection from '../components/about/AboutCTASection';
+import AboutDissolveSection from '../components/about/AboutDissolveSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -127,8 +128,9 @@ export default function About() {
       <div ref={pageRef}>
         <AboutHeroSection heroRef={heroRef} />
         <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
-        <AboutOriginSection />
-        <AboutPillarsSection pillarsRef={pillarsRef} />
+         {/* <AboutOriginSection /> */}
+        {/* <AboutPillarsSection pillarsRef={pillarsRef} /> */}
+        <AboutDissolveSection />
         <AboutManifestoSection />
         <AboutStatsSection />
         <AboutCTASection />
