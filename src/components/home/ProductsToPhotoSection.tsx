@@ -7,7 +7,7 @@
  */
 
 import { useLayoutEffect, useRef } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -154,7 +154,7 @@ function ProductCard({
 }
 
 // ─── QuoteSVG ─────────────────────────────────────────────────────────────
-function QuoteSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement> }) {
+function QuoteSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement | null> }) {
   const lines = [
     { text: '"Donde otros ven deuda,', color: '#F4F4F5', y: 120 },
     { text: 'nosotros diseñamos',      color: '#E5997B', y: 230 },

@@ -17,12 +17,11 @@ interface TrailPoint {
   opacity: number;
 }
 
-const MagmaFlowWide = memo(({
-  cellSize = 55, // Sedikit lebih rapat biar gridnya makin cakep
+const MagmaCivilized = memo(({
+  cellSize = 55,
   color = '229,153,123',
   className = '',
-  // Jangkauan ditingkatkan drastis bray
-  proximityRadius = 1100, 
+  proximityRadius = 550, 
 }: {
   cellSize?: number;
   color?: string;
@@ -43,9 +42,8 @@ const MagmaFlowWide = memo(({
     let w: number, h: number
     let cols: number, rows: number
 
-    // Durasi awet banget bray
-    const TRAIL_MAX_AGE = 300; 
-    const TRAIL_MAX_POINTS = 180; 
+    const TRAIL_MAX_AGE = 250; 
+    const TRAIL_MAX_POINTS = 140; 
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1
@@ -66,8 +64,8 @@ const MagmaFlowWide = memo(({
         col, row, t: 0, dir: dirs[Math.floor(Math.random() * dirs.length)],
         points: [{ x: col * cellSize, y: row * cellSize }],
         life: 0,
-        maxLife: 250 + Math.random() * 100, 
-        speed: 0.002 + Math.random() * 0.004 
+        maxLife: 150 + Math.random() * 100, 
+        speed: 0.002
       })
     }
 
@@ -76,47 +74,40 @@ const MagmaFlowWide = memo(({
       
       mouseTrail.current.forEach(p => {
         p.age++
-        if (p.opacity < 1) p.opacity += 0.04 
+        if (p.opacity < 1) p.opacity += 0.05 
       })
       mouseTrail.current = mouseTrail.current.filter(p => p.age < TRAIL_MAX_AGE)
 
-      // 1. GRID LAYER (Ultra Wide)
       for (let i = 0; i <= cols; i++) {
         for (let j = 0; j <= rows; j++) {
           const gx = i * cellSize
           const gy = j * cellSize
           let maxCore = 0
+          let maxMid = 0
           let maxAmbient = 0
 
           mouseTrail.current.forEach((tp, idx) => {
             const dist = Math.hypot(gx - tp.x, gy - tp.y)
             const lifeRatio = 1 - (tp.age / TRAIL_MAX_AGE)
             const trailProgress = idx / mouseTrail.current.length 
-            
-            // Radius yang sangat lebar
-            const currentRadius = proximityRadius * (0.25 + 0.75 * trailProgress)
+            const currentRadius = proximityRadius * (0.4 + 0.6 * trailProgress)
             
             if (dist < currentRadius) {
               const distRatio = 1 - dist / currentRadius
-              
-              // Core: Dibuat super tajam (Power 25)
-              const core = Math.pow(distRatio, 25) * Math.pow(lifeRatio, 2) * tp.opacity
-              
-              // Ambient: Power dikecilkan ke 0.7 agar areanya melebar rata bray
-              const ambient = Math.pow(distRatio, 0.7) * Math.pow(lifeRatio, 1.1) * tp.opacity
+              const core = Math.pow(distRatio, 20) * lifeRatio
+              const mid = Math.pow(distRatio, 3.5) * lifeRatio
+              const ambient = Math.pow(distRatio, 1.2) * lifeRatio
               
               if (core > maxCore) maxCore = core
+              if (mid > maxMid) maxMid = mid
               if (ambient > maxAmbient) maxAmbient = ambient
             }
           })
 
           if (maxAmbient > 0.001) {
             const pulse = Math.sin(time * 0.001 + (i + j)) * 0.05 + 0.95
-            
-            // Garis core yang tebal tepat di kursor
-            ctx.lineWidth = 0.2 + (maxCore * 7.5) 
-            // Opacity ambient dikurangi dikit biar nggak silau karena areanya luas
-            ctx.strokeStyle = `rgba(${color}, ${maxAmbient * 0.45 * pulse})`
+            ctx.lineWidth = 0.2 + (maxMid * 2.8) + (maxCore * 4.5) 
+            ctx.strokeStyle = `rgba(${color}, ${maxAmbient * 0.55 * pulse})`
             
             if (i < cols) {
               ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + cellSize, gy); ctx.stroke()
@@ -128,7 +119,7 @@ const MagmaFlowWide = memo(({
         }
       }
 
-      // 2. SNAKE LAYER (Ghost Mode)
+      // --- SNAKE LAYER (GUE FIX BIAR MUNCUL LAGI) ---
       snakes.forEach((s, idx) => {
         s.t += s.speed
         const curX = (s.col + s.dir.x * s.t) * cellSize
@@ -137,11 +128,7 @@ const MagmaFlowWide = memo(({
         if (s.t >= 1) {
           s.t = 0; s.col += s.dir.x; s.row += s.dir.y
           s.points.push({ x: s.col * cellSize, y: s.row * cellSize })
-          if (s.points.length > 12) s.points.shift()
-          if (Math.random() > 0.8) {
-            const dirs = [{x:1, y:0}, {x:-1, y:0}, {x:0, y:1}, {x:0, y:-1}]
-            s.dir = dirs[Math.floor(Math.random() * dirs.length)]
-          }
+          if (s.points.length > 8) s.points.shift()
           s.life++
         }
 
@@ -149,19 +136,24 @@ const MagmaFlowWide = memo(({
         if (alpha <= 0) { snakes.splice(idx, 1); return }
 
         ctx.beginPath()
-        ctx.lineWidth = 1.0 * alpha 
-        ctx.lineCap = 'round'
+        ctx.lineWidth = 1.0 * alpha // Ditebelin dikit
         const grad = ctx.createLinearGradient(s.points[0].x, s.points[0].y, curX, curY)
         grad.addColorStop(0, `rgba(${color}, 0)`)
-        grad.addColorStop(1, `rgba(${color}, ${alpha * 0.15})`) // Makin redup bray
+        grad.addColorStop(1, `rgba(${color}, ${alpha * 0.4})`) // Opacity dinaikin biar kelihatan bray
         ctx.strokeStyle = grad
         ctx.moveTo(s.points[0].x, s.points[0].y)
         s.points.forEach(p => ctx.lineTo(p.x, p.y))
         ctx.lineTo(curX, curY)
         ctx.stroke()
+
+        // Tambah titik terang di kepala biar gak "hilang"
+        ctx.beginPath()
+        ctx.arc(curX, curY, 1.2, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(${color}, ${alpha * 0.8})`
+        ctx.fill()
       })
 
-      if (snakes.length < 6) createSnake()
+      if (snakes.length < 6) createSnake() // Ditambah dikit biar gak sepi
       frame = requestAnimationFrame(draw)
     }
 
@@ -193,10 +185,10 @@ const MagmaFlowWide = memo(({
   return (
     <canvas 
       ref={canvasRef} 
-      className={`absolute inset-0 w-full h-full pointer-events-none transform-gpu ${className}`}
-      style={{ backfaceVisibility: 'hidden', perspective: 1000 }}
+      className={`absolute inset-0 w-full h-full pointer-events-none z-0 transform-gpu ${className}`}
+      style={{ backfaceVisibility: 'hidden' }}
     />
   )
 })
 
-export default MagmaFlowWide
+export default MagmaCivilized

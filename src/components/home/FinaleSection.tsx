@@ -109,12 +109,25 @@ export default function FinaleSection() {
               la estructura de tu empresa.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/contacto"
-                className="inline-block px-8 py-4 bg-navy text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy/80"
-              >
-                AGENDA UNA VIDEOLLAMADA
-              </Link>
+             <Link
+  to="/contacto"
+  className="group relative inline-flex items-center justify-center px-10 py-5 bg-navy text-white font-body text-sm tracking-[0.3em] font-bold uppercase transition-all duration-500 hover:pl-14"
+>
+  <span className="relative z-10">AGENDA UNA VIDEOLLAMADA</span>
+  <svg
+    className="absolute left-6 opacity-0 group-hover:opacity-100 transition-all duration-500 w-5 h-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M17 8l4 4m0 0l-4 4m4-4H3"
+    />
+  </svg>
+</Link>
               <Link
                 to="/contacto"
                 className="inline-block px-8 py-4 border border-navy text-navy font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy hover:text-white"
