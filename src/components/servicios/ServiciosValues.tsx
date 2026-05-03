@@ -30,6 +30,39 @@ const statements = [
 
 export default function ServiciosValues() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const vantaRef = useRef<any>(null)
+
+  // ── Vanta Birds init ──────────────────────────────────────
+  useEffect(() => {
+    if (!sectionRef.current || !(window as any).VANTA) return
+
+    vantaRef.current = (window as any).VANTA.BIRDS({
+      el: sectionRef.current,
+      THREE: (window as any).THREE,
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 600.0,
+      minWidth: 600.0,
+      scale: 1.0,
+      scaleMobile: 1.0,
+      backgroundColor: 0xF5F5F5,   // lightgray (sama dengan bg section)
+      color1: 0x1a1a4e,              // navy soft
+      color2: 0xE5997B,              // bronze
+      colorMode: 'lerp',
+      birdSize: 1.5,
+      wingSpan: 20,
+      speedLimit: 2.5,
+      separation: 8,
+      alignment: 80,
+      cohesion: 80,
+      quantity: 4,                   // 2^3 = 8 burung
+    })
+
+    return () => {
+      vantaRef.current?.destroy()
+    }
+  }, [])
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -117,24 +150,11 @@ export default function ServiciosValues() {
     <section
       ref={sectionRef}
       className="relative bg-lightgray min-h-screen flex items-center overflow-hidden"
+      style={{ zIndex: 1 }}
     >
-      {/* Subtle geometric pattern background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
-        <svg className="w-full h-full" viewBox="0 0 800 600" fill="none" preserveAspectRatio="xMidYMid slice">
-          {/* Diamond grid pattern */}
-          {Array.from({ length: 8 }).map((_, row) =>
-            Array.from({ length: 10 }).map((_, col) => (
-              <path
-                key={`${row}-${col}`}
-                d={`M${col * 100 + 50} ${row * 80 + 20} L${col * 100 + 70} ${row * 80 + 40} L${col * 100 + 50} ${row * 80 + 60} L${col * 100 + 30} ${row * 80 + 40} Z`}
-                stroke="#E5997B"
-                strokeWidth="0.5"
-              />
-            ))
-          )}
-        </svg>
-      </div>
-
+      {/* Vanta Birds canvas akan render di background */}
+      
+      {/* Content di atas canvas */}
       <div className="relative z-10 section-padding w-full">
         <div className="max-w-5xl mx-auto">
           {/* Section label */}
@@ -186,7 +206,7 @@ export default function ServiciosValues() {
       <motion.div
         animate={{ y: [-8, 8, -8] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-20 right-20 pointer-events-none hidden lg:block"
+        className="absolute top-20 right-20 pointer-events-none hidden lg:block z-10"
       >
         <svg viewBox="0 0 60 60" fill="none" className="w-12 h-12 opacity-10">
           <path d="M30 5L55 30L30 55L5 30Z" stroke="#E5997B" strokeWidth="0.5" />
@@ -196,7 +216,7 @@ export default function ServiciosValues() {
       <motion.div
         animate={{ y: [6, -6, 6] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute bottom-32 left-16 pointer-events-none hidden lg:block"
+        className="absolute bottom-32 left-16 pointer-events-none hidden lg:block z-10"
       >
         <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8 opacity-10">
           <path d="M20 2L38 20L20 38L2 20Z" stroke="#E5997B" strokeWidth="0.5" />

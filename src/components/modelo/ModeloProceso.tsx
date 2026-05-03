@@ -415,10 +415,6 @@ export default function UltimateHorizontalProcess() {
 
       <div ref={containerRef} className="bg-white overflow-hidden relative">
 
-        <div className="fixed top-0 left-0 w-full h-1 bg-gray-50 z-50">
-          <div className="progress-fill h-full bg-bronze origin-left scale-x-0" />
-        </div>
-
         <div ref={sliderRef} className="flex h-screen w-max items-center relative z-10">
 
           {/* ══ INTRO SLIDE ══════════════════════════════════════════════════ */}
