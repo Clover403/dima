@@ -1,4 +1,4 @@
-import { useRef, type RefObject } from 'react'
+import type { RefObject } from 'react'
 import UnifiedMagmaGrid from '../UnifiedMagmaGrid' // Pastikan file ini dibuat dari kode sebelumnya
 import InteractiveConstellationText from '../InteractiveConstellationText'
 

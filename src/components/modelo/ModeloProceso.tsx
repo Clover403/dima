@@ -256,7 +256,7 @@ function ProcessCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`process-card group relative w-[420px] h-[480px] p-12 flex flex-col justify-between
+      className={`process-card group relative w-[520px] h-[600px] p-12 flex flex-col justify-between
         rounded-[2.5rem] border-2 overflow-hidden
         transition-[border-color,box-shadow,background-color] duration-700
         hover:shadow-[0_60px_100px_-30px_rgba(0,0,0,0.15)]

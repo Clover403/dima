@@ -1,10 +1,9 @@
 /**
- * ProductsToPhotoSection.tsx — v4 (fix geser, gap, glow)
+ * ProductsToPhotoSection.tsx — v4.4 (FIX FINAL: gambar 100% stabil)
  *
- * FIXES:
- * 1. Gambar geser → objectPosition: 'center center' di <img>
- * 2. Jarak card → CARD_OVERLAP 60, scale step 0.10, pull-in ±20px jarak 2
- * 3. Hover glow → 3 layer: bottom static + border glow + dynamic mouse-follow
+ * KUNCI: Image di-render sebagai FIXED background-nya inner card,
+ * bukan sebagai child yang ikut transform. Jadi meski parent di-rotate/scale,
+ * image stay flat dan ga "nge-hentak".
  */
 
 import { useLayoutEffect, useRef } from 'react'
@@ -26,15 +25,13 @@ const products = [
 const CARD_H       = 'clamp(460px, 72vh, 640px)'
 const CARD_W       = 'clamp(400px, 34vw,  540px)'
 const CTA_W        = '360px'
-const NUM_PRODUCTS = products.length  // 6
-const CARD_OVERLAP = 35             // ← dari 24 → lebih rapat
+const NUM_PRODUCTS = products.length
+const CARD_OVERLAP = 35
 
-// ── Timeline durations ──────────────────────────────────────────────────
 const HOLD_DUR     = 3.0
 const CAROUSEL_DUR = 7.5
-const FLY_START    = HOLD_DUR + CAROUSEL_DUR  // 10.5
+const FLY_START    = HOLD_DUR + CAROUSEL_DUR
 
-// Fly-out: SEMUA cards ke KIRI, stagger kiri ke kanan
 const FLY_DATA = [
   { xMul: -1.10, y:  28, rot: -14, delay: 0.00 },
   { xMul: -1.00, y: -18, rot:  -8, delay: 0.09 },
@@ -44,37 +41,35 @@ const FLY_DATA = [
   { xMul: -0.52, y: -28, rot:  14, delay: 0.00 },
 ]
 
-// ─── ProductCard — dengan glow hover ─────────────────────────────────────
+// ─── ProductCard ─────────────────────────────────────────────────────────
 function ProductCard({
-  p,
-  i,
-  onRef,
-  onPullInRef,
+  p, i, onOuterRef, onPullInRef,
 }: {
   p:           (typeof products)[0]
   i:           number
-  onRef:       (el: HTMLElement | null) => void
+  onOuterRef:  (el: HTMLElement | null) => void
   onPullInRef: (el: HTMLElement | null) => void
 }) {
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const tagRef  = useRef<HTMLParagraphElement>(null)
-  const glowRef = useRef<HTMLDivElement>(null)  // ← glow dinamis ngikutin mouse
+  const innerRef = useRef<HTMLDivElement>(null)
+  const tagRef   = useRef<HTMLParagraphElement>(null)
+  const glowRef  = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!wrapRef.current) return
-    const rect    = wrapRef.current.getBoundingClientRect()
+    if (!innerRef.current) return
+    const rect = innerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -10
-    const rotateY = ((x - rect.width  / 2) / (rect.width  / 2)) *  10
-    gsap.to(wrapRef.current, { rotateX, rotateY, duration: 0.45, ease: 'power2.out', transformPerspective: 1200 })
-
-    // Glow ngikutin mouse
+    gsap.to(innerRef.current, {
+      rotateX: ((y - rect.height / 2) / (rect.height / 2)) * -5,
+      rotateY: ((x - rect.width  / 2) / (rect.width  / 2)) *  5,
+      duration: 0.4, ease: 'power2.out',
+      transformPerspective: 800,
+    })
     if (glowRef.current) {
-      const xPct = (x / rect.width)  * 100
-      const yPct = (y / rect.height) * 100
+      const xp = (x / rect.width)  * 100
+      const yp = (y / rect.height) * 100
       glowRef.current.style.background =
-        `radial-gradient(ellipse 55% 45% at ${xPct}% ${yPct}%, rgba(229,153,123,0.40) 0%, transparent 70%)`
+        `radial-gradient(ellipse 55% 45% at ${xp}% ${yp}%, rgba(229,153,123,0.38) 0%, transparent 68%)`
     }
   }
 
@@ -86,8 +81,8 @@ function ProductCard({
   }
 
   const handleMouseLeave = () => {
-    if (!wrapRef.current) return
-    gsap.to(wrapRef.current, { rotateX: 0, rotateY: 0, duration: 0.85, ease: 'elastic.out(1, 0.45)' })
+    if (!innerRef.current) return
+    gsap.to(innerRef.current, { rotateX: 0, rotateY: 0, duration: 0.85, ease: 'elastic.out(1, 0.45)' })
     if (!tagRef.current) return
     tagRef.current.style.maxHeight = '0'
     tagRef.current.style.opacity   = '0'
@@ -95,77 +90,63 @@ function ProductCard({
   }
 
   return (
-    // Outer wrapper: fly-out (x, y, rotation, scale, opacity, filter, zIndex)
+    // OUTER: scroll target — 2D flat, no overflow-hidden, no border-radius
     <div
-      ref={el => {
-        ;(wrapRef as React.MutableRefObject<HTMLDivElement | null>).current = el
-        onRef(el)
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="group relative shrink-0 overflow-hidden"
+      ref={el => onOuterRef(el)}
+      className="shrink-0"
       style={{
-        width:          CARD_W,
-        height:         CARD_H,
-        borderRadius:   '20px',
-        willChange:     'transform, filter, opacity',
-        transformStyle: 'preserve-3d',
-        cursor:         'default',
-        marginRight:    `-${CARD_OVERLAP}px`,
+        width:       CARD_W,
+        height:      CARD_H,
+        marginRight: `-${CARD_OVERLAP}px`,
+        willChange:  'transform, filter, opacity',
+        // NO overflow-hidden, NO border-radius di sini
       }}
     >
-      {/* Inner wrapper: pull-in x ±20px (properti terpisah dari fly-out) */}
+      {/* PULL-IN wrapper */}
       <div
         ref={el => onPullInRef(el)}
         style={{ width: '100%', height: '100%', position: 'relative' }}
       >
-        {/* Glow overlay — muncul saat hover (static bottom) */}
+        {/* INNER: visual container — border-radius di sini, tapi ga di-transform pas scroll */}
         <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          ref={innerRef}
+          onMouseMove={handleMouseMove}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          className="group relative w-full h-full"
           style={{
-            zIndex: 5,
-            background: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(229,153,123,0.35) 0%, transparent 70%)',
-          }}
-        />
-
-        {/* Border glow */}
-        <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{
-            zIndex: 6,
             borderRadius: '20px',
-            boxShadow: 'inset 0 0 0 1px rgba(229,153,123,0.4), 0 0 40px rgba(229,153,123,0.15)',
+            overflow: 'hidden',  // ← overflow hidden di sini, bukan di outer
+            cursor: 'default',
           }}
-        />
-
-        {/* Glow dinamis ngikutin mouse */}
-        <div
-          ref={glowRef}
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{ zIndex: 5, borderRadius: '20px' }}
-        />
-
-        <img
-          src={p.photo}
-          alt={p.name}
-          className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-          style={{ objectPosition: 'center center' }}  // ← fix gambar geser
-          loading={i < 3 ? 'eager' : 'lazy'}
-        />
-        <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/15 transition-colors duration-500 z-10" />
-        <div
-          className="absolute bottom-5 left-5 right-5 rounded-2xl px-5 py-4 z-20"
-          style={{ background: 'rgba(3,0,53,0.68)', backdropFilter: 'blur(10px)', transform: 'translateZ(28px)' }}
         >
-          <h3 className="font-display text-white text-[30px] leading-snug">{p.name}</h3>
-          <p
-            ref={tagRef}
-            className="font-body text-white/55 text-[20px] leading-relaxed overflow-hidden"
-            style={{ maxHeight: 0, opacity: 0, marginTop: 0, transition: 'max-height .45s ease, opacity .45s ease, margin-top .45s ease' }}
-          >
-            {p.tagline}
-          </p>
+          {/* IMAGE — absolute, object-fit, ga pernah kena transform */}
+          <img
+            src={p.photo} alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+            style={{
+              objectPosition: 'center center',
+              // KUNCI: will-change dihapus, transform dihapus
+            }}
+            loading={i < 3 ? 'eager' : 'lazy'}
+            draggable={false}
+          />
+
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/15 transition-colors duration-500 z-10" />
+
+          {/* Glow layers */}
+          <div ref={glowRef} className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ zIndex: 11, borderRadius: '20px' }} />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ zIndex: 11, background: 'radial-gradient(ellipse 70% 50% at 50% 105%, rgba(229,153,123,0.28) 0%, transparent 70%)' }} />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ zIndex: 11, borderRadius: '20px', boxShadow: 'inset 0 0 0 1px rgba(229,153,123,0.45), 0 0 32px rgba(229,153,123,0.12)' }} />
+
+          {/* INFO — flat */}
+          <div className="absolute bottom-5 left-5 right-5 rounded-2xl px-5 py-4 z-20" style={{ background: 'rgba(3,0,53,0.68)', backdropFilter: 'blur(10px)' }}>
+            <h3 className="font-display text-white text-[30px] leading-snug">{p.name}</h3>
+            <p ref={tagRef} className="font-body text-white/55 text-[20px] leading-relaxed overflow-hidden" style={{ maxHeight: 0, opacity: 0, marginTop: 0, transition: 'max-height .45s ease, opacity .45s ease, margin-top .45s ease' }}>
+              {p.tagline}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -224,11 +205,9 @@ function buildShatterTriangles(w: number, h: number): Triangle[] {
   for (let r = 0; r <= rows; r++) {
     pts[r] = []
     for (let c = 0; c <= cols; c++) {
-      const isEdgeX = c === 0 || c === cols
-      const isEdgeY = r === 0 || r === rows
       pts[r][c] = [
-        c * cX + (isEdgeX ? 0 : (rand() - 0.5) * cX * 0.40),
-        r * cY + (isEdgeY ? 0 : (rand() - 0.5) * cY * 0.40),
+        c * cX + ((c === 0 || c === cols) ? 0 : (rand() - 0.5) * cX * 0.40),
+        r * cY + ((r === 0 || r === rows) ? 0 : (rand() - 0.5) * cY * 0.40),
       ]
     }
   }
@@ -242,8 +221,6 @@ function buildShatterTriangles(w: number, h: number): Triangle[] {
 
 // ─── Main ─────────────────────────────────────────────────────────────────
 export default function ProductsToPhotoSection() {
-  const navigate = useNavigate()
-
   const wrapperRef      = useRef<HTMLDivElement>(null)
   const stickyRef       = useRef<HTMLDivElement>(null)
   const trackRef        = useRef<HTMLDivElement>(null)
@@ -292,12 +269,6 @@ export default function ProductsToPhotoSection() {
       const trackPadLeft = vw * 0.025
       const cardStep     = actualCardW - CARD_OVERLAP
 
-      /**
-       * updateCards(activeFloat: 0→5)
-       * - Track bergeser agar card aktif selalu di tengah viewport
-       * - scale / filter / opacity / zIndex proporsional ke jarak dari center
-       * - Pull-in ±20px via inner wrapper (gsap.set — instant, no tween, no conflict)
-       */
       const updateCards = (activeFloat: number) => {
         gsap.set(track, {
           x: vw / 2 - activeFloat * cardStep - trackPadLeft - actualCardW / 2,
@@ -309,16 +280,16 @@ export default function ProductsToPhotoSection() {
           if (i >= NUM_PRODUCTS) return
           const dist = Math.abs(i - activeFloat)
           gsap.set(card, {
-            scale:           Math.max(0.72, 1 - dist * 0.10),   // ← dari 0.135 → 0.10, min 0.72
+            scale:           Math.max(0.72, 1 - dist * 0.10),
             filter:          `grayscale(${Math.min(100, dist * 35)}%) brightness(${Math.max(0.40, 1 - dist * 0.20)})`,
-            opacity:         Math.max(0.65, 1 - dist * 0.13),   // ← dari 0.155 → 0.13
+            opacity:         Math.max(0.65, 1 - dist * 0.13),
             zIndex:          Math.round(50 - dist * 8),
             transformOrigin: 'center center',
           })
 
           const pullEl  = pullInEls.current[i]
           const distInt = Math.abs(i - centerIdx)
-          if (pullEl) gsap.set(pullEl, { x: distInt === 2 ? (i < centerIdx ? 1 : -1) * 20 : 0 })  // ← ±20, jarak 2
+          if (pullEl) gsap.set(pullEl, { x: distInt === 2 ? (i < centerIdx ? 1 : -1) * 20 : 0 })
         })
       }
 
@@ -426,7 +397,6 @@ export default function ProductsToPhotoSection() {
         drawPattern(quotePat, 'rgba(229,153,123,0.015)', 'rgba(255,255,255,0.06)')
       })
 
-      // Kartu mulai di posisi card 0 = center, semua diam
       updateCards(0)
       pullInEls.current.forEach(el => { if (el) gsap.set(el, { x: 0 }) })
 
@@ -470,10 +440,8 @@ export default function ProductsToPhotoSection() {
           },
         })
 
-        // ── PHASE 0: HOLD (0 → HOLD_DUR) ───────────────────────────────
         tl.set(activeProxy, { active: 0 }, 0)
 
-        // ── PHASE 1: CAROUSEL (HOLD_DUR → FLY_START) ───────────────────
         tl.fromTo(
           activeProxy,
           { active: 0 },
@@ -486,10 +454,8 @@ export default function ProductsToPhotoSection() {
           HOLD_DUR,
         )
 
-        // Heads fade saat carousel selesai
         tl.to(headEls.current, { opacity: 0, y: -14, duration: 0.4, ease: 'power2.in' }, FLY_START)
 
-        // ── PHASE 2: FLY-OUT (FLY_START → FLY_START + ~1) ──────────────
         tl.call(() => {
           pullInEls.current.forEach(el => { if (el) gsap.set(el, { x: 0 }) })
         }, [], FLY_START)
@@ -511,12 +477,10 @@ export default function ProductsToPhotoSection() {
         const ctaEl = cardEls.current[NUM_PRODUCTS]
         if (ctaEl) tl.to(ctaEl, { x: -vw * 0.55, opacity: 0, duration: 0.5, ease: 'power2.in' }, FLY_START + 0.18)
 
-        // ── Breathing stop + bgCvs fade ─────────────────────────────────
         const BG_STOP = FLY_START + 1.5
         tl.call(() => gsap.killTweensOf(bgCvs), [], BG_STOP)
         tl.to(bgCvs, { opacity: 0, duration: 0.3 }, BG_STOP)
 
-        // ── PHASE 3: SHATTER ─────────────────────────────────────────────
         const SHATTER_START = FLY_START + 1.7
         tl.set(shatterCvs, { visibility: 'visible' }, SHATTER_START)
         tl.fromTo(shatterProxy, { t: 0 }, {
@@ -532,7 +496,6 @@ export default function ProductsToPhotoSection() {
         tl.set(shatterCvs,  { visibility: 'hidden' },       QUOTE_START + 0.8)
         tl.to(ornamentRef.current, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, QUOTE_START + 0.3)
 
-        // ── PHASE 4: QUOTE STROKE + FILL ─────────────────────────────────
         strokeLines.forEach((strokeEl, li) => {
           const fillEl = fillLines[li]
           const tStart = QUOTE_START + 0.7 + li * (STROKE_DUR + STROKE_GAP)
@@ -545,7 +508,6 @@ export default function ProductsToPhotoSection() {
         const lastLineEnd = QUOTE_START + 0.7 + (strokeLines.length - 1) * (STROKE_DUR + STROKE_GAP) + STROKE_DUR + 0.4
         tl.to(bylineRef.current, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, lastLineEnd)
 
-        // ── PHASE 5: DISSOLVE OUT ─────────────────────────────────────────
         const dissolveStart = lastLineEnd + 2.0
         if (bgRef.current) tl.to(bgRef.current, { opacity: 0, duration: 1.2 }, dissolveStart - 0.3)
         tl.to(panels, {
@@ -673,7 +635,7 @@ export default function ProductsToPhotoSection() {
                   key={p.name}
                   p={p}
                   i={i}
-                  onRef={el       => { cardEls.current[i]   = el as HTMLElement }}
+                  onOuterRef={el  => { cardEls.current[i]   = el as HTMLElement }}
                   onPullInRef={el => { pullInEls.current[i] = el as HTMLElement }}
                 />
               ))}

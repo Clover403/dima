@@ -1,5 +1,5 @@
 // ModeloHero.tsx
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import InteractiveConstellationText from '../InteractiveConstellationText'
 import type { TextLine } from '../InteractiveConstellationText'

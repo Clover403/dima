@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 
 /* ─── constants ─── */
-const GLITCH_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*?|[]{}ÑÁÉÍÓÚñáéíóú<>∆∞'
 const DEFAULT_VIEWBOX = '0 0 800 440'
 const DEFAULT_FONT_SIZE = 130
 const DEFAULT_FONT_FAMILY = "'Playfair Display', serif"
@@ -214,22 +213,6 @@ function ConstellationLayer({
   )
 }
 
-/* ─── Blob circles ─── */
-const defaultBlobOffsets = [
-  { cx: 0,    cy: 0,    r: 95  },
-  { cx: 30,   cy: -25,  r: 65  },
-  { cx: -36,  cy: 18,   r: 55  },
-  { cx: 12,   cy: 36,   r: 68  },
-  { cx: -25,  cy: -33,  r: 42  },
-  { cx: 49,   cy: 8,    r: 48  },
-  { cx: -55,  cy: 12,   r: 36  },
-  { cx: 18,   cy: -49,  r: 39  },
-  { cx: -42,  cy: -14,  r: 31  },
-  { cx: 39,   cy: -38,  r: 46  },
-  { cx: -65,  cy: -8,   r: 27  },
-  { cx: 62,   cy: -21,  r: 34  },
-]
-
 /* ─── Main Component ─── */
 export interface TextLine {
   text: string
@@ -262,7 +245,6 @@ export default function InteractiveConstellationText({
   enableStrokeGlow = true,
   className = '',
   containerClassName = '',
-  blobOffsets = defaultBlobOffsets,
 }: InteractiveConstellationTextProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)

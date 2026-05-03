@@ -3,7 +3,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PageTransition from '../components/PageTransition';
 import ModeloProceso from '../components/modelo/ModeloProceso';
-import AnimatedGrid from '../components/AnimatedGrid';
 import ProcessCTASection from '../components/ProcessCTASection';
 import SectionCurtain from '../components/SectionCurtain';
 import UnifiedMagmaGrid from '../components/UnifiedMagmaGrid';

@@ -82,7 +82,7 @@ export default function ServicesShowcase({ services }: { services: Service[] }) 
         duration: dur * 0.4,
         delay: dur * 0.5,
         ease: 'power2.in',
-        onComplete: () => gsap.set(prevWrap, { zIndex: 1 }),
+        onComplete: () => { gsap.set(prevWrap, { zIndex: 1 }) },
       })
     }
 

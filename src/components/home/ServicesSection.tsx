@@ -692,7 +692,7 @@ quantity: 4,        // ← naik dari 3
                       transition: 'max-height 1100ms cubic-bezier(0.22,1,0.36,1), opacity 1100ms cubic-bezier(0.22,1,0.36,1)',
                     }}
                   >
-                    <p className="font-body text-lg md:text-xl text-navy/50 leading-relaxed pt-2">
+                    <p className="font-body text-xl md:text-2xl text-navy/50 leading-relaxed pt-2">
                       {svc.description}
                     </p>
                   </div>

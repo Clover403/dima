@@ -5,7 +5,6 @@ import ProductosHero from '../components/productos/ProductosHero'
 import ProductosIntroImmersive from '../components/productos/ProductosIntroImmersive'
 import ProductosShowcase from '../components/productos/ProductosShowcase'
 import ProductosOverview from '../components/productos/ProductosOverview'
-import ProductosCTA from '../components/productos/ProductosCTA'
 
 /* ═══════════════════════════════════════════
    PRODUCT DATA — 6 Products
