@@ -188,6 +188,164 @@ function buildStrokeTl(svg: SVGSVGElement) {
   return tl
 }
 
+// ─── Particles (same as WhoWeAre) ───────────────────────────────────────────
+function ProcessParticles() {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const canvas = canvasRef.current
+    if (!wrap || !canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const win = window as Window
+
+    let animationId = 0
+    const particles: { x: number; y: number; vx: number; vy: number; size: number }[] = []
+    const mouse = { x: -1000, y: -1000 }
+
+    const resize = () => {
+      const rect = wrap.getBoundingClientRect()
+      canvas.width = rect.width
+      canvas.height = rect.height
+    }
+
+    let ro: ResizeObserver | null = null
+    if ('ResizeObserver' in win) {
+      ro = new ResizeObserver(resize)
+      ro.observe(wrap)
+    } else {
+      win.addEventListener('resize', resize)
+    }
+    resize()
+
+    // ░░░ KONFIGURASI (sama seperti WhoWeAre) ░░░
+    const NAVY = '#0A192F'
+    const COUNT = 70
+    const PARTICLE_OPACITY = 0.6
+    const LINK_OPACITY = 0.22
+    const GRAB_RADIUS = 130
+    const GRAB_OPACITY = 0.4
+    const ATTRACT_FORCE = 0.07
+
+    for (let i = 0; i < COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2.4 + 1.2,
+      })
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = wrap.getBoundingClientRect()
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
+    }
+    const handleMouseLeave = () => {
+      mouse.x = -1000
+      mouse.y = -1000
+    }
+    wrap.addEventListener('mousemove', handleMouseMove)
+    wrap.addEventListener('mouseleave', handleMouseLeave)
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      // Garis antar partikel
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x
+          const dy = particles[i].y - particles[j].y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 190) {
+            ctx.beginPath()
+            ctx.moveTo(particles[i].x, particles[i].y)
+            ctx.lineTo(particles[j].x, particles[j].y)
+            ctx.strokeStyle = NAVY
+            ctx.lineWidth = 0.9
+            ctx.globalAlpha = LINK_OPACITY * (1 - dist / 190)
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Update posisi + attraction (grab)
+      for (const p of particles) {
+        const dx = mouse.x - p.x
+        const dy = mouse.y - p.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        if (dist < GRAB_RADIUS) {
+          const angle = Math.atan2(dy, dx)
+          const force = (1 - dist / GRAB_RADIUS) * ATTRACT_FORCE
+          p.vx += Math.cos(angle) * force
+          p.vy += Math.sin(angle) * force
+        }
+
+        p.x += p.vx
+        p.y += p.vy
+
+        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
+        if (speed > 1.4) {
+          p.vx = (p.vx / speed) * 1.4
+          p.vy = (p.vy / speed) * 1.4
+        }
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
+      }
+
+      // Garis ke kursor (grab lines)
+      for (const p of particles) {
+        const dx = mouse.x - p.x
+        const dy = mouse.y - p.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < GRAB_RADIUS) {
+          ctx.beginPath()
+          ctx.moveTo(p.x, p.y)
+          ctx.lineTo(mouse.x, mouse.y)
+          ctx.strokeStyle = NAVY
+          ctx.lineWidth = 0.8
+          ctx.globalAlpha = GRAB_OPACITY * (1 - dist / GRAB_RADIUS)
+          ctx.stroke()
+        }
+      }
+
+      // Gambar titik
+      for (const p of particles) {
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx.fillStyle = NAVY
+        ctx.globalAlpha = PARTICLE_OPACITY
+        ctx.fill()
+      }
+      ctx.globalAlpha = 1
+
+      animationId = requestAnimationFrame(draw)
+    }
+
+    draw()
+
+    return () => {
+      if (ro) ro.disconnect()
+      else win.removeEventListener('resize', resize)
+      wrap.removeEventListener('mousemove', handleMouseMove)
+      wrap.removeEventListener('mouseleave', handleMouseLeave)
+      cancelAnimationFrame(animationId)
+    }
+  }, [])
+
+  return (
+    <div ref={wrapRef} className="absolute inset-0 pointer-events-none z-[1]">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    </div>
+  )
+}
+
 // ─── 3D Process Card ──────────────────────────────────────────────────────────
 function ProcessCard({
   node,
@@ -198,6 +356,80 @@ function ProcessCard({
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const glowRef = useRef<HTMLDivElement>(null)
+  const triCanvasRef = useRef<HTMLCanvasElement>(null)
+  const triMetaRef = useRef<{ tri: [number, number][]; cx: number; cy: number }[]>([])
+
+  const initTriangles = () => {
+    const card = cardRef.current
+    const canvas = triCanvasRef.current
+    if (!card || !canvas) return
+
+    const rect = card.getBoundingClientRect()
+    canvas.width = rect.width
+    canvas.height = rect.height
+
+    const cols = 16
+    const rows = 11
+    const cX = rect.width / cols
+    const cY = rect.height / rows
+    let seed = 42
+    const rand = () => {
+      seed = (seed * 16807) % 2147483647
+      return (seed - 1) / 2147483646
+    }
+
+    const pts: [number, number][][] = []
+    for (let r = 0; r <= rows; r++) {
+      pts[r] = []
+      for (let c = 0; c <= cols; c++) {
+        pts[r][c] = [
+          c * cX + ((c === 0 || c === cols) ? 0 : (rand() - 0.5) * cX * 0.35),
+          r * cY + ((r === 0 || r === rows) ? 0 : (rand() - 0.5) * cY * 0.35),
+        ]
+      }
+    }
+
+    const triMeta: { tri: [number, number][]; cx: number; cy: number }[] = []
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const t1: [number, number][] = [pts[r][c], pts[r][c + 1], pts[r + 1][c]]
+        const t2: [number, number][] = [pts[r][c + 1], pts[r + 1][c + 1], pts[r + 1][c]]
+        const c1 = [(t1[0][0] + t1[1][0] + t1[2][0]) / 3, (t1[0][1] + t1[1][1] + t1[2][1]) / 3] as const
+        const c2 = [(t2[0][0] + t2[1][0] + t2[2][0]) / 3, (t2[0][1] + t2[1][1] + t2[2][1]) / 3] as const
+        triMeta.push({ tri: t1, cx: c1[0], cy: c1[1] })
+        triMeta.push({ tri: t2, cx: c2[0], cy: c2[1] })
+      }
+    }
+    triMetaRef.current = triMeta
+  }
+
+  const drawTriangles = (x: number, y: number) => {
+    const canvas = triCanvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    const RADIUS = 180
+    for (const t of triMetaRef.current) {
+      const dx = x - t.cx
+      const dy = y - t.cy
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      if (dist > RADIUS) continue
+      const alpha = (1 - dist / RADIUS) * 0.25
+      ctx.beginPath()
+      ctx.moveTo(t.tri[0][0], t.tri[0][1])
+      ctx.lineTo(t.tri[1][0], t.tri[1][1])
+      ctx.lineTo(t.tri[2][0], t.tri[2][1])
+      ctx.closePath()
+      ctx.fillStyle = `rgba(229,153,123,${alpha * 0.18})`
+      ctx.fill()
+      ctx.strokeStyle = `rgba(229,153,123,${alpha})`
+      ctx.lineWidth = 0.6
+      ctx.stroke()
+    }
+  }
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current || !glowRef.current) return
@@ -232,6 +464,8 @@ function ProcessCard({
       duration: 0.2,
       ease: 'none',
     })
+
+    drawTriangles(x, y)
   }
 
   const handleMouseLeave = () => {
@@ -249,6 +483,12 @@ function ProcessCard({
       opacity: 0,
       duration: 0.45,
     })
+
+    const canvas = triCanvasRef.current
+    if (canvas) {
+      const ctx = canvas.getContext('2d')
+      ctx?.clearRect(0, 0, canvas.width, canvas.height)
+    }
   }
 
   return (
@@ -256,6 +496,7 @@ function ProcessCard({
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseEnter={initTriangles}
       className={`process-card group relative w-[520px] h-[600px] p-12 flex flex-col justify-between
         rounded-[2.5rem] border-2 overflow-hidden
         transition-[border-color,box-shadow,background-color] duration-700
@@ -270,6 +511,12 @@ function ProcessCard({
         willChange: 'transform',
       }}
     >
+      <canvas
+        ref={triCanvasRef}
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ zIndex: 1 }}
+      />
+
       <div
         ref={glowRef}
         className="absolute pointer-events-none opacity-0 w-[500px] h-[500px] rounded-full"
@@ -477,10 +724,14 @@ export default function UltimateHorizontalProcess() {
                 </div>
               </div>
 
-              <div className="flex gap-12 mt-24 z-10 relative">
-                {phase.nodes.map((node, i) => (
-                  <ProcessCard key={i} node={node} index={i} />
-                ))}
+              <ProcessParticles />
+
+              <div className="relative mt-24 z-10">
+                <div className="flex gap-12 relative z-10">
+                  {phase.nodes.map((node, i) => (
+                    <ProcessCard key={i} node={node} index={i} />
+                  ))}
+                </div>
               </div>
             </section>
           ))}

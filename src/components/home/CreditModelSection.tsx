@@ -227,7 +227,7 @@ export default function CreditModelSection() {
           <h2 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-navy leading-[1.1] mb-12">
             Fundamentado en el equilibrio de{' '}
             <span className="relative inline-block">
-              <em className="text-bronze not-italic italic">Ray Dalio</em>
+              <em className="text-bronze italic">Ray Dalio</em>
               <svg className="absolute -bottom-2 left-0 w-full h-3 text-bronze/20" viewBox="0 0 100 10" preserveAspectRatio="none">
                 <path d="M0 5 Q 25 0, 50 5 T 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
               </svg>

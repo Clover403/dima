@@ -322,14 +322,21 @@ export default function ProductosOverview() {
           </div>
           <Link
             to="/contacto"
-            className="group relative inline-flex items-center gap-4 overflow-hidden px-12 py-5 bg-[#030035]"
+            className="group relative inline-flex items-center justify-center px-8 py-4 bg-bronze text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy hover:pl-12 border border-bronze"
           >
-            <div className="absolute inset-0 bg-[#E5997B] translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            <span className="relative z-10 font-mono text-[12px] tracking-[0.3em] uppercase text-[#F4F4F5] group-hover:text-[#030035] transition-colors duration-300">
-              Solicitar Asesoría Personalizada
-            </span>
-            <svg className="relative z-10 w-4 h-4 text-[#F4F4F5] group-hover:text-[#030035] group-hover:translate-x-1 transition-all duration-300" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <span className="relative z-10">Solicitar Asesoría Personalizada</span>
+            <svg
+              className="absolute left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
             </svg>
           </Link>
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/20">

@@ -7,7 +7,6 @@ import AboutHeroSection from '../components/about/AboutHeroSection';
 import AboutPinnedNarrativeSection from '../components/about/AboutPinnedNarrativeSection';
 import AboutManifestoSection from '../components/about/AboutManifestoSection';
 import AboutStatsSection from '../components/about/AboutStatsSection';
-import AboutCTASection from '../components/about/AboutCTASection';
 import AboutDissolveSection from '../components/about/AboutDissolveSection';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -131,7 +130,7 @@ export default function About() {
         <AboutDissolveSection />
         <AboutManifestoSection />
         <AboutStatsSection />
-        <AboutCTASection />
+        {/* <AboutCTASection /> */}
       </div>
     </PageTransition>
   );

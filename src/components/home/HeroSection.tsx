@@ -1,4 +1,4 @@
-import { useLayoutEffect, useId, useRef } from 'react'
+import { useLayoutEffect, useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -22,7 +22,8 @@ function loadScript(src: string): Promise<void> {
 export default function HeroSection() {
   const sectionRef    = useRef<HTMLElement>(null)
   const overlayRef    = useRef<HTMLDivElement>(null)
-  const curtainRef    = useRef<HTMLDivElement>(null)
+  const geoRef        = useRef<HTMLDivElement>(null)
+  const textWrapRef   = useRef<HTMLDivElement>(null)
   const lineOneRef    = useRef<HTMLHeadingElement>(null)
   const lineTwoRef    = useRef<HTMLHeadingElement>(null)
   const lineOneSvgRef = useRef<SVGSVGElement>(null)
@@ -34,8 +35,6 @@ export default function HeroSection() {
   // ── Vanta init ────────────────────────────────────────────
   useLayoutEffect(() => {
     let destroyed = false
-    let scrolling = false
-    let resumeTimer: ReturnType<typeof setTimeout>
 
     async function initVanta() {
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
@@ -45,77 +44,131 @@ export default function HeroSection() {
       vantaRef.current = (window as any).VANTA.WAVES({
         el: sectionRef.current,
         THREE: (window as any).THREE,
-        mouseControls: false,  // matiin — nyumbang jank saat scroll
-        touchControls: false,
+        mouseControls: true,
+        touchControls: true,
         gyroControls: false,
-        minHeight: 200,
-        minWidth: 200,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        backgroundColor: 0x06091a,
-        color: 0x0c1028,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        backgroundColor: 0x030035,
+        color: 0x0a0a2e,
         shininess: 12,
-        waveHeight: 20,
-        waveSpeed: 0.4,
-        zoom: 0.9,
+        waveHeight: 15,
+        waveSpeed: 0.75,
+        zoom: 1,
       })
     }
 
-    // Pause Vanta render loop saat scroll biar ga rebutan RAF sama curtain
-    const onScroll = () => {
-      if (!scrolling) {
-        scrolling = true
-        vantaRef.current?.renderer?.setAnimationLoop?.(null)
-      }
-      clearTimeout(resumeTimer)
-      resumeTimer = setTimeout(() => {
-        scrolling = false
-        if (vantaRef.current?.renderer) {
-          const v = vantaRef.current
-          v.renderer.setAnimationLoop(() => v.onUpdate?.())
-        }
-      }, 200)
-    }
-
     initVanta()
-    window.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
       destroyed = true
-      clearTimeout(resumeTimer)
-      window.removeEventListener('scroll', onScroll)
       vantaRef.current?.destroy()
     }
   }, [])
 
-  // ── Curtain scroll effect ─────────────────────────────────
+  // ── DimaGeometric hide on scroll ─────────────────────────
   useLayoutEffect(() => {
-    const curtain = curtainRef.current
-    if (!curtain) return
+    const section = sectionRef.current
+    const geo = geoRef.current
+    if (!section || !geo) return
 
-    gsap.set(curtain, { opacity: 1, filter: 'blur(0px)', force3D: true })
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: curtain,
-        start: 'top top',
-        end: '+=80%',
-        scrub: true,          // instant follow — no lag
-        invalidateOnRefresh: true,
-      },
-    })
-
-    tl.to(curtain, {
-      opacity: 0,
-      filter: 'blur(32px)',
-      scale: 1.04,           // sedikit zoom out biar kesan "menghilang ke dalam"
-      ease: 'none',
-      duration: 1,
-    })
+    const ctx = gsap.context(() => {
+      gsap.set(geo, { autoAlpha: 1, y: 0 })
+      gsap.to(geo, {
+        autoAlpha: 0,
+        y: -40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=80%',
+          scrub: true,
+        },
+      })
+    }, sectionRef)
 
     return () => {
-      tl.scrollTrigger?.kill()
-      tl.kill()
+      ctx.revert()
+    }
+  }, [])
+
+  // ── Hero text fade on scroll ─────────────────────────────
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    const textWrap = textWrapRef.current
+    if (!section || !textWrap) return
+
+    const ctx = gsap.context(() => {
+      gsap.set(textWrap, { autoAlpha: 1, y: 0 })
+      gsap.to(textWrap, {
+        autoAlpha: 0,
+        y: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=80%',
+          scrub: true,
+        },
+      })
+    }, sectionRef)
+
+    return () => {
+      ctx.revert()
+    }
+  }, [])
+
+  // ── Destroy Vanta when hero leaves viewport ───────────────
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0]
+        if (!entry) return
+
+        if (entry.isIntersecting) {
+          if (!vantaRef.current) {
+            loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+              .then(() => loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.waves.min.js'))
+              .then(() => {
+                if (!sectionRef.current || vantaRef.current) return
+                vantaRef.current = (window as any).VANTA.WAVES({
+                  el: sectionRef.current,
+                  THREE: (window as any).THREE,
+                  mouseControls: true,
+                  touchControls: true,
+                  gyroControls: false,
+                  minHeight: 200.00,
+                  minWidth: 200.00,
+                  scale: 1.00,
+                  scaleMobile: 1.00,
+                  backgroundColor: 0x030035,
+                  color: 0x0a0a2e,
+                  shininess: 12,
+                  waveHeight: 15,
+                  waveSpeed: 0.75,
+                  zoom: 1,
+                })
+              })
+              .catch(() => {})
+          }
+          return
+        }
+
+        vantaRef.current?.destroy()
+        vantaRef.current = null
+      },
+      { threshold: 0.15 },
+    )
+
+    observer.observe(section)
+
+    return () => {
+      observer.disconnect()
     }
   }, [])
 
@@ -262,87 +315,74 @@ export default function HeroSection() {
 
   return (
     <>
-      {/* ── Curtain wrapper — fixed di atas, lenyap saat scroll ── */}
-      <div
-        ref={curtainRef}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 40,
-          pointerEvents: 'none',
-          willChange: 'opacity, filter, transform',
-          backfaceVisibility: 'hidden',
-        }}
+      <section
+        ref={sectionRef}
+        className="relative w-full h-screen overflow-hidden"
       >
-        <section
-          ref={sectionRef}
-          className="relative w-full h-screen overflow-hidden"
-        >
-          {/* DimaGeometric */}
-          <div className="absolute inset-y-0 right-0 w-[60%] z-[3] pointer-events-none select-none overflow-hidden">
-            <div className="w-full h-full flex items-center justify-end">
-              <div style={{ width: '85%', height: '85%', transform: 'translateX(9%)', mixBlendMode: 'screen' }}>
-                <DimaGeometric />
-              </div>
+        {/* DimaGeometric */}
+        <div ref={geoRef} className="absolute inset-y-0 right-0 w-[60%] z-[3] pointer-events-none select-none overflow-hidden">
+          <div className="w-full h-full flex items-center justify-end">
+            <div style={{ width: '85%', height: '85%', transform: 'translateX(9%)', mixBlendMode: 'screen' }}>
+              <DimaGeometric />
+            </div>
+          </div>
+        </div>
+
+        {/* UI Layout */}
+        <div ref={textWrapRef} className="relative z-[10] w-full h-full flex flex-col justify-between p-10 md:p-16 lg:p-24">
+          <div className="invisible flex flex-col gap-1">
+            <span className="font-mono text-[9px]">x</span>
+            <span className="font-mono text-[8px]">x</span>
+          </div>
+
+          <div className="max-w-4xl select-none">
+            <div className="reveal-item overflow-hidden mb-8">
+              <p className="text-[#E5997B] font-mono text-[11px] tracking-[1em] uppercase flex items-center gap-6">
+                <span className="w-16 h-[1px] bg-[#E5997B]/30" />
+                Ingeniería de Capital
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h1 ref={lineOneRef} data-color="#ffffff"
+                className="reveal-item font-display text-[12vw] lg:text-[8.5vw] text-white leading-[0.85] tracking-tighter">
+                DEUDA QUE
+              </h1>
+              <h1 ref={lineTwoRef} data-color="#E5997B"
+                className="reveal-item font-display text-[12vw] lg:text-[8.5vw] text-[#E5997B] italic leading-[0.85] tracking-tighter">
+                GENERA VALOR.
+              </h1>
+            </div>
+
+            <div className="reveal-item mt-14 flex items-start gap-10">
+              <div className="w-[1px] h-20 bg-gradient-to-b from-[#E5997B] to-transparent opacity-40" />
+              <p className="text-white/40 font-body text-base lg:text-lg max-w-[380px] leading-relaxed">
+                Diseñamos arquitecturas financieras que transforman el balance corporativo en una plataforma de crecimiento estratégico.
+              </p>
             </div>
           </div>
 
-          {/* UI Layout */}
-          <div className="relative z-[10] w-full h-full flex flex-col justify-between p-10 md:p-16 lg:p-24">
-            <div className="invisible flex flex-col gap-1">
-              <span className="font-mono text-[9px]">x</span>
-              <span className="font-mono text-[8px]">x</span>
-            </div>
-
-            <div className="max-w-4xl select-none">
-              <div className="reveal-item overflow-hidden mb-8">
-                <p className="text-[#E5997B] font-mono text-[11px] tracking-[1em] uppercase flex items-center gap-6">
-                  <span className="w-16 h-[1px] bg-[#E5997B]/30" />
-                  Ingeniería de Capital
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h1 ref={lineOneRef} data-color="#ffffff"
-                  className="reveal-item font-display text-[12vw] lg:text-[8.5vw] text-white leading-[0.85] tracking-tighter">
-                  DEUDA QUE
-                </h1>
-                <h1 ref={lineTwoRef} data-color="#E5997B"
-                  className="reveal-item font-display text-[12vw] lg:text-[8.5vw] text-[#E5997B] italic leading-[0.85] tracking-tighter">
-                  GENERA VALOR.
-                </h1>
-              </div>
-
-              <div className="reveal-item mt-14 flex items-start gap-10">
-                <div className="w-[1px] h-20 bg-gradient-to-b from-[#E5997B] to-transparent opacity-40" />
-                <p className="text-white/40 font-body text-base lg:text-lg max-w-[380px] leading-relaxed">
-                  Diseñamos arquitecturas financieras que transforman el balance corporativo en una plataforma de crecimiento estratégico.
-                </p>
+          <div className="flex flex-col md:flex-row justify-between items-end gap-10">
+            <div className="reveal-item hidden md:block">
+              <div className="flex flex-col gap-1 opacity-30">
+                <span className="font-mono text-[8px] text-white tracking-[0.8em] uppercase">Crédito Empresarial</span>
+                <span className="font-mono text-[10px] text-white tracking-[0.2em]">Todos los sectores · Todas las escalas</span>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-end gap-10">
-              <div className="reveal-item hidden md:block">
-                <div className="flex flex-col gap-1 opacity-30">
-                  <span className="font-mono text-[8px] text-white tracking-[0.8em] uppercase">Crédito Empresarial</span>
-                  <span className="font-mono text-[10px] text-white tracking-[0.2em]">Todos los sectores · Todas las escalas</span>
-                </div>
-              </div>
-
-              <div className="reveal-item flex items-center gap-6 w-full md:w-auto pointer-events-auto">
-                <Link to="/contacto"
-                  className="flex-1 md:flex-none text-center px-8 py-5 font-mono text-[10px] tracking-[0.5em] uppercase text-white/40 hover:text-white transition-all border border-white/0 hover:border-white/10">
-                  Contacto
-                </Link>
-                <Link to="/modelo-crediticio"
-                  className="group relative flex-1 md:flex-none flex items-center justify-center gap-6 px-12 py-5 bg-white/[0.03] backdrop-blur-3xl border border-white/10 overflow-hidden">
-                  <div className="absolute inset-0 bg-[#E5997B] translate-y-full group-hover:translate-y-0 transition-transform duration-[900ms] ease-[cubic-bezier(0.23,1,0.32,1)]" />
-                  <span className="relative z-10 font-body text-[10px] tracking-[0.6em] uppercase text-white group-hover:text-[#000000] transition-colors duration-[900ms] font-bold">Ver Modelo</span>
-                  <svg className="relative z-10 w-4 h-4 text-[#E5997B] group-hover:text-[#000000] transition-all duration-[900ms] group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </div>
+            <div className="reveal-item flex items-center gap-6 w-full md:w-auto pointer-events-auto">
+              <Link to="/contacto"
+                className="flex-1 md:flex-none text-center px-8 py-5 font-mono text-[10px] tracking-[0.5em] uppercase text-white/40 hover:text-white transition-all border border-white/0 hover:border-white/10">
+                Contacto
+              </Link>
+              <Link to="/modelo-crediticio"
+                className="group relative flex-1 md:flex-none flex items-center justify-center gap-6 px-12 py-5 bg-white/[0.03] backdrop-blur-3xl border border-white/10 overflow-hidden">
+                <div className="absolute inset-0 bg-[#E5997B] translate-y-full group-hover:translate-y-0 transition-transform duration-[900ms] ease-[cubic-bezier(0.23,1,0.32,1)]" />
+                <span className="relative z-10 font-body text-[10px] tracking-[0.6em] uppercase text-white group-hover:text-[#000000] transition-colors duration-[900ms] font-bold">Ver Modelo</span>
+                <svg className="relative z-10 w-4 h-4 text-[#E5997B] group-hover:text-[#000000] transition-all duration-[900ms] group-hover:translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
             </div>
           </div>
 
@@ -373,11 +413,8 @@ export default function HeroSection() {
               <text data-hero-stroke clipPath={`url(#${clipIdTwo})`} fill="none" stroke="#E5997B" strokeWidth="1.8" />
             </svg>
           </div>
-        </section>
-      </div>
-
-      {/* Spacer — dorong konten bawah turun setinggi viewport */}
-      <div style={{ height: '180vh' }} aria-hidden="true" />
+        </div>
+      </section>
     </>
   )
 }
