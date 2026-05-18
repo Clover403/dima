@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 gsap.registerPlugin(ScrollTrigger)
 
 const navLinks = [
-  { to: '/', label: 'Inicio' },
+  { to: '/home-baru', label: 'Inicio' },
+  // { to: '/home-baru', label: 'Home Baru' },
   { to: '/modelo-crediticio', label: 'Modelo' },
   { to: '/proceso', label: 'Proceso' },
   { to: '/productos', label: 'Productos' },

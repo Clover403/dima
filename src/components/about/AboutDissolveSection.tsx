@@ -37,6 +37,9 @@ export default function AboutDissolveSection() {
   const pillarsLayerRef = useRef<HTMLDivElement>(null);
   const originContentRef = useRef<HTMLDivElement>(null);
   const pillarsContentRef = useRef<HTMLDivElement>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+  const originTitleSvgRef = useRef<SVGSVGElement>(null);
+  const originScaleSvgRef = useRef<SVGSVGElement>(null);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -44,14 +47,86 @@ export default function AboutDissolveSection() {
     const pillarsLayer = pillarsLayerRef.current;
     const originContent = originContentRef.current;
     const pillarsContent = pillarsContentRef.current;
+    const bgCanvas = bgCanvasRef.current;
+    const originTitleSvg = originTitleSvgRef.current;
+    const originScaleSvg = originScaleSvgRef.current;
 
-    if (!container || !originLayer || !pillarsLayer || !originContent || !pillarsContent) return;
+    if (!container || !originLayer || !pillarsLayer || !originContent || !pillarsContent || !bgCanvas || !originTitleSvg || !originScaleSvg) return;
+
+    const drawBackground = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      bgCanvas.width = vw;
+      bgCanvas.height = vh;
+
+      const ctx2d = bgCanvas.getContext('2d');
+      if (!ctx2d) return;
+
+      const cols = 28;
+      const rows = 18;
+      const cX = vw / cols;
+      const cY = vh / rows;
+      let seed = 42;
+      const rand = () => {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+      };
+
+      const pts: [number, number][][] = [];
+      for (let r = 0; r <= rows; r++) {
+        pts[r] = [];
+        for (let c = 0; c <= cols; c++) {
+          pts[r][c] = [
+            c * cX + ((c === 0 || c === cols) ? 0 : (rand() - 0.5) * cX * 0.40),
+            r * cY + ((r === 0 || r === rows) ? 0 : (rand() - 0.5) * cY * 0.40),
+          ];
+        }
+      }
+
+      const triangles: [number, number][][] = [];
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++) {
+          triangles.push([pts[r][c], pts[r][c + 1], pts[r + 1][c]]);
+          triangles.push([pts[r][c + 1], pts[r + 1][c + 1], pts[r + 1][c]]);
+        }
+
+      const NAVY_CRACK = '#060030';
+      ctx2d.clearRect(0, 0, vw, vh);
+      ctx2d.fillStyle = NAVY_CRACK;
+      ctx2d.fillRect(0, 0, vw, vh);
+
+      triangles.forEach((tri) => {
+        const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3;
+        const cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+        const shade = 0.92 + Math.random() * 0.08;
+        ctx2d.save();
+        ctx2d.translate(cx, cy);
+        ctx2d.scale(0.97, 0.97);
+        ctx2d.translate(-cx, -cy);
+        ctx2d.beginPath();
+        ctx2d.moveTo(tri[0][0], tri[0][1]);
+        ctx2d.lineTo(tri[1][0], tri[1][1]);
+        ctx2d.lineTo(tri[2][0], tri[2][1]);
+        ctx2d.closePath();
+        ctx2d.fillStyle = `rgb(${Math.round(3 * shade)},0,${Math.round(53 * shade)})`;
+        ctx2d.fill();
+        ctx2d.strokeStyle = 'rgba(0,0,10,0.65)';
+        ctx2d.lineWidth = 0.7;
+        ctx2d.stroke();
+        ctx2d.restore();
+      });
+    };
+
+    drawBackground();
+    const resizeBg = () => drawBackground();
+    window.addEventListener('resize', resizeBg);
 
     const ctx = gsap.context(() => {
       // ── INITIAL STATES ──
       gsap.set('.origin-scale-wrapper', { opacity: 0, clearProps: 'filter,scale,blur' });
       gsap.set('.origin-reveal', { opacity: 0, y: 40, clearProps: 'filter' });
       gsap.set('.origin-title', { opacity: 0, y: 20, clearProps: 'filter,scale' });
+      gsap.set('.origin-title-stroke', { opacity: 0 });
 
       // Pillars initial state
       gsap.set('.pillar-card', { opacity: 0, yPercent: 50 });
@@ -59,6 +134,30 @@ export default function AboutDissolveSection() {
       gsap.set('.pillars-header', { opacity: 0, y: -30 });
       gsap.set('.pillars-footer', { opacity: 0, y: 30 });
       gsap.set('.progress-bar-inner', { yPercent: 100 });
+
+      const strokeLines = Array.from(originTitleSvg.querySelectorAll<SVGTextElement>('[data-stroke-line]'));
+      const fillLines = Array.from(originTitleSvg.querySelectorAll<SVGTextElement>('[data-fill-line]'));
+      const lengths = strokeLines.map((line) => {
+        let len = line.getComputedTextLength();
+        if (!len || len < 10) len = 1200;
+        line.style.strokeDasharray = `${len}`;
+        line.style.strokeDashoffset = `${len}`;
+        return len;
+      });
+      gsap.set(fillLines, { fillOpacity: 0 });
+      gsap.set(strokeLines, { opacity: 1 });
+
+      const scaleStrokeEls = Array.from(originScaleSvg.querySelectorAll<SVGGeometryElement>('path, line, circle, rect, polyline, polygon'));
+      const scaleLengths = scaleStrokeEls.map((el) => {
+        let len = 0;
+        try {
+          len = el.getTotalLength?.() || 0;
+        } catch { len = 0; }
+        if (!len || len < 10) len = 800;
+        el.style.strokeDasharray = `${len}`;
+        el.style.strokeDashoffset = `${len}`;
+        return len;
+      });
 
       // ── MAIN TIMELINE ──
       const tl = gsap.timeline({
@@ -78,14 +177,14 @@ export default function AboutDissolveSection() {
       // PHASE 1: ORIGIN (0% - 35%)
       // ═══════════════════════════════════════════════════════
 
-      // Word scale animation
+      // Word scale animation — MORE DRAMATIC ZOOM
       tl.to('.arquitectos-word', {
-        scale: 75,
+        scale: 150,
         ease: 'power2.inOut',
         duration: 3,
       }, 0);
 
-      // White overlay fade
+      // White overlay fade — ORIGINAL WHITE
       tl.to('.arquitectos-overlay', {
         opacity: 0,
         ease: 'power2.in',
@@ -103,8 +202,14 @@ export default function AboutDissolveSection() {
       tl.to('.origin-scale-wrapper', {
         opacity: 0.25,
         ease: 'power3.out',
-        duration: 0.6,
+        duration: 1.2,
       }, 2.8);
+      tl.to(scaleStrokeEls, {
+        strokeDashoffset: 0,
+        duration: 3.0,
+        ease: 'power2.out',
+        stagger: 0.005,
+      }, 2.9);
 
       // Plates animation
       tl.to('.origin-left-plate', { y: -20, ease: 'power2.out', duration: 0.8 }, 2.9);
@@ -117,6 +222,14 @@ export default function AboutDissolveSection() {
         ease: 'power3.out',
         duration: 0.6,
       }, 3.1);
+      tl.set('.origin-title-stroke', { opacity: 1 }, 3.05);
+      tl.to(strokeLines, {
+        strokeDashoffset: 0,
+        duration: 2.5,
+        ease: 'power1.inOut',
+        stagger: 0.2,
+      }, 3.0);
+      tl.to(fillLines, { fillOpacity: 1, duration: 1.2, ease: 'power2.out' }, 4.5);
 
       // Body content stagger
       tl.to('.origin-reveal', {
@@ -131,54 +244,87 @@ export default function AboutDissolveSection() {
       // PHASE 2: ORIGIN DISSOLVE OUT (35% - 45%)
       // ═══════════════════════════════════════════════════════
 
-      // Smooth dissolve with blur + scale + opacity
-      tl.to(originContent, {
+      // 1. Body text elements fade out gently
+      tl.to('.origin-reveal', {
         opacity: 0,
-        scale: 0.92,
-        filter: 'blur(12px) brightness(0.6)',
+        y: -20,
         duration: 2.5,
         ease: 'power2.inOut',
-      }, 8);
+        stagger: 0.08,
+      }, 7.5);
 
-      // Origin layer fade to transparent
+      // 2. SVG scale fades out gently
+      tl.to('.origin-scale-wrapper', {
+        opacity: 0,
+        duration: 3.0,
+        ease: 'power2.inOut',
+      }, 7.6);
+
+      // 3. Title stroke REVERSES (draws back) — elegant disappearance
+      tl.to(strokeLines, {
+        strokeDashoffset: (i) => lengths[i],
+        duration: 3.5,
+        ease: 'power1.inOut',
+        stagger: 0.25,
+      }, 7.4);
+
+      // 4. Fill fades before stroke completes
+      tl.to(fillLines, { fillOpacity: 0, duration: 2.0, ease: 'power2.in' }, 7.6);
+
+      // 5. Scale strokes reverse
+      tl.to(scaleStrokeEls, {
+        strokeDashoffset: (i) => scaleLengths[i],
+        duration: 3.0,
+        ease: 'power2.in',
+        stagger: 0.005,
+      }, 7.8);
+
+      // 6. Main origin content fades with slight scale down
+      tl.to(originContent, {
+        opacity: 0,
+        scale: 0.95,
+        duration: 3.0,
+        ease: 'power2.inOut',
+      }, 8.0);
+
+      // 7. Origin layer fades to transparent — OVERLAPS with pillars
       tl.to(originLayer, {
         opacity: 0,
-        duration: 1.5,
-        ease: 'power2.in',
-      }, 9);
+        duration: 2.5,
+        ease: 'power2.inOut',
+      }, 9.5);
 
       // ═══════════════════════════════════════════════════════
       // PHASE 3: PILLARS DISSOLVE IN (42% - 52%)
       // ═══════════════════════════════════════════════════════
 
-      // Pillars layer becomes visible
+      // Pillars layer becomes visible BEFORE origin fully fades
       tl.set(pillarsLayer, { visibility: 'visible' }, 8.5);
 
-      // Pillars content dissolves in with blur + scale
+      // Pillars content fades in GENTLY while origin is still visible
       tl.fromTo(pillarsContent,
-        { opacity: 0, scale: 1.08, filter: 'blur(15px) brightness(1.3)' },
-        { 
-          opacity: 1, 
-          scale: 1, 
-          filter: 'blur(0px) brightness(1)',
-          duration: 2.5, 
-          ease: 'power2.out' 
+        { opacity: 0, scale: 1.02 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 3.0,
+          ease: 'power2.out'
         },
-        8.5
+        9.0
       );
 
       // Header and footer fade in
       tl.to('.pillars-header', {
         opacity: 1,
         y: 0,
-        duration: 1.5,
+        duration: 2.0,
         ease: 'power2.out',
       }, 9.5);
 
       tl.to('.pillars-footer', {
         opacity: 1,
         y: 0,
-        duration: 1.5,
+        duration: 2.0,
         ease: 'power2.out',
       }, 9.5);
 
@@ -190,10 +336,9 @@ export default function AboutDissolveSection() {
       const bars = gsap.utils.toArray<HTMLElement>('.progress-bar-inner');
 
       cards.forEach((card, i) => {
-        const position = 12 + i * 4; // Start at 12, each card takes 4 units
+        const position = 12 + i * 4;
 
         if (i > 0) {
-          // Card enters
           tl.to(card, {
             opacity: 1,
             yPercent: 0,
@@ -201,7 +346,6 @@ export default function AboutDissolveSection() {
             ease: 'power2.out'
           }, position);
 
-          // Previous card exits
           tl.to(cards[i - 1], {
             opacity: 0,
             scale: 0.9,
@@ -211,7 +355,6 @@ export default function AboutDissolveSection() {
           }, position);
         }
 
-        // Progress bar
         if (bars[i]) {
           tl.to(bars[i], {
             yPercent: -100,
@@ -227,39 +370,30 @@ export default function AboutDissolveSection() {
 
     return () => {
       window.clearTimeout(refreshTimeout);
+      window.removeEventListener('resize', resizeBg);
       ctx.revert();
     };
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="relative w-full overflow-hidden"
       style={{ height: '100vh' }}
     >
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* SHARED BACKGROUND — AboutPillarsSection grid style */}
-      {/* ═══════════════════════════════════════════════════════ */}
+      {/* SHARED BACKGROUND */}
       <div className="absolute inset-0 bg-[#030035] z-0">
-        {/* Grid Pattern — full screen dengan fade di edges */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(229,153,123,0.08) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(229,153,123,0.08) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px',
-            maskImage: 'radial-gradient(ellipse 55% 55% at 50% 50%, black 30%, transparent 70%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 55% 55% at 50% 50%, black 30%, transparent 70%)',
-          }}
+        <canvas
+          ref={bgCanvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ opacity: 0.9 }}
         />
       </div>
 
       {/* ═══════════════════════════════════════════════════════ */}
       {/* LAYER 1: ORIGIN SECTION */}
       {/* ═══════════════════════════════════════════════════════ */}
-      <div 
+      <div
         ref={originLayerRef}
         className="absolute inset-0 z-10"
       >
@@ -302,7 +436,7 @@ export default function AboutDissolveSection() {
           <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-24 py-24 h-full grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-8 items-center">
 
             {/* Left: Content */}
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-4">
               <div className="origin-reveal flex items-center gap-4">
                 <div className="w-8 h-px bg-[#E5997B]/50" />
                 <span className="text-[#E5997B] tracking-[0.6em] uppercase text-[14px] font-semibold font-mono">
@@ -310,13 +444,73 @@ export default function AboutDissolveSection() {
                 </span>
               </div>
 
-              <div className="origin-title">
-                <h2 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] text-[#F4F4F5] font-light leading-[1.05] tracking-tight">
-                  Arquitectos
-                </h2>
-                <h2 className="font-display italic text-[clamp(3rem,5.5vw,5.5rem)] text-[#E5997B] font-light leading-[1.05] tracking-tight">
-                  de equilibrio.
-                </h2>
+              {/* TITLE — BIGGER, TIGHTER MARGIN */}
+              <div className="origin-title relative" style={{ minHeight: 'clamp(9rem, 16vw, 12rem)' }}>
+                <svg
+                  ref={originTitleSvgRef}
+                  viewBox="0 0 1200 400"
+                  preserveAspectRatio="xMinYMin meet"
+                  className="origin-title-stroke absolute inset-0 w-full h-full pointer-events-none opacity-0"
+                >
+                  <text
+                    x="0"
+                    y="190"
+                    textAnchor="start"
+                    fontFamily="'Playfair Display', serif"
+                    fontStyle="normal"
+                    fontSize="220"
+                    fontWeight="300"
+                    fill="none"
+                    stroke="#F4F4F5"
+                    strokeWidth="1.2"
+                    data-stroke-line="0"
+                  >
+                    Arquitectos
+                  </text>
+                  <text
+                    x="0"
+                    y="190"
+                    textAnchor="start"
+                    fontFamily="'Playfair Display', serif"
+                    fontStyle="normal"
+                    fontSize="220"
+                    fontWeight="300"
+                    fill="#F4F4F5"
+                    fillOpacity="1"
+                    data-fill-line="0"
+                  >
+                    Arquitectos
+                  </text>
+                  <text
+                    x="0"
+                    y="380"
+                    textAnchor="start"
+                    fontFamily="'Playfair Display', serif"
+                    fontStyle="italic"
+                    fontSize="220"
+                    fontWeight="300"
+                    fill="none"
+                    stroke="#E5997B"
+                    strokeWidth="1.2"
+                    data-stroke-line="1"
+                  >
+                    de equilibrio.
+                  </text>
+                  <text
+                    x="0"
+                    y="380"
+                    textAnchor="start"
+                    fontFamily="'Playfair Display', serif"
+                    fontStyle="italic"
+                    fontSize="220"
+                    fontWeight="300"
+                    fill="#E5997B"
+                    fillOpacity="1"
+                    data-fill-line="1"
+                  >
+                    de equilibrio.
+                  </text>
+                </svg>
               </div>
 
               <div className="origin-reveal flex items-center gap-4">
@@ -324,11 +518,11 @@ export default function AboutDissolveSection() {
                 <span className="text-[#F4F4F5]/20 text-[14px] font-mono tracking-[0.3em] uppercase">§ 001</span>
               </div>
 
-              <div className="origin-reveal flex flex-col gap-6 max-w-xl">
-                <p className="font-body text-[#F4F4F5]/55 text-xl md:text-2xl leading-[1.9] font-light tracking-wide">
+              <div className="origin-reveal flex flex-col gap-3 max-w-xl">
+                <p className="font-body text-[#F4F4F5]/55 text-xl md:text-2xl leading-[1.7] font-light tracking-wide">
                   Fundada sobre la premisa de que el crédito, correctamente estructurado, no es deuda — es arquitectura. Cada institución lleva en sí misma un ciclo; nuestra labor es leerlo.
                 </p>
-                <p className="font-body text-[#F4F4F5]/35 text-base md:text-lg leading-[1.9] tracking-wider uppercase font-light">
+                <p className="font-body text-[#F4F4F5]/35 text-base md:text-lg leading-[1.7] tracking-wider uppercase font-light">
                   Inspirados en la metodología de Raymond Thomas Dalio — adaptada de la macroeconomía al tejido vivo de la empresa.
                 </p>
               </div>
@@ -367,7 +561,7 @@ export default function AboutDissolveSection() {
                   filter: 'drop-shadow(0 0 30px rgba(229,153,123,0.25)) drop-shadow(0 0 80px rgba(229,153,123,0.12))',
                   transform: 'scale(1.15)',
                 }}>
-                <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full"
+                <svg ref={originScaleSvgRef} viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full"
                   style={{ filter: 'drop-shadow(0 0 12px rgba(229,153,123,0.5)) drop-shadow(0 0 30px rgba(229,153,123,0.25))' }}>
                   <circle cx="250" cy="250" r="230" stroke="#E5997B" strokeWidth="1.4" strokeDasharray="1 7" />
                   <circle cx="250" cy="250" r="218" stroke="#E5997B" strokeWidth="0.8" />
@@ -460,10 +654,10 @@ export default function AboutDissolveSection() {
             </span>
           </div>
 
-          {/* White Overlay for word animation */}
+          {/* White/Light overlay — ORIGINAL: light bg with navy text */}
           <div className="arquitectos-overlay absolute inset-0 z-10 bg-[#F4F4F5] pointer-events-none" />
 
-          {/* Scaling Word */}
+          {/* Scaling Word — ORIGINAL: navy text on light overlay */}
           <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
             <span
               className="arquitectos-word select-none font-display font-light tracking-tight leading-none text-[#030035]"
@@ -482,25 +676,40 @@ export default function AboutDissolveSection() {
       {/* ═══════════════════════════════════════════════════════ */}
       {/* LAYER 2: PILLARS SECTION */}
       {/* ═══════════════════════════════════════════════════════ */}
-      <div 
+      <div
         ref={pillarsLayerRef}
         className="absolute inset-0 z-20"
         style={{ visibility: 'hidden' }}
       >
-        <div ref={pillarsContentRef} className="relative w-full h-full">
-
-          {/* Fixed Header Label */}
-          <div className="pillars-header absolute top-28 left-12 z-50">
-            <div className="flex items-center gap-4 text-[#E5997B]">
-              <div className="w-12 h-px bg-current" />
-              <span className="font-mono text-[10px] tracking-[0.8em] uppercase font-bold">Protocol Pillars</span>
-            </div>
+        {/* Fixed Header Label */}
+        <div className="pillars-header absolute top-28 left-12 z-50">
+          <div className="flex items-center gap-4 text-[#E5997B]">
+            <div className="w-12 h-px bg-current" />
+            <span className="font-mono text-[10px] tracking-[0.8em] uppercase font-bold">Protocol Pillars</span>
           </div>
+        </div>
 
+        {/* Progress Bars */}
+        <div className="pillars-footer absolute bottom-16 right-16 flex gap-3 z-50">
+          {PILLARS.map((_, i) => (
+            <div key={i} className="w-1 h-12 bg-white/10 relative overflow-hidden">
+              <div className="progress-bar-inner absolute inset-0 bg-[#E5997B]" style={{ transform: 'translateY(100%)' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Info */}
+        <div className="pillars-footer absolute bottom-16 left-16 z-50">
+          <div className="font-mono text-[9px] text-white/20 uppercase leading-loose tracking-[0.2em]">
+            Dima Finance<br/>System Architecture v2
+          </div>
+        </div>
+
+        <div ref={pillarsContentRef} className="relative w-full h-full">
           {/* Cards Container */}
           <div className="relative w-full max-w-5xl h-[50vh] mx-auto mt-[25vh]">
             {PILLARS.map((pillar, i) => (
-              <div 
+              <div
                 key={pillar.index}
                 className={`pillar-card pillar-card-${i} absolute inset-0 flex flex-col items-center justify-center text-center px-6 will-change-transform`}
               >
@@ -531,21 +740,6 @@ export default function AboutDissolveSection() {
             ))}
           </div>
 
-          {/* Progress Bars */}
-          <div className="pillars-footer absolute bottom-16 right-16 flex gap-3">
-            {PILLARS.map((_, i) => (
-              <div key={i} className="w-1 h-12 bg-white/10 relative overflow-hidden">
-                <div className="progress-bar-inner absolute inset-0 bg-[#E5997B]" style={{ transform: 'translateY(100%)' }} />
-              </div>
-            ))}
-          </div>
-
-          {/* Footer Info */}
-          <div className="pillars-footer absolute bottom-16 left-16">
-            <div className="font-mono text-[9px] text-white/20 uppercase leading-loose tracking-[0.2em]">
-              Dima Finance<br/>System Architecture v2
-            </div>
-          </div>
         </div>
       </div>
 

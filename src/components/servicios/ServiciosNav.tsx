@@ -242,10 +242,11 @@ export default function ServiciosNav() {
   }
 
   return (
-    <section ref={sectionRef} className="relative bg-[#F5F5F5] overflow-hidden py-24 md:py-32 section-padding">
+    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 section-padding"
+      style={{ background: 'transparent' }}>
 
       {/* ══════════════════════════════════
-          BACKGROUND DECORATIONS
+          BACKGROUND DECORATIONS (TETAP)
       ══════════════════════════════════ */}
 
       {/* Large faded diamond — center background */}
@@ -338,105 +339,172 @@ export default function ServiciosNav() {
         </h2>
       </div>
 
-     {/* ══════════════════════════════════
-    SERVICE CARDS GRID (3D Tactile Glass Version)
-══════════════════════════════════ */}
-<div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
-  {serviceItems.map(({ number, name, descriptor, Icon }) => (
-    <motion.div 
-      key={number} 
-      className="group perspective-1000"
-      whileHover={{ y: -5 }}
-      whileTap={{ scale: 0.97 }}
-    >
-      <button
-        onClick={handleClick}
-        className="service-card relative w-full text-left 
-                   bg-white/30 backdrop-blur-md border border-white/40 
-                   rounded-2xl overflow-hidden transition-all duration-300 ease-out
-                   shadow-[0_8px_32px_rgba(0,0,0,0.05)]
-                   hover:bg-white/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)]
-                   active:shadow-inner active:bg-white/20"
-        style={{ 
-          transformStyle: 'preserve-3d',
-          perspective: '1000px',
-        }}
-        onMouseMove={(e) => {
-          const card = e.currentTarget
-          const rect = card.getBoundingClientRect()
-          const x = e.clientX - rect.left
-          const y = e.clientY - rect.top
-          const centerX = rect.width / 2
-          const centerY = rect.height / 2
-          const rotateX = ((y - centerY) / centerY) * -4
-          const rotateY = ((x - centerX) / centerX) * 4
-          
-          card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-        }}
-      >
-        {/* Konten dengan TranslateZ agar terasa berlapis */}
+      {/* ═══════════════════════════════════════════════════════
+          MESH GRADIENT — INI KUNCI AGAR BLUR TERLIHAT
+          Blob warna di belakang grid card yang akan 
+          "terblur" & "terdistorsi" melalui card kaca
+      ═══════════════════════════════════════════════════════ */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Blob navy besar kiri */}
         <div 
-          className="relative p-8 md:p-10 h-full min-h-[260px] flex flex-col gap-5"
-          style={{ transform: 'translateZ(40px)' }}
-        >
-          
-          {/* Background Number (Paling Dalam) */}
-          <span
-            className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none 
-                       text-navy/[0.02] group-hover:text-navy/[0.07] transition-all duration-700"
-            style={{ 
-                fontSize: 'clamp(5rem, 10vw, 9rem)',
-                transform: 'translateZ(-20px)' 
-            }}
+          className="absolute top-[10%] -left-[5%] w-[600px] h-[600px] rounded-full"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(26,26,78,0.35) 0%, transparent 70%)',
+            filter: 'blur(80px)'
+          }}
+        />
+        {/* Blob bronze besar kanan bawah */}
+        <div 
+          className="absolute -bottom-[5%] right-[0%] w-[700px] h-[700px] rounded-full"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(229,153,123,0.3) 0%, transparent 70%)',
+            filter: 'blur(100px)'
+          }}
+        />
+        {/* Blob soft purple tengah */}
+        <div 
+          className="absolute top-[45%] left-[30%] w-[500px] h-[500px] rounded-full"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(74,95,140,0.25) 0%, transparent 70%)',
+            filter: 'blur(90px)'
+          }}
+        />
+        {/* Blob kecil accent kanan atas */}
+        <div 
+          className="absolute top-[5%] right-[20%] w-[300px] h-[300px] rounded-full"
+          style={{ 
+            background: 'radial-gradient(circle, rgba(229,153,123,0.2) 0%, transparent 70%)',
+            filter: 'blur(60px)'
+          }}
+        />
+      </div>
+
+      {/* ══════════════════════════════════
+          SERVICE CARDS GRID — GLASSMORPHISM NYATA
+      ══════════════════════════════════ */}
+      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+        {serviceItems.map(({ number, name, descriptor, Icon }) => (
+          <motion.div 
+            key={number} 
+            className="group perspective-1000"
+            whileHover={{ y: -5 }}
+            whileTap={{ scale: 0.97 }}
           >
-            {number}
-          </span>
+            <button
+              onClick={handleClick}
+              className="service-card relative w-full text-left 
+                         rounded-2xl overflow-hidden transition-all duration-300 ease-out
+                         hover:shadow-[0_25px_50px_-12px_rgba(26,37,64,0.25)]"
+              style={{ 
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                backdropFilter: 'blur(24px) saturate(1.6)',
+                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
+                border: '1.5px solid rgba(255, 255, 255, 0.6)',
+                borderTop: '2px solid rgba(255, 255, 255, 0.85)',
+                boxShadow: `
+                  0 8px 32px rgba(26, 37, 64, 0.12),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.7),
+                  inset 0 0 60px rgba(255, 255, 255, 0.1)
+                `,
+                transformStyle: 'preserve-3d',
+              }}
+              onMouseMove={(e) => {
+                const card = e.currentTarget
+                const rect = card.getBoundingClientRect()
+                const x = e.clientX - rect.left
+                const y = e.clientY - rect.top
+                const centerX = rect.width / 2
+                const centerY = rect.height / 2
+                const rotateX = ((y - centerY) / centerY) * -4
+                const rotateY = ((x - centerX) / centerX) * 4
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
+              }}
+            >
+              {/* HIGHLIGHT ATAS — garis cahaya kaca */}
+              <div 
+                className="absolute inset-x-4 top-[1px] h-[1px] bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-70 pointer-events-none z-20 rounded-full"
+              />
 
-          {/* Top row: icon + number (Paling Depan) */}
-          <div className="flex items-start justify-between" style={{ transform: 'translateZ(20px)' }}>
-            <div className="p-3 rounded-xl bg-white/60 shadow-[4px_4px_10px_rgba(0,0,0,0.05)] transition-all duration-500 
-                            group-hover:scale-110 group-hover:rotate-6 group-hover:bg-bronze/10">
-              <Icon />
-            </div>
-            <span className="font-display text-xs tracking-[0.4em] text-bronze/60 group-hover:text-bronze transition-colors">
-              {number}
-            </span>
-          </div>
+              {/* GLOSS OVERLAY RADIAL — pantulan cahaya dari atas */}
+              <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden z-10">
+                <div 
+                  className="absolute -top-[40%] left-[10%] w-[80%] h-[80%] opacity-40 group-hover:opacity-60 transition-opacity duration-700"
+                  style={{
+                    background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.9) 0%, transparent 55%)'
+                  }}
+                />
+              </div>
 
-          {/* Name + descriptor */}
-          <div className="relative z-10" style={{ transform: 'translateZ(10px)' }}>
-            <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
-              {name}
-            </h3>
-            <p className="font-body text-navy/60 text-md leading-relaxed group-hover:text-navy/80 transition-colors">
-              {descriptor}
-            </p>
-          </div>
+              {/* Konten dengan TranslateZ agar terasa berlapis */}
+              <div 
+                className="relative p-8 md:p-10 h-full min-h-[260px] flex flex-col gap-5 z-10"
+                style={{ transform: 'translateZ(40px)' }}
+              >
+                
+                {/* Background Number (Paling Dalam) */}
+                <span
+                  className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none 
+                             text-navy/[0.04] group-hover:text-navy/[0.09] transition-all duration-700"
+                  style={{ 
+                      fontSize: 'clamp(5rem, 10vw, 9rem)',
+                      transform: 'translateZ(-20px)' 
+                  }}
+                >
+                  {number}
+                </span>
 
-          {/* Bottom row: arrow reveal */}
-          <div className="flex items-center gap-3 mt-auto" style={{ transform: 'translateZ(15px)' }}>
-            <span className="font-body text-bronze text-[10px] font-bold tracking-[0.2em] uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-              Ver servicio
-            </span>
-            <div className="w-8 h-px bg-bronze/40 group-hover:w-12 transition-all duration-500" />
-          </div>
+                {/* Top row: icon + number (Paling Depan) */}
+                <div className="flex items-start justify-between" style={{ transform: 'translateZ(20px)' }}>
+                  <div className="p-3 rounded-xl transition-all duration-500 
+                                  group-hover:scale-110 group-hover:rotate-6"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2))',
+                      border: '1.5px solid rgba(255, 255, 255, 0.7)',
+                      boxShadow: '0 4px 16px rgba(26, 37, 64, 0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+                      backdropFilter: 'blur(8px)',
+                    }}>
+                    <Icon />
+                  </div>
+                  <span className="font-display text-xs tracking-[0.4em] text-bronze/60 group-hover:text-bronze transition-colors">
+                    {number}
+                  </span>
+                </div>
 
-          {/* Gloss Light Reflection */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
-        </div>
+                {/* Name + descriptor */}
+                <div className="relative z-10" style={{ transform: 'translateZ(10px)' }}>
+                  <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
+                    {name}
+                  </h3>
+                  <p className="font-body text-navy/60 text-md leading-relaxed group-hover:text-navy/80 transition-colors">
+                    {descriptor}
+                  </p>
+                </div>
 
-        {/* Inner shadow saat ditekan */}
-        <div className="absolute inset-0 opacity-0 active:opacity-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.1)] rounded-2xl pointer-events-none transition-opacity" />
-        
-        {/* Bottom Accent Line */}
-        <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-transparent via-bronze/60 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
-      </button>
-    </motion.div>
-  ))}
-</div>
+                {/* Bottom row: arrow reveal */}
+                <div className="flex items-center gap-3 mt-auto" style={{ transform: 'translateZ(15px)' }}>
+                  <span className="font-body text-bronze text-[10px] font-bold tracking-[0.2em] uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
+                    Ver servicio
+                  </span>
+                  <div className="w-8 h-px bg-bronze/40 group-hover:w-12 transition-all duration-500" />
+                </div>
+
+                {/* Sweep Light Reflection */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/25 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
+              </div>
+
+              {/* Inner shadow saat ditekan */}
+              <div className="absolute inset-0 opacity-0 active:opacity-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.1)] rounded-2xl pointer-events-none transition-opacity z-30" />
+              
+              {/* Bottom Accent Line */}
+              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-transparent via-bronze/60 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 z-20" />
+            </button>
+          </motion.div>
+        ))}
+      </div>
 
       {/* ── Subtle bottom divider ── */}
       <div className="relative z-10 flex items-center justify-center gap-6 mt-20">

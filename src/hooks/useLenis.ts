@@ -30,7 +30,40 @@ export function useLenis() {
     // Recalculate trigger positions after Lenis attaches.
     ScrollTrigger.refresh()
 
+    // Disable browser scroll restoration so reloads always start at the hero.
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual'
+    }
+
+    // Single one-shot refresh after BOTH fonts have settled and the window
+    // has finished loading all assets. This catches the production case
+    // where useLayoutEffect ran before the layout was final, while avoiding
+    // mid-scroll refreshes that would re-fire pin onLeave callbacks and
+    // destabilize animations (e.g. TransparantDissolve clearing triangles).
+    let cancelled = false
+    let didFinalRefresh = false
+    const finalRefresh = () => {
+      if (cancelled || didFinalRefresh) return
+      didFinalRefresh = true
+      ScrollTrigger.refresh()
+    }
+
+    const fontsReady = (document as Document & {
+      fonts?: { ready?: Promise<unknown> }
+    }).fonts?.ready ?? Promise.resolve()
+
+    const windowLoaded = document.readyState === 'complete'
+      ? Promise.resolve()
+      : new Promise<void>(res => window.addEventListener('load', () => res(), { once: true }))
+
+    Promise.all([fontsReady, windowLoaded]).then(() => {
+      if (cancelled) return
+      // One frame after both signals so layout has flushed.
+      requestAnimationFrame(finalRefresh)
+    })
+
     return () => {
+      cancelled = true
       gsap.ticker.remove(onTick)
       lenis.destroy()
       lenisInstance = null

@@ -2,12 +2,12 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PageTransition from '../components/PageTransition';
+import GridDissolve from '../components/GridDissolve';
 
 import AboutHeroSection from '../components/about/AboutHeroSection';
 import AboutPinnedNarrativeSection from '../components/about/AboutPinnedNarrativeSection';
 import AboutManifestoSection from '../components/about/AboutManifestoSection';
 import AboutStatsSection from '../components/about/AboutStatsSection';
-import AboutCTASection from '../components/about/AboutCTASection';
 import AboutDissolveSection from '../components/about/AboutDissolveSection';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -123,15 +123,17 @@ export default function About() {
 
   return (
     <PageTransition>
-      <div ref={pageRef}>
-        <AboutHeroSection heroRef={heroRef} />
-        <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
-         {/* <AboutOriginSection /> */}
+      <div ref={pageRef} data-dissolve-container="true">
+        <GridDissolve cellSize={60} pinDistance="+=120%">
+          <AboutHeroSection heroRef={heroRef} />
+          <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
+        </GridDissolve>
+        {/* <AboutOriginSection /> */}
         {/* <AboutPillarsSection pillarsRef={pillarsRef} /> */}
         <AboutDissolveSection />
         <AboutManifestoSection />
         <AboutStatsSection />
-        <AboutCTASection />
+        {/* <AboutCTASection /> */}
       </div>
     </PageTransition>
   );

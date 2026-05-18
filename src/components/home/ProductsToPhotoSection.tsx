@@ -272,9 +272,8 @@ export default function ProductsToPhotoSection() {
       const updateCards = (activeFloat: number) => {
         gsap.set(track, {
           x: vw / 2 - activeFloat * cardStep - trackPadLeft - actualCardW / 2,
+          force3D: true,
         })
-
-        const centerIdx = Math.round(activeFloat)
 
         cardEls.current.forEach((card, i) => {
           if (i >= NUM_PRODUCTS) return
@@ -285,11 +284,20 @@ export default function ProductsToPhotoSection() {
             opacity:         Math.max(0.65, 1 - dist * 0.13),
             zIndex:          Math.round(50 - dist * 8),
             transformOrigin: 'center center',
+            force3D:         true,
           })
 
           const pullEl  = pullInEls.current[i]
-          const distInt = Math.abs(i - centerIdx)
-          if (pullEl) gsap.set(pullEl, { x: distInt === 2 ? (i < centerIdx ? 1 : -1) * 20 : 0 })
+          if (pullEl) {
+            const distSigned = i - activeFloat
+            const distAbs = Math.abs(distSigned)
+            const pullAmount = distAbs <= 1.5
+              ? 0
+              : distAbs >= 2.5
+                ? 20
+                : gsap.utils.mapRange(1.5, 2.5, 0, 20, distAbs)
+            gsap.set(pullEl, { x: pullAmount === 0 ? 0 : (distSigned < 0 ? 1 : -1) * pullAmount })
+          }
         })
       }
 
@@ -394,8 +402,7 @@ export default function ProductsToPhotoSection() {
       drawBg()
       requestAnimationFrame(() => {
         drawPattern(ctaPat,   'rgba(229,153,123,0.04)',  'rgba(229,153,123,0.22)')
-        drawPattern(quotePat, 'rgba(229,153,123,0.015)', 'rgba(255,255,255,0.06)')
-      })
+drawPattern(quotePat, 'rgba(229,153,123,0.015)', 'rgba(0,0,10,0.65)')      })
 
       updateCards(0)
       pullInEls.current.forEach(el => { if (el) gsap.set(el, { x: 0 }) })
@@ -540,10 +547,8 @@ export default function ProductsToPhotoSection() {
 
         {/* ── Quote section ── */}
         <div ref={quoteRef} className="absolute inset-0" style={{ zIndex: 1, opacity: 0, isolation: 'isolate' }}>
-          <img src="/foto/brand-nature.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-[#030035]/92" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#030035] via-[#030035]/80 to-[#030035]/60" />
-          <div className="absolute inset-0 bg-navy/70" />
+          {/* Background sama dengan product section: solid #030035 */}
+          <div className="absolute inset-0 bg-[#030035]" />
           <canvas ref={quotePatternRef} className="absolute inset-0 w-full h-full pointer-events-none" style={{ opacity: 1 }} />
           {(['top-8 left-8','top-8 right-8','bottom-8 left-8','bottom-8 right-8'] as const).map((pos, i) => (
             <svg key={i} className={`absolute ${pos} w-10 h-10 pointer-events-none`} viewBox="0 0 40 40" fill="none">

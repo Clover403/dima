@@ -1,20 +1,24 @@
 import { useEffect, useRef, memo } from 'react'
 
-interface Snake {
-  col: number; row: number;
-  t: number; 
-  dir: { x: number; y: number };
-  points: { x: number; y: number }[];
-  life: number;
-  maxLife: number;
-  speed: number;
-}
-
 interface TrailPoint {
   x: number;
   y: number;
   age: number;
   opacity: number;
+}
+
+type Dir = 'r' | 'l' | 'u' | 'd'
+
+interface Snake {
+  col: number; row: number
+  t: number; dir: Dir
+  speed: number
+  baseOpacity: number
+  tailLength: number
+  points: { x: number; y: number }[]
+  turnChance: number
+  dead: boolean; deadAge: number
+  stepsLeft: number
 }
 
 const MagmaCivilized = memo(({
@@ -37,13 +41,90 @@ const MagmaCivilized = memo(({
     const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
-    let snakes: Snake[] = []
     let frame: number
     let w: number, h: number
     let cols: number, rows: number
 
-    const TRAIL_MAX_AGE = 250; 
-    const TRAIL_MAX_POINTS = 140; 
+    // ── GRID HOVER: lebih cepat hilang ──────────────────────────────────────
+    const TRAIL_MAX_AGE = 90        // dari 250 → 90 (3x lebih cepat pudar)
+    const TRAIL_MAX_POINTS = 100    // dikurangi sedikit
+
+    // ── Snake constants ─────────────────────────────────────────────────────
+    const DIRS: Dir[] = ['r', 'l', 'u', 'd']
+    const DX: Record<Dir, number> = { r: 1, l: -1, u: 0,  d: 0  }
+    const DY: Record<Dir, number> = { r: 0, l: 0,  u: -1, d: 1  }
+    const OPPOSITE: Record<Dir, Dir> = { r: 'l', l: 'r', u: 'd', d: 'u' }
+
+    const snakes: Snake[] = []
+
+    const validDirs = (col: number, row: number, excludeDir?: Dir): Dir[] =>
+      DIRS.filter(d => {
+        if (d === excludeDir) return false
+        return col + DX[d] >= 0 && col + DX[d] <= cols &&
+               row + DY[d] >= 0 && row + DY[d] <= rows
+      })
+
+    const makeSnake = (col: number, row: number): Snake | null => {
+      const dirs = validDirs(col, row)
+      if (dirs.length === 0) return null
+      const dir = dirs[Math.floor(Math.random() * dirs.length)]
+      return {
+        col, row, t: 0, dir,
+        // ── Intensitas dinaikin: lebih kencang, lebih terang, lebih panjang ─
+        speed: 0.008 + Math.random() * 0.008,          // lebih kencang
+        baseOpacity: 0.30 + Math.random() * 0.20,      // lebih terang (0.30–0.50)
+        tailLength: 3 + Math.floor(Math.random() * 4), // lebih panjang (3–6)
+        points: [{ x: col * cellSize, y: row * cellSize }],
+        turnChance: 0.35,
+        dead: false, deadAge: 0,
+        stepsLeft: 4 + Math.floor(Math.random() * 5),  // hidup lebih lama dikit
+      }
+    }
+
+    const spawnAmbient = () => {
+      if (!cols || !rows) return
+      const col = Math.round(Math.random() * cols)
+      const row = Math.round(Math.random() * rows)
+      const s = makeSnake(col, row)
+      if (s) snakes.push(s)
+    }
+
+    // ── Spawn: lebih sering & lebih banyak ──────────────────────────────────
+    const ambientInterval = setInterval(() => {
+      if (snakes.filter(s => !s.dead).length < 10) {  // dari 5 → 10
+        spawnAmbient()
+        if (Math.random() < 0.45) spawnAmbient()       // 45% spawn double
+      }
+    }, 420)                                           // dari 650 → 420ms
+
+    const drawSmoothPath = (
+      points: { x: number; y: number }[],
+      baseOpacity: number,
+      lineWidth: number,
+      fadeDead = 0
+    ) => {
+      if (points.length < 2) return
+
+      const finalOpacity = baseOpacity * (1 - fadeDead)
+      if (finalOpacity < 0.005) return
+
+      const tail = points[0]
+      const head = points[points.length - 1]
+      const grad = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y)
+      grad.addColorStop(0,   `rgba(${color},0)`)
+      grad.addColorStop(0.3, `rgba(${color},${finalOpacity * 0.20})`)
+      grad.addColorStop(0.7, `rgba(${color},${finalOpacity * 0.65})`)
+      grad.addColorStop(1,   `rgba(${color},${finalOpacity})`)
+
+      ctx.beginPath()
+      ctx.moveTo(points[0].x, points[0].y)
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y)
+      ctx.strokeStyle = grad
+      ctx.lineWidth   = lineWidth
+      ctx.lineJoin    = 'round'
+      ctx.lineCap     = 'round'
+      ctx.stroke()
+    }
 
     const resize = () => {
       const dpr = window.devicePixelRatio || 1
@@ -56,28 +137,20 @@ const MagmaCivilized = memo(({
       rows = Math.ceil(h / cellSize)
     }
 
-    const createSnake = (x?: number, y?: number) => {
-      const col = x !== undefined ? Math.round(x / cellSize) : Math.floor(Math.random() * cols)
-      const row = y !== undefined ? Math.round(y / cellSize) : Math.floor(Math.random() * rows)
-      const dirs = [{x:1, y:0}, {x:-1, y:0}, {x:0, y:1}, {x:0, y:-1}]
-      snakes.push({
-        col, row, t: 0, dir: dirs[Math.floor(Math.random() * dirs.length)],
-        points: [{ x: col * cellSize, y: row * cellSize }],
-        life: 0,
-        maxLife: 150 + Math.random() * 100, 
-        speed: 0.002
-      })
-    }
-
     const draw = (time: number) => {
       ctx.clearRect(0, 0, w, h)
       
+      // ── Mouse trail: fade lebih agresif ──────────────────────────────────
       mouseTrail.current.forEach(p => {
         p.age++
-        if (p.opacity < 1) p.opacity += 0.05 
+        // opacity naik cepat di awal, tapi age max jauh lebih pendek
+        if (p.opacity < 1) p.opacity += 0.08 
       })
       mouseTrail.current = mouseTrail.current.filter(p => p.age < TRAIL_MAX_AGE)
 
+      // ═══════════════════════════════════════════════════════════════════
+      // GRID LAYER (tetap sama, tapi hover pudar lebih cepat karena age ↓)
+      // ═══════════════════════════════════════════════════════════════════
       for (let i = 0; i <= cols; i++) {
         for (let j = 0; j <= rows; j++) {
           const gx = i * cellSize
@@ -119,41 +192,53 @@ const MagmaCivilized = memo(({
         }
       }
 
-      // --- SNAKE LAYER (GUE FIX BIAR MUNCUL LAGI) ---
-      snakes.forEach((s, idx) => {
-        s.t += s.speed
-        const curX = (s.col + s.dir.x * s.t) * cellSize
-        const curY = (s.row + s.dir.y * s.t) * cellSize
+      // ═══════════════════════════════════════════════════════════════════
+      // SNAKE LAYER (intensitas naik)
+      // ═══════════════════════════════════════════════════════════════════
+      for (let i = snakes.length - 1; i >= 0; i--) {
+        const s = snakes[i]
 
-        if (s.t >= 1) {
-          s.t = 0; s.col += s.dir.x; s.row += s.dir.y
-          s.points.push({ x: s.col * cellSize, y: s.row * cellSize })
-          if (s.points.length > 8) s.points.shift()
-          s.life++
+        const hx = (s.col + DX[s.dir] * s.t) * cellSize
+        const hy = (s.row + DY[s.dir] * s.t) * cellSize
+
+        if (s.dead) {
+          s.deadAge++
+          const fadeDead = Math.min(1, s.deadAge / 14)  // fade out lebih cepat
+          if (fadeDead >= 1) { snakes.splice(i, 1); continue }
+          drawSmoothPath(s.points, s.baseOpacity, 1.0, fadeDead)
+          continue
         }
 
-        const alpha = Math.min(1, (1 - s.life / s.maxLife) * 1.5)
-        if (alpha <= 0) { snakes.splice(idx, 1); return }
+        s.t += s.speed
 
-        ctx.beginPath()
-        ctx.lineWidth = 1.0 * alpha // Ditebelin dikit
-        const grad = ctx.createLinearGradient(s.points[0].x, s.points[0].y, curX, curY)
-        grad.addColorStop(0, `rgba(${color}, 0)`)
-        grad.addColorStop(1, `rgba(${color}, ${alpha * 0.4})`) // Opacity dinaikin biar kelihatan bray
-        ctx.strokeStyle = grad
-        ctx.moveTo(s.points[0].x, s.points[0].y)
-        s.points.forEach(p => ctx.lineTo(p.x, p.y))
-        ctx.lineTo(curX, curY)
-        ctx.stroke()
+        if (s.t >= 1) {
+          s.t = 0
+          const nextCol = s.col + DX[s.dir]
+          const nextRow = s.row + DY[s.dir]
+          s.points.push({ x: nextCol * cellSize, y: nextRow * cellSize })
+          while (s.points.length > s.tailLength + 1) s.points.shift()
+          s.col = nextCol
+          s.row = nextRow
+          s.stepsLeft--
+          if (s.stepsLeft <= 0) { s.dead = true; continue }
 
-        // Tambah titik terang di kepala biar gak "hilang"
-        ctx.beginPath()
-        ctx.arc(curX, curY, 1.2, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(${color}, ${alpha * 0.8})`
-        ctx.fill()
-      })
+          const available = validDirs(s.col, s.row, OPPOSITE[s.dir])
+          if (available.length === 0) { s.dead = true; continue }
 
-      if (snakes.length < 6) createSnake() // Ditambah dikit biar gak sepi
+          if (Math.random() < s.turnChance) {
+            const perp = available.filter(d => d !== s.dir)
+            s.dir = perp.length > 0
+              ? perp[Math.floor(Math.random() * perp.length)]
+              : available[Math.floor(Math.random() * available.length)]
+          } else if (!available.includes(s.dir)) {
+            s.dir = available[Math.floor(Math.random() * available.length)]
+          }
+        }
+
+        const drawPoints = [...s.points, { x: hx, y: hy }]
+        drawSmoothPath(drawPoints, s.baseOpacity, 1.0)
+      }
+
       frame = requestAnimationFrame(draw)
     }
 
@@ -177,6 +262,7 @@ const MagmaCivilized = memo(({
 
     return () => {
       cancelAnimationFrame(frame)
+      clearInterval(ambientInterval)
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouseMove)
     }

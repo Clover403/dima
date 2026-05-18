@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Layout from './components/Layout'
+import HomeLegacy from './pages/HomeLegacy'
 import Home from './pages/Home'
 import CreditModel from './pages/CreditModel'
 import Products from './pages/Products'
@@ -16,7 +17,9 @@ export default function App() {
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeLegacy />} />
+          <Route path="/home-baru" element={<Home />} />
+          <Route path="/home-lama" element={<HomeLegacy />} />
           <Route path="/modelo-crediticio" element={<CreditModel />} />
           <Route path="/productos" element={<Products />} />
           <Route path="/servicios" element={<Services />} />
