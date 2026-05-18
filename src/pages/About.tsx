@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PageTransition from '../components/PageTransition';
+import GridDissolve from '../components/GridDissolve';
 
 import AboutHeroSection from '../components/about/AboutHeroSection';
 import AboutPinnedNarrativeSection from '../components/about/AboutPinnedNarrativeSection';
@@ -122,10 +123,12 @@ export default function About() {
 
   return (
     <PageTransition>
-      <div ref={pageRef}>
-        <AboutHeroSection heroRef={heroRef} />
-        <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
-         {/* <AboutOriginSection /> */}
+      <div ref={pageRef} data-dissolve-container="true">
+        <GridDissolve cellSize={60} pinDistance="+=120%">
+          <AboutHeroSection heroRef={heroRef} />
+          <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
+        </GridDissolve>
+        {/* <AboutOriginSection /> */}
         {/* <AboutPillarsSection pillarsRef={pillarsRef} /> */}
         <AboutDissolveSection />
         <AboutManifestoSection />
