@@ -402,8 +402,7 @@ export default function ProductsToPhotoSection() {
       drawBg()
       requestAnimationFrame(() => {
         drawPattern(ctaPat,   'rgba(229,153,123,0.04)',  'rgba(229,153,123,0.22)')
-        drawPattern(quotePat, 'rgba(229,153,123,0.015)', 'rgba(255,255,255,0.06)')
-      })
+drawPattern(quotePat, 'rgba(229,153,123,0.015)', 'rgba(0,0,10,0.65)')      })
 
       updateCards(0)
       pullInEls.current.forEach(el => { if (el) gsap.set(el, { x: 0 }) })
