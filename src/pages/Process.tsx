@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PageTransition from '../components/PageTransition';
+import GridDissolve from '../components/GridDissolve';
 import ModeloProceso from '../components/modelo/ModeloProceso';
 import ProcessCTASection from '../components/ProcessCTASection';
 import SectionCurtain from '../components/SectionCurtain';
@@ -123,11 +124,8 @@ export default function Process() {
     return () => ctx.revert();
   }, []);
 
-  return (
-    <PageTransition>
-      <div ref={pageRef} className="relative bg-[#030035]">
-                {/* ═══════════════ HERO ═══════════════ */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#030035]">
+  const heroSection = (
+    <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#030035]">
           {/* ── 1. BASE STATIC GRID ── */}
           <div
             className="absolute inset-0 z-[1] pointer-events-none opacity-[0.05]"
@@ -209,12 +207,19 @@ export default function Process() {
             <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#F4F4F5]/12">SOFOM E.N.R. — México</span>
             <span className="font-mono text-[8px] tracking-[0.4em] uppercase text-[#E5997B]/20">Arquitectos de Equilibrio</span>
           </div>
-        </section>
+    </section>
+  )
 
+  return (
+    <PageTransition>
+      <div ref={pageRef} className="relative bg-[#F4F4F5]" data-dissolve-container="true">
+        <GridDissolve cellSize={60} pinDistance="+=120%">
+          {heroSection}
           <ModeloProceso />
-          <SectionCurtain curtainColor="#F4F4F5">
-            <ProcessCTASection />
-          </SectionCurtain>
+        </GridDissolve>
+        <SectionCurtain curtainColor="#F4F4F5">
+          <ProcessCTASection />
+        </SectionCurtain>
       </div>
     </PageTransition>
   );
