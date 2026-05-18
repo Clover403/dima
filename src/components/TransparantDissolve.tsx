@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 type TriangleDissolveProps = {
-  children: ReactNode
+  children?: ReactNode
   cellSize?: number
   pinDistance?: string | number
   className?: string
@@ -28,6 +28,7 @@ export default function TriangleDissolve({
 }: TriangleDissolveProps) {
   const pinContainerRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const solidBgRef = useRef<HTMLDivElement>(null)
 
   const childArray = Children.toArray(children)
 
@@ -39,9 +40,10 @@ export default function TriangleDissolve({
   const followingSections = childArray.slice(1)
 
   useLayoutEffect(() => {
-    if (!pinContainerRef.current || !overlayRef.current) return
+    if (!pinContainerRef.current || !overlayRef.current || !solidBgRef.current) return
 
     const overlay = overlayRef.current
+    const solidBg = solidBgRef.current
     let resizeTimer: number | null = null
     let timeline: gsap.core.Timeline | null = null
     let cells: HTMLDivElement[] = []
@@ -118,8 +120,8 @@ export default function TriangleDissolve({
 
       const randomCells = shuffle(cells)
 
-      // Awal: semua triangle tidak kelihatan
       gsap.set(randomCells, { opacity: 0 })
+      gsap.set(solidBg, { opacity: 0 })
 
       timeline = gsap.timeline({
         defaults: { ease: 'none' },
@@ -131,25 +133,33 @@ export default function TriangleDissolve({
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onLeave: () => {
-            // Hapus semua triangle dari DOM — paling reliable di production
-            overlay.innerHTML = ''
-          },
-          onEnterBack: () => {
-            // Rebuild triangle ketika scroll balik
-            setup()
-            ScrollTrigger.refresh()
-          },
         },
       })
 
-      // Triangle muncul satu-satu secara acak sampai nutupin semua hero
+      // ─── STEP 1: Segitiga muncul (sama persis kaya asli) ───
       timeline.to(randomCells, {
         opacity: 1,
         stagger: { amount: 1.8, from: 'random' },
         ease: 'power2.inOut',
         duration: 0.5,
       }, 0)
+
+      // ─── STEP 2: Solid bg fade in di belakang triangle ───
+      // Masih kelihatan texture karena triangle di depan (z-20)
+      timeline.to(solidBg, {
+        opacity: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+      }, '>-0.4')
+
+      // ─── STEP 3: Segitiga hilang satu per satu ke solid bg ───
+      // Texture menghilang pelan-pelan, yang tersisa #F4F4F5
+      timeline.to(shuffle([...cells]), {
+        opacity: 0,
+        stagger: { amount: 0.8, from: 'random' },
+        ease: 'power2.inOut',
+        duration: 0.3,
+      }, '<')
     }
 
     setup()
@@ -182,7 +192,15 @@ export default function TriangleDissolve({
           {heroSection}
         </div>
 
-        {/* Triangle-triangle muncul di atas hero */}
+        {/* 🔥 Solid bg di belakang triangle (z-15) */}
+        <div
+          ref={solidBgRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ backgroundColor: '#F4F4F5', opacity: 0, zIndex: 15 }}
+        />
+
+        {/* Triangle di depan solid bg */}
         <div
           ref={overlayRef}
           aria-hidden="true"
