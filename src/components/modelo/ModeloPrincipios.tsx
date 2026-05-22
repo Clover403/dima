@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,7 +26,7 @@ const principles = [
   },
 ]
 
-// ── HEADING DENGAN STROKE (UKURAN DIPERKECIL) ───────────────────────────
+// ── HEADING CON STROKE ───────────────────────────────────────────────────
 function HeadingStroke() {
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -33,26 +34,23 @@ function HeadingStroke() {
     if (!svgRef.current) return
     const svg = svgRef.current
     const strokeTspans = Array.from(svg.querySelectorAll<SVGTSpanElement>('[data-stroke]'))
-    const fillTspans = Array.from(svg.querySelectorAll<SVGTSpanElement>('[data-fill]'))
+    const fillTspans   = Array.from(svg.querySelectorAll<SVGTSpanElement>('[data-fill]'))
 
     const lengths = strokeTspans.map(el => {
       let len = el.getComputedTextLength()
       if (!len || len < 10) len = 400
-      el.style.strokeDasharray = `${len}`
+      el.style.strokeDasharray  = `${len}`
       el.style.strokeDashoffset = `${len}`
       return len
     })
 
     gsap.set(strokeTspans, { strokeDashoffset: (i) => lengths[i] })
-    gsap.set(fillTspans, { fillOpacity: 0 })
+    gsap.set(fillTspans,   { fillOpacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
     tl
       .to(strokeTspans, { strokeDashoffset: 0, duration: 1.4, stagger: 0.2, ease: 'power2.inOut' }, 0)
-      .to(fillTspans, { fillOpacity: 1, duration: 0.7, stagger: 0.1, ease: 'power2.out' }, 1.1)
-
-    // ❌ Baris ini dihapus:
-    // .to(strokeTspans, { opacity: 0, duration: 0.5, stagger: 0.06, ease: 'power1.in' }, 1.5)
+      .to(fillTspans,   { fillOpacity: 1,      duration: 0.7, stagger: 0.1, ease: 'power2.out' },   1.1)
 
     ScrollTrigger.create({
       trigger: svg,
@@ -79,8 +77,7 @@ function HeadingStroke() {
         style={{ overflow: 'visible' }}
       >
         <text
-          x="0"
-          y="1em"
+          x="0" y="1em"
           textAnchor="start"
           fontSize="1em"
           fontWeight="400"
@@ -88,29 +85,15 @@ function HeadingStroke() {
           fill="none"
           stroke="none"
         >
-          <tspan
-            data-stroke
-            fill="none"
-            stroke="#FFFFFF"
-            strokeWidth="0.02em"
-            fillOpacity="0"
-          >
+          <tspan data-stroke fill="none" stroke="#FFFFFF" strokeWidth="0.02em" fillOpacity="0">
             Tres principios,{' '}
           </tspan>
-          <tspan
-            data-stroke
-            fill="none"
-            stroke="#E5997B"
-            strokeWidth="0.02em"
-            fontStyle="italic"
-            fillOpacity="0"
-          >
+          <tspan data-stroke fill="none" stroke="#E5997B" strokeWidth="0.02em" fontStyle="italic" fillOpacity="0">
             una arquitectura
           </tspan>
         </text>
         <text
-          x="0"
-          y="1em"
+          x="0" y="1em"
           textAnchor="start"
           fontSize="1em"
           fontWeight="400"
@@ -118,24 +101,123 @@ function HeadingStroke() {
           fill="none"
           stroke="none"
         >
-          <tspan data-fill fill="#FFFFFF" fillOpacity="0">
-            Tres principios,{' '}
-          </tspan>
-          <tspan data-fill fill="#E5997B" fontStyle="italic" fillOpacity="0">
-            una arquitectura
-          </tspan>
+          <tspan data-fill fill="#FFFFFF" fillOpacity="0">Tres principios,{' '}</tspan>
+          <tspan data-fill fill="#E5997B" fontStyle="italic" fillOpacity="0">una arquitectura</tspan>
         </text>
       </svg>
     </div>
   )
 }
 
+// ── MAIN EXPORT ──────────────────────────────────────────────────────────
 export default function ModeloPrincipios() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const lineRef    = useRef<HTMLDivElement>(null)
-  const wrapRef    = useRef<HTMLDivElement>(null)
-  const dotRefs    = useRef<(HTMLDivElement | null)[]>([])
-  const innerRefs  = useRef<(HTMLDivElement | null)[]>([])
+  const sectionRef  = useRef<HTMLDivElement>(null)
+  const lineRef     = useRef<HTMLDivElement>(null)
+  const wrapRef     = useRef<HTMLDivElement>(null)
+  const dotRefs     = useRef<(HTMLDivElement | null)[]>([])
+  const innerRefs   = useRef<(HTMLDivElement | null)[]>([])
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null)
+
+  // ── MOUSE PARALLAX HOOKS ────────────────────────────────────────────
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const smoothX = useSpring(mouseX, { stiffness: 60, damping: 25, mass: 0.5 })
+  const smoothY = useSpring(mouseY, { stiffness: 60, damping: 25, mass: 0.5 })
+
+  // Depth 1 — Canvas BG (paling belakang, gerak berlawanan)
+  const blobX = useTransform(smoothX, [-0.5, 0.5], [15, -15])
+  const blobY = useTransform(smoothY, [-0.5, 0.5], [15, -15])
+
+  // Depth 2 — Heading (lambat)
+  const headX = useTransform(smoothX, [-0.5, 0.5], [-8, 8])
+  const headY = useTransform(smoothY, [-0.5, 0.5], [-8, 8])
+
+  // Depth 3 — Principles wrap (sedang)
+  const wrapX = useTransform(smoothX, [-0.5, 0.5], [-14, 14])
+  const wrapY = useTransform(smoothY, [-0.5, 0.5], [-14, 14])
+
+  // Depth 4 — CTA (paling depan, paling cepat)
+  const ctaX = useTransform(smoothX, [-0.5, 0.5], [-22, 22])
+  const ctaY = useTransform(smoothY, [-0.5, 0.5], [-22, 22])
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (typeof window === 'undefined') return
+    mouseX.set((e.clientX / window.innerWidth)  - 0.5)
+    mouseY.set((e.clientY / window.innerHeight) - 0.5)
+  }
+  // ───────────────────────────────────────────────────────────────────
+
+  // ── CANVAS TRIANGLE GRID (sama persis seperti AboutStatsSection) ──
+  useLayoutEffect(() => {
+    const bgCanvas = bgCanvasRef.current
+    if (!bgCanvas) return
+
+    const drawBackground = () => {
+      bgCanvas.width  = bgCanvas.offsetWidth
+      bgCanvas.height = bgCanvas.offsetHeight
+      const ctx2d = bgCanvas.getContext('2d')
+      if (!ctx2d) return
+
+      const cols = 28
+      const rows = 18
+      const cX   = bgCanvas.width  / cols
+      const cY   = bgCanvas.height / rows
+      let seed    = 42
+      const rand  = () => {
+        seed = (seed * 16807) % 2147483647
+        return (seed - 1) / 2147483646
+      }
+
+      const pts: [number, number][][] = []
+      for (let r = 0; r <= rows; r++) {
+        pts[r] = []
+        for (let c = 0; c <= cols; c++) {
+          pts[r][c] = [
+            c * cX + ((c === 0 || c === cols) ? 0 : (rand() - 0.5) * cX * 0.40),
+            r * cY + ((r === 0 || r === rows) ? 0 : (rand() - 0.5) * cY * 0.40),
+          ]
+        }
+      }
+
+      const triangles: [number, number][][] = []
+      for (let r = 0; r < rows; r++)
+        for (let c = 0; c < cols; c++) {
+          triangles.push([pts[r][c], pts[r][c + 1], pts[r + 1][c]])
+          triangles.push([pts[r][c + 1], pts[r + 1][c + 1], pts[r + 1][c]])
+        }
+
+      ctx2d.clearRect(0, 0, bgCanvas.width, bgCanvas.height)
+      ctx2d.fillStyle = '#030035'
+      ctx2d.fillRect(0, 0, bgCanvas.width, bgCanvas.height)
+
+      triangles.forEach((tri) => {
+        const cx    = (tri[0][0] + tri[1][0] + tri[2][0]) / 3
+        const cy    = (tri[0][1] + tri[1][1] + tri[2][1]) / 3
+        const shade = 0.92 + Math.random() * 0.08
+        ctx2d.save()
+        ctx2d.translate(cx, cy)
+        ctx2d.scale(0.97, 0.97)
+        ctx2d.translate(-cx, -cy)
+        ctx2d.beginPath()
+        ctx2d.moveTo(tri[0][0], tri[0][1])
+        ctx2d.lineTo(tri[1][0], tri[1][1])
+        ctx2d.lineTo(tri[2][0], tri[2][1])
+        ctx2d.closePath()
+        ctx2d.fillStyle = `rgb(${Math.round(3 * shade)},0,${Math.round(53 * shade)})`
+        ctx2d.fill()
+        ctx2d.strokeStyle = 'rgba(0,0,10,0.65)'
+        ctx2d.lineWidth   = 0.7
+        ctx2d.stroke()
+        ctx2d.restore()
+      })
+    }
+
+    drawBackground()
+    window.addEventListener('resize', drawBackground)
+    return () => window.removeEventListener('resize', drawBackground)
+  }, [])
+  // ────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!sectionRef.current || !wrapRef.current || !lineRef.current) return
@@ -149,14 +231,8 @@ export default function ModeloPrincipios() {
       innerRefs.current.forEach((inner) => {
         if (!inner) return
         gsap.from(inner, {
-          y: 48,
-          opacity: 0,
-          duration: 1.2,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: inner,
-            start: 'top 82%',
-          },
+          y: 48, opacity: 0, duration: 1.2, ease: 'power3.out',
+          scrollTrigger: { trigger: inner, start: 'top 82%' },
         })
       })
 
@@ -177,8 +253,7 @@ export default function ModeloPrincipios() {
             const block     = blocks[i]
             const dotOffset = block.offsetTop + 8
             const reached   = lineH >= dotOffset
-
-            const inner = dot.querySelector<HTMLElement>('.dot-inner')
+            const inner     = dot.querySelector<HTMLElement>('.dot-inner')
 
             if (reached) {
               dot.style.background  = '#E5997B'
@@ -202,91 +277,105 @@ export default function ModeloPrincipios() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative bg-[#030035] overflow-hidden py-32 md:py-56 px-6 lg:px-24">
+    <section
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      className="relative bg-[#030035] overflow-hidden py-32 md:py-56 px-6 lg:px-24"
+    >
+      {/* ── Depth 1: Triangle Grid Canvas BG ── */}
+      <motion.div
+        style={{ x: blobX, y: blobY }}
+        className="absolute inset-[-5%] pointer-events-none z-0"
+      >
+        <canvas
+          ref={bgCanvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ opacity: 0.9 }}
+        />
+      </motion.div>
 
-      {/* Ambient bg */}
-      <div className="absolute inset-0 pointer-events-none opacity-40">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-bronze/10 rounded-full blur-[150px]" />
-      </div>
-
-      {/* Heading dengan stroke (ukuran sudah diperkecil) */}
-      <div className="max-w-7xl mx-auto mb-32 relative z-10">
+      {/* ── Depth 2: Heading ── */}
+      <motion.div
+        style={{ x: headX, y: headY }}
+        className="max-w-7xl mx-auto mb-32 relative z-10"
+      >
         <HeadingStroke />
-      </div>
+      </motion.div>
 
-      {/* Principles wrap */}
-      <div ref={wrapRef} className="principles-wrap relative max-w-6xl mx-auto z-10">
+      {/* ── Depth 3: Principles wrap ── */}
+      {/* NOTE: motion.div wraps a plain div (wrapRef) supaya GSAP refs-nya tetap stabil */}
+      <motion.div style={{ x: wrapX, y: wrapY }} className="relative z-10">
+        <div ref={wrapRef} className="principles-wrap relative max-w-6xl mx-auto">
 
-        {/* Vertical line track */}
-        <div className="absolute left-[15px] md:left-[40px] top-0 bottom-0 w-[2px] bg-white/10">
-          <div
-            ref={lineRef}
-            className="absolute top-0 left-0 w-full h-full bg-bronze"
-            style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
-          />
-        </div>
+          {/* Vertical line track */}
+          <div className="absolute left-[15px] md:left-[40px] top-0 bottom-0 w-[2px] bg-white/10">
+            <div
+              ref={lineRef}
+              className="absolute top-0 left-0 w-full h-full bg-bronze"
+              style={{ transform: 'scaleY(0)', transformOrigin: 'top' }}
+            />
+          </div>
 
-        <div className="space-y-48">
-          {principles.map((p, i) => (
-            <div key={i} className="principle relative pl-16 md:pl-24">
+          <div className="space-y-48">
+            {principles.map((p, i) => (
+              <div key={i} className="principle relative pl-16 md:pl-24">
 
-              {/* Dot */}
-              <div className="absolute left-[-11px] md:left-[14px] top-2 z-20">
-                <div
-                  ref={(el) => { dotRefs.current[i] = el }}
-                  className="w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center"
-                  style={{
-                    background:   '#030035',
-                    borderColor:  'rgba(255,255,255,0.2)',
-                    transition:   'background 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s',
-                  }}
-                >
+                {/* Dot */}
+                <div className="absolute left-[-11px] md:left-[14px] top-2 z-20">
                   <div
-                    className="dot-inner w-1.5 h-1.5 rounded-full"
+                    ref={(el) => { dotRefs.current[i] = el }}
+                    className="w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center"
                     style={{
-                      background: 'rgba(255,255,255,0.2)',
-                      transition: 'background 0.3s',
+                      background:  '#030035',
+                      borderColor: 'rgba(255,255,255,0.2)',
+                      transition:  'background 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s',
                     }}
-                  />
-                </div>
-              </div>
-
-              {/* Content */}
-              <div
-                ref={(el) => { innerRefs.current[i] = el }}
-                className="content-inner grid lg:grid-cols-[1fr_2fr] gap-8"
-              >
-                <div className="relative">
-                  <span className="font-display text-8xl text-white/[0.03] leading-none absolute -top-10 -left-10 select-none">
-                    {p.num}
-                  </span>
-                  <p className="relative z-10 text-bronze font-body text-xs tracking-[0.4em] uppercase font-bold pt-4">
-                    {p.subtitle}
-                  </p>
+                  >
+                    <div
+                      className="dot-inner w-1.5 h-1.5 rounded-full"
+                      style={{ background: 'rgba(255,255,255,0.2)', transition: 'background 0.3s' }}
+                    />
+                  </div>
                 </div>
 
-                <div className="max-w-2xl">
-                  <blockquote className="font-display text-2xl md:text-4xl text-white/90 leading-tight mb-8 italic">
-                    "{p.quote}"
-                  </blockquote>
-                  <p className="font-body text-white/30 text-base md:text-lg leading-relaxed font-light">
-                    {p.explanation}
-                  </p>
+                {/* Content */}
+                <div
+                  ref={(el) => { innerRefs.current[i] = el }}
+                  className="content-inner grid lg:grid-cols-[1fr_2fr] gap-8"
+                >
+                  <div className="relative">
+                    <span className="font-display text-8xl text-white/[0.03] leading-none absolute -top-10 -left-10 select-none">
+                      {p.num}
+                    </span>
+                    <p className="relative z-10 text-bronze font-body text-xs tracking-[0.4em] uppercase font-bold pt-4">
+                      {p.subtitle}
+                    </p>
+                  </div>
+
+                  <div className="max-w-2xl">
+                    <blockquote className="font-display text-2xl md:text-4xl text-white/90 leading-tight mb-8 italic">
+                      "{p.quote}"
+                    </blockquote>
+                    <p className="font-body text-white/30 text-base md:text-lg leading-relaxed font-light">
+                      {p.explanation}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Footer CTA */}
-      <PremiumCTA />
-
+      {/* ── Depth 4: CTA (paling depan) ── */}
+      <motion.div style={{ x: ctaX, y: ctaY }} className="relative z-10">
+        <PremiumCTA />
+      </motion.div>
     </section>
   )
 }
 
-// ── Premium CTA (persis seperti semula) ─────────────────────────────────────
+// ── Premium CTA ──────────────────────────────────────────────────────────
 function PremiumCTA() {
   const cardRef   = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -312,7 +401,7 @@ function PremiumCTA() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto mt-48 mb-20 px-6 relative z-10">
+    <div className="max-w-6xl mx-auto mt-48 mb-20 px-6">
       <div
         ref={cardRef}
         onMouseMove={handleMouseMove}

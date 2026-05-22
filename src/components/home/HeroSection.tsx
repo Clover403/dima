@@ -1,4 +1,5 @@
 import { useLayoutEffect, useEffect, useId, useRef } from 'react'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -31,6 +32,27 @@ export default function HeroSection() {
   const clipIdOne     = useId()
   const clipIdTwo     = useId()
   const vantaRef      = useRef<any>(null)
+
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const smoothMouseX = useSpring(mouseX, { stiffness: 60, damping: 18, mass: 0.4 })
+  const smoothMouseY = useSpring(mouseY, { stiffness: 60, damping: 18, mass: 0.4 })
+  const decoX = useTransform(smoothMouseX, [-0.5, 0.5], [-30, 30])
+  const decoY = useTransform(smoothMouseY, [-0.5, 0.5], [-30, 30])
+  const contentX = useTransform(smoothMouseX, [-0.5, 0.5], [14, -14])
+  const contentY = useTransform(smoothMouseY, [-0.5, 0.5], [14, -14])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = sectionRef.current?.getBoundingClientRect()
+    if (!rect) return
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5)
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5)
+  }
+
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
 
   // ── Vanta init ────────────────────────────────────────────
   useLayoutEffect(() => {
@@ -318,18 +340,23 @@ export default function HeroSection() {
       <section
         ref={sectionRef}
         className="relative w-full h-screen overflow-hidden"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
       >
         {/* DimaGeometric */}
         <div ref={geoRef} className="absolute inset-y-0 right-0 w-[60%] z-[3] pointer-events-none select-none overflow-hidden">
           <div className="w-full h-full flex items-center justify-end">
-            <div style={{ width: '85%', height: '85%', transform: 'translateX(9%)', mixBlendMode: 'screen' }}>
-              <DimaGeometric />
-            </div>
+            <motion.div style={{ x: decoX, y: decoY }} className="will-change-transform" transition={{ type: 'spring' }}>
+              <div style={{ width: '85%', height: '85%', transform: 'translateX(9%)', mixBlendMode: 'screen' }}>
+                <DimaGeometric />
+              </div>
+            </motion.div>
           </div>
         </div>
 
         {/* UI Layout */}
         <div ref={textWrapRef} className="relative z-[10] w-full h-full flex flex-col justify-between p-10 md:p-16 lg:p-24">
+          <motion.div style={{ x: contentX, y: contentY }} className="w-full h-full">
           <div className="invisible flex flex-col gap-1">
             <span className="font-mono text-[9px]">x</span>
             <span className="font-mono text-[8px]">x</span>
@@ -386,6 +413,7 @@ export default function HeroSection() {
             </div>
           </div>
 
+          </motion.div>
           {/* Corner brackets */}
           <div className="absolute inset-10 pointer-events-none opacity-20 z-[20]">
             <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-[#E5997B]" />

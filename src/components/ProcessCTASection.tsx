@@ -112,16 +112,16 @@ export default function ProcessCTASection() {
       <div className="relative z-10 max-w-3xl mx-auto px-8 text-center">
 
         {/* Title SVG */}
-        <div className="cta-reveal mb-6">
+        <div className="mb-6">
           <TitleSVG svgRef={titleSvgRef} />
         </div>
 
-        <p className="cta-reveal font-body text-lightgray/55 text-lg leading-relaxed max-w-xl mx-auto mb-10">
+        <p className="font-body text-lightgray/55 text-lg leading-relaxed max-w-xl mx-auto mb-10">
           Iniciemos con un diagnóstico estructural. Cada conversación es el
           primer nodo del proceso.
         </p>
 
-        <div className="cta-reveal flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {/* Button 1: Filled Bronze → Hover Navy */}
 <Link
   to="/contacto"

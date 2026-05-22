@@ -131,8 +131,8 @@ export default function About() {
         {/* <AboutOriginSection /> */}
         {/* <AboutPillarsSection pillarsRef={pillarsRef} /> */}
         <AboutDissolveSection />
-        <AboutManifestoSection />
         <AboutStatsSection />
+        <AboutManifestoSection />
         {/* <AboutCTASection /> */}
       </div>
     </PageTransition>

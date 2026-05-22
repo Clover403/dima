@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -18,6 +18,16 @@ function loadScript(src: string): Promise<void> {
 }
 
 /* ─── Service-specific SVG icons ─── */
+function IconCore() {
+  return (
+    <svg viewBox="0 0 64 64" fill="none" className="w-12 h-12 text-[#1A2540]">
+      <path d="M32 2L62 32L32 62L2 32Z" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="32" cy="32" r="8" fill="#E5997B" />
+      <path d="M20 32H44M32 20V44" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+    </svg>
+  )
+}
+
 function Icon01() {
   return (
     <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
@@ -79,29 +89,63 @@ function Icon05() {
   )
 }
 
-function Icon06() {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M32 6L58 32L32 58L6 32Z" stroke="#E5997B" strokeWidth="1.2" />
-      <path d="M32 18L46 32L32 46L18 32Z" stroke="#E5997B" strokeWidth="1" opacity="0.6" />
-      <path d="M32 28L36 32L32 36L28 32Z" stroke="#E5997B" strokeWidth="1" />
-    </svg>
-  )
-}
-
-const serviceItems = [
-  { number: '01', name: 'Reingeniería de Deuda', descriptor: 'Estructura óptima de capital', Icon: Icon01 },
-  { number: '02', name: 'Estrategia Financiera Cíclica', descriptor: 'Anticipación de ciclos económicos', Icon: Icon02 },
-  { number: '03', name: 'Tesorería Avanzada', descriptor: 'Maximización de liquidez operativa', Icon: Icon03 },
-  { number: '04', name: 'Valuación Estratégica', descriptor: 'Determinación del valor real', Icon: Icon04 },
-  { number: '05', name: 'Auditoría de CapEx', descriptor: 'Rentabilidad de inversión productiva', Icon: Icon05 },
-  { number: '06', name: 'Gobernanza Financiera', descriptor: 'Institucionalización de decisiones', Icon: Icon06 },
+// Data Array Tunggal — Ukuran card derivatives disamakan semua (1x1)
+const allServices = [
+  {
+    id: 'core',
+    number: '00',
+    name: 'Correduría Financiera',
+    descriptor: 'Servicio Núcleo e Intermediación Estructural',
+    Icon: IconCore,
+    details: 'Ejecutamos operaciones de intermediación financiera con una ventaja estructural única: nuestro modelo macroeconómico — fundamentado en los principios de Ray Dalio — nos permite leer el ciclo económico antes de actuar. Todo nace de aquí.',
+    className: 'lg:col-span-2 lg:row-span-2' // Menguasai Kiri Atas (Slot 2x2)
+  },
+  { 
+    id: 's1',
+    number: '01', 
+    name: 'Reingeniería de Deuda', 
+    descriptor: 'Estructura óptima de capital', 
+    Icon: Icon01,
+    className: 'lg:col-span-1 lg:row-span-1' // Kolom 3, Baris 1
+  },
+  { 
+    id: 's2',
+    number: '02', 
+    name: 'Estrategia Financiera Cíclica', 
+    descriptor: 'Anticipación de ciclos económicos', 
+    Icon: Icon02,
+    className: 'lg:col-span-1 lg:row-span-1' // Kolom 3, Baris 2
+  },
+  { 
+    id: 's3',
+    number: '03', 
+    name: 'Tesorería Avanzada', 
+    descriptor: 'Maximización de liquidez operativa', 
+    Icon: Icon03,
+    className: 'lg:col-span-1 lg:row-span-1' // Kolom 1, Baris 3
+  },
+  { 
+    id: 's4',
+    number: '04', 
+    name: 'Valuación Estratégica', 
+    descriptor: 'Determinación del valor real', 
+    Icon: Icon04,
+    className: 'lg:col-span-1 lg:row-span-1' // Kolom 2, Baris 3
+  },
+  { 
+    id: 's5',
+    number: '05', 
+    name: 'Gobernanza Financiera', 
+    descriptor: 'Institucionalización de decisiones', 
+    Icon: Icon05,
+    className: 'lg:col-span-1 lg:row-span-1' // PAS DI SUDUT: Kolom 3, Baris 3
+  },
 ]
 
 export default function ServiciosNav() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const vantaRef = useRef<any>(null)
-  const pathRef = useRef<SVGPathElement>(null)
+  const [activeModal, setActiveModal] = useState<any>(null)
 
   // ── Vanta BIRDS init ──────────────────────────────────────
   useEffect(() => {
@@ -113,10 +157,7 @@ export default function ServiciosNav() {
         await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
         
         if (destroyed || !sectionRef.current) return
-        if (!(window as any).VANTA?.BIRDS) {
-          console.error('Vanta BIRDS not available after load')
-          return
-        }
+        if (!(window as any).VANTA?.BIRDS) return
 
         vantaRef.current = (window as any).VANTA.BIRDS({
           el: sectionRef.current,
@@ -132,13 +173,13 @@ export default function ServiciosNav() {
           color1: 0x1a1a4e,
           color2: 0xE5997B,
           colorMode: 'lerp',
-          birdSize: 1.2,
-          wingSpan: 18,
-          speedLimit: 3,
-          separation: 35,
+          birdSize: 1.1,
+          wingSpan: 16,
+          speedLimit: 2.5,
+          separation: 40,
           alignment: 40,
-          cohesion: 50,
-          quantity: 4,
+          cohesion: 45,
+          quantity: 3,
         })
       } catch (err) {
         console.error('Vanta BIRDS init failed:', err)
@@ -153,14 +194,14 @@ export default function ServiciosNav() {
     }
   }, [])
 
-  // ── GSAP animations ─────────────────────────────────────
+  // ── GSAP Animations ─────────────────────────────────────
   useEffect(() => {
     if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
 
-      /* ── Heading reveal ── */
+      /* Heading reveal */
       gsap.fromTo(
         el.querySelector('.section-heading'),
         { opacity: 0, y: 30 },
@@ -171,32 +212,31 @@ export default function ServiciosNav() {
         }
       )
 
-      /* ── Cards clip-path reveal (stagger from bottom) ── */
-      const cards = el.querySelectorAll('.service-card')
+      /* Bento Staggered reveal */
+      const cards = el.querySelectorAll('.bento-card')
       gsap.fromTo(
         cards,
-        { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+        { opacity: 0, y: 40, scale: 0.96 },
         {
-          clipPath: 'inset(0 0 0% 0)',
-          opacity: 1,
+          opacity: 1, y: 0, scale: 1,
           duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.1,
-          scrollTrigger: { trigger: el, start: 'top 72%' },
+          ease: 'power4.out',
+          stagger: 0.06,
+          scrollTrigger: { trigger: el, start: 'top 70%' },
         }
       )
 
-      /* ── Background number parallax ── */
+      /* Parallax effect on inner numbers */
       const bgNums = el.querySelectorAll('.card-bg-num')
       bgNums.forEach((num) => {
         gsap.fromTo(
           num,
-          { y: 20 },
+          { y: 15 },
           {
-            y: -20,
+            y: -15,
             ease: 'none',
             scrollTrigger: {
-              trigger: num.closest('.service-card'),
+              trigger: num.closest('.bento-card'),
               start: 'top bottom',
               end: 'bottom top',
               scrub: true,
@@ -204,322 +244,164 @@ export default function ServiciosNav() {
           }
         )
       })
-
-      /* ── Connection path draw-in ── */
-      if (pathRef.current) {
-        const len = pathRef.current.getTotalLength()
-        gsap.set(pathRef.current, { strokeDasharray: len, strokeDashoffset: len })
-        gsap.to(pathRef.current, {
-          strokeDashoffset: 0,
-          duration: 2,
-          ease: 'power2.inOut',
-          scrollTrigger: { trigger: el, start: 'top 60%' },
-        })
-      }
-
-      /* ── Floating ornament gentle scroll drift ── */
-      const floats = el.querySelectorAll('.ornament-drift')
-      floats.forEach((f, i) => {
-        gsap.to(f, {
-          y: i % 2 === 0 ? -50 : 40,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 2,
-          },
-        })
-      })
     }, sectionRef)
 
     return () => ctx.revert()
   }, [])
 
-  const handleClick = () => {
-    const target = document.getElementById('servicios')
-    if (target) target.scrollIntoView({ behavior: 'smooth' })
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const card = e.currentTarget
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const rotateX = ((y - centerY) / centerY) * -4
+    const rotateY = ((x - centerX) / centerX) * 4
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`
+  }
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
   }
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 section-padding"
-      style={{ background: 'transparent' }}>
-
-      {/* ══════════════════════════════════
-          BACKGROUND DECORATIONS (TETAP)
-      ══════════════════════════════════ */}
-
-      {/* Large faded diamond — center background */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
-        <svg viewBox="0 0 900 900" fill="none" className="w-[900px] h-[900px] opacity-[0.035]">
-          <path d="M450 40L860 450L450 860L40 450Z" stroke="#1A2540" strokeWidth="0.6" />
-          <path d="M450 160L740 450L450 740L160 450Z" stroke="#1A2540" strokeWidth="0.4" />
-          <line x1="450" y1="40" x2="450" y2="860" stroke="#1A2540" strokeWidth="0.2" />
-          <line x1="40" y1="450" x2="860" y2="450" stroke="#1A2540" strokeWidth="0.2" />
+    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 bg-[#F5F5F5]">
+      
+      {/* BACKGROUND DECORATIONS */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0">
+        <svg viewBox="0 0 1000 1000" fill="none" className="w-[1000px] h-[1000px] opacity-[0.03]">
+          <path d="M500 50L950 500L500 950L50 500Z" stroke="#1A2540" strokeWidth="0.6" />
         </svg>
       </div>
 
-      {/* Subtle dot grid */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.06]">
-        <svg className="w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-          {Array.from({ length: 10 }).map((_, row) =>
-            Array.from({ length: 14 }).map((_, col) => (
-              <circle key={`${row}-${col}`} cx={col * 64 + 32} cy={row * 64 + 32} r="1.5" fill="#1A2540" />
-            ))
-          )}
-        </svg>
+      {/* BLURRED MESH GRADIENT BLOBS */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40">
+        <div className="absolute top-[15%] -left-[10%] w-[600px] h-[600px] rounded-full bg-gradient-to-r from-[#1A2540]/25 to-transparent filter blur-[100px]" />
+        <div className="absolute bottom-[10%] right-[-5%] w-[700px] h-[700px] rounded-full bg-gradient-to-r from-[#E5997B]/20 to-transparent filter blur-[120px]" />
       </div>
 
-      {/* Bronze connection path between cards (decorative) */}
-      <div className="absolute inset-0 pointer-events-none hidden lg:block overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" fill="none">
-          <path
-            ref={pathRef}
-            d="M200 220 L600 220 L1000 220 M200 500 L600 500 L1000 500 M200 220 L200 500 M600 220 L600 500 M1000 220 L1000 500"
-            stroke="#E5997B"
-            strokeWidth="0.5"
-            opacity="0.2"
-          />
-        </svg>
-      </div>
-
-      {/* Floating diamond ornaments */}
-      <motion.div
-        animate={{ y: [-12, 12, -12], rotate: [0, 8, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        className="ornament-drift absolute top-12 right-[8%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 70 70" fill="none" className="w-14 h-14 opacity-[0.07]">
-          <path d="M35 4L66 35L35 66L4 35Z" stroke="#1A2540" strokeWidth="0.7" />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [10, -10, 10], rotate: [0, -5, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="ornament-drift absolute bottom-16 left-[6%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 50 50" fill="none" className="w-10 h-10 opacity-[0.06]">
-          <path d="M25 3L47 25L25 47L3 25Z" stroke="#1A2540" strokeWidth="0.6" />
-          <path d="M25 11L39 25L25 39L11 25Z" stroke="#1A2540" strokeWidth="0.4" />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [-8, 8, -8] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-        className="ornament-drift absolute top-1/2 right-[4%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8 opacity-[0.05]">
-          <path d="M20 2L38 20L20 38L2 20Z" stroke="#E5997B" strokeWidth="0.6" />
-        </svg>
-      </motion.div>
-
-      {/* ══════════════════════════════════
-          SECTION HEADER
-      ══════════════════════════════════ */}
-      <div className="section-heading relative z-10 text-center mb-20 md:mb-24 max-w-7xl mx-auto">
-        <p className="text-bronze font-body text-xs tracking-[0.35em] uppercase mb-5">
-          Ecosistema de Servicios
+      {/* HEADER SECTION */}
+      <div className="section-heading relative z-10 text-center mb-24 max-w-7xl mx-auto px-4">
+        <p className="text-[#E5997B] font-body text-xs tracking-[0.4em] uppercase mb-4 font-bold">
+          Arquitectura del Valor
         </p>
-
-        {/* Bronze line + diamond ornament */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
-          <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4 opacity-30">
-            <path d="M10 1L19 10L10 19L1 10Z" stroke="#1A2540" strokeWidth="0.8" />
-          </svg>
-          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
-        </div>
-
-        <h2 className="font-display text-navy text-4xl md:text-5xl lg:text-6xl leading-tight">
-          Seis pilares de la
+        <h2 className="font-display text-[#1A2540] text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight">
+          Ecosistema de Servicios
           <br />
-          <em className="text-bronze italic">ingeniería financiera</em>
+          <em className="text-[#E5997B] italic">y capacidades core</em>
         </h2>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════
-          MESH GRADIENT — INI KUNCI AGAR BLUR TERLIHAT
-          Blob warna di belakang grid card yang akan 
-          "terblur" & "terdistorsi" melalui card kaca
-      ═══════════════════════════════════════════════════════ */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Blob navy besar kiri */}
-        <div 
-          className="absolute top-[10%] -left-[5%] w-[600px] h-[600px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(26,26,78,0.35) 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-        {/* Blob bronze besar kanan bawah */}
-        <div 
-          className="absolute -bottom-[5%] right-[0%] w-[700px] h-[700px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(229,153,123,0.3) 0%, transparent 70%)',
-            filter: 'blur(100px)'
-          }}
-        />
-        {/* Blob soft purple tengah */}
-        <div 
-          className="absolute top-[45%] left-[30%] w-[500px] h-[500px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(74,95,140,0.25) 0%, transparent 70%)',
-            filter: 'blur(90px)'
-          }}
-        />
-        {/* Blob kecil accent kanan atas */}
-        <div 
-          className="absolute top-[5%] right-[20%] w-[300px] h-[300px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(229,153,123,0.2) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-      </div>
+      {/* 3x3 PERFECT BALANCED GRID */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3 gap-6 items-stretch">
+        {allServices.map((svc) => {
+          const SvcIcon = svc.Icon
+          const isCore = svc.id === 'core'
 
-      {/* ══════════════════════════════════
-          SERVICE CARDS GRID — GLASSMORPHISM NYATA
-      ══════════════════════════════════ */}
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
-        {serviceItems.map(({ number, name, descriptor, Icon }) => (
-          <motion.div 
-            key={number} 
-            className="group perspective-1000"
-            whileHover={{ y: -5 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <button
-              onClick={handleClick}
-              className="service-card relative w-full text-left 
-                         rounded-2xl overflow-hidden transition-all duration-300 ease-out
-                         hover:shadow-[0_25px_50px_-12px_rgba(26,37,64,0.25)]"
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-                border: '1.5px solid rgba(255, 255, 255, 0.6)',
-                borderTop: '2px solid rgba(255, 255, 255, 0.85)',
-                boxShadow: `
-                  0 8px 32px rgba(26, 37, 64, 0.12),
-                  inset 0 1px 1px rgba(255, 255, 255, 0.7),
-                  inset 0 0 60px rgba(255, 255, 255, 0.1)
-                `,
-                transformStyle: 'preserve-3d',
-              }}
-              onMouseMove={(e) => {
-                const card = e.currentTarget
-                const rect = card.getBoundingClientRect()
-                const x = e.clientX - rect.left
-                const y = e.clientY - rect.top
-                const centerX = rect.width / 2
-                const centerY = rect.height / 2
-                const rotateX = ((y - centerY) / centerY) * -4
-                const rotateY = ((x - centerX) / centerX) * 4
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-              }}
+          return (
+            <motion.div 
+              key={svc.id} 
+              className={`bento-card group perspective-1000 ${svc.className}`}
+              whileHover={{ y: -4 }}
             >
-              {/* HIGHLIGHT ATAS — garis cahaya kaca */}
-              <div 
-                className="absolute inset-x-4 top-[1px] h-[1px] bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-70 pointer-events-none z-20 rounded-full"
-              />
-
-              {/* GLOSS OVERLAY RADIAL — pantulan cahaya dari atas */}
-              <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden z-10">
-                <div 
-                  className="absolute -top-[40%] left-[10%] w-[80%] h-[80%] opacity-40 group-hover:opacity-60 transition-opacity duration-700"
-                  style={{
-                    background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.9) 0%, transparent 55%)'
-                  }}
-                />
-              </div>
-
-              {/* Konten dengan TranslateZ agar terasa berlapis */}
-              <div 
-                className="relative p-8 md:p-10 h-full min-h-[260px] flex flex-col gap-5 z-10"
-                style={{ transform: 'translateZ(40px)' }}
+              <button
+                onClick={() => setActiveModal(svc)}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className={`relative w-full text-left rounded-2xl p-8 overflow-hidden transition-all duration-300 ease-out border border-white/50 backdrop-blur-xl h-full flex flex-col justify-between
+                           ${isCore ? 'bg-white/30 shadow-xl md:p-10' : 'bg-white/20 shadow-md min-h-[240px]'}`}
+                style={{ 
+                  boxShadow: isCore ? '0 30px 60px -15px rgba(26,37,64,0.12)' : '0 20px 45px -10px rgba(26,37,64,0.05)',
+                }}
               >
-                
-                {/* Background Number (Paling Dalam) */}
-                <span
-                  className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none 
-                             text-navy/[0.04] group-hover:text-navy/[0.09] transition-all duration-700"
-                  style={{ 
-                      fontSize: 'clamp(5rem, 10vw, 9rem)',
-                      transform: 'translateZ(-20px)' 
-                  }}
-                >
-                  {number}
-                </span>
+                {/* Background Number (Untuk kartu turunan) */}
+                {!isCore && (
+                  <span className="card-bg-num absolute -bottom-6 -right-2 font-display leading-none select-none pointer-events-none text-[#1A2540]/[0.03] group-hover:text-[#1A2540]/[0.07] transition-all duration-700 text-8xl font-black">
+                    {svc.number}
+                  </span>
+                )}
 
-                {/* Top row: icon + number (Paling Depan) */}
-                <div className="flex items-start justify-between" style={{ transform: 'translateZ(20px)' }}>
-                  <div className="p-3 rounded-xl transition-all duration-500 
-                                  group-hover:scale-110 group-hover:rotate-6"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2))',
-                      border: '1.5px solid rgba(255, 255, 255, 0.7)',
-                      boxShadow: '0 4px 16px rgba(26, 37, 64, 0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
-                      backdropFilter: 'blur(8px)',
-                    }}>
-                    <Icon />
+                <div className="relative z-10 w-full">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className={`rounded-xl border shadow-sm backdrop-blur-sm transition-all duration-500 group-hover:scale-105 group-hover:rotate-3
+                                    ${isCore ? 'p-4 bg-white/80 border-white' : 'p-3 bg-white/50 border-white/80'}`}>
+                      <SvcIcon />
+                    </div>
+                    <span className={`font-body text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full
+                                    ${isCore ? 'text-[#E5997B] bg-[#E5997B]/10' : 'text-[#1A2540]/40 group-hover:text-[#E5997B] transition-colors'}`}>
+                      {isCore ? 'NÚCLEO' : svc.number}
+                    </span>
                   </div>
-                  <span className="font-display text-xs tracking-[0.4em] text-bronze/60 group-hover:text-bronze transition-colors">
-                    {number}
-                  </span>
-                </div>
 
-                {/* Name + descriptor */}
-                <div className="relative z-10" style={{ transform: 'translateZ(10px)' }}>
-                  <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
-                    {name}
+                  <h3 className={`font-display text-[#1A2540] font-bold leading-tight mb-3
+                                  ${isCore ? 'text-3xl md:text-4xl lg:text-5xl mb-4' : 'text-xl md:text-2xl'}`}>
+                    {svc.name}
                   </h3>
-                  <p className="font-body text-navy/60 text-md leading-relaxed group-hover:text-navy/80 transition-colors">
-                    {descriptor}
+                  
+                  <p className={`font-body text-[#1A2540]/60 leading-relaxed
+                                ${isCore ? 'text-base md:text-lg uppercase tracking-wide mb-6 font-semibold' : 'text-sm'}`}>
+                    {svc.descriptor}
                   </p>
+
+                  {isCore && svc.details && (
+                    <p className="font-body text-[#1A2540]/80 text-base md:text-lg leading-relaxed max-w-xl mt-4">
+                      {svc.details}
+                    </p>
+                  )}
                 </div>
 
-                {/* Bottom row: arrow reveal */}
-                <div className="flex items-center gap-3 mt-auto" style={{ transform: 'translateZ(15px)' }}>
-                  <span className="font-body text-bronze text-[10px] font-bold tracking-[0.2em] uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                    Ver servicio
+                {/* Footer Action */}
+                <div className={`relative z-10 flex items-center gap-2 mt-8 w-full
+                                ${isCore ? 'pt-6 border-t border-[#1A2540]/10' : 'opacity-60 group-hover:opacity-100 transition-opacity'}`}>
+                  <span className="font-body text-[#E5997B] text-[10px] font-bold tracking-widest uppercase">
+                    {isCore ? 'Ver matriz de impacto' : 'Explorar'}
                   </span>
-                  <div className="w-8 h-px bg-bronze/40 group-hover:w-12 transition-all duration-500" />
+                  <div className={`h-px bg-[#E5997B] transition-all duration-500
+                                  ${isCore ? 'w-12 group-hover:w-20' : 'w-6 group-hover:w-10'}`} />
                 </div>
+              </button>
+            </motion.div>
+          )
+        })}
+      </div>
 
-                {/* Sweep Light Reflection */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/25 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
+      {/* DETAIL MODAL DIALOGUE */}
+      <AnimatePresence>
+        {activeModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A2540]/40 backdrop-blur-md"
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#F5F5F5] border border-white w-full max-w-2xl rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <span className="text-[#E5997B] font-body text-xs font-bold tracking-widest block mb-1">
+                    SERVICIO {activeModal.number}
+                  </span>
+                  <h4 className="font-display text-[#1A2540] text-2xl md:text-3xl font-bold">
+                    {activeModal.name}
+                  </h4>
+                </div>
+                <button onClick={() => setActiveModal(null)} className="p-2 text-[#1A2540]/40 hover:text-[#1A2540] font-bold">✕</button>
               </div>
-
-              {/* Inner shadow saat ditekan */}
-              <div className="absolute inset-0 opacity-0 active:opacity-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.1)] rounded-2xl pointer-events-none transition-opacity z-30" />
-              
-              {/* Bottom Accent Line */}
-              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-transparent via-bronze/60 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 z-20" />
-            </button>
+              <p className="font-body text-[#1A2540]/80 text-lg leading-relaxed mb-6">
+                {activeModal.details || activeModal.descriptor}
+              </p>
+            </motion.div>
           </motion.div>
-        ))}
-      </div>
-
-      {/* ── Subtle bottom divider ── */}
-      <div className="relative z-10 flex items-center justify-center gap-6 mt-20">
-        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
-        <motion.svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="w-5 h-5 opacity-20"
-          animate={{ rotate: [0, 180, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        >
-          <path d="M12 1L23 12L12 23L1 12Z" stroke="#1A2540" strokeWidth="0.7" />
-        </motion.svg>
-        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
-      </div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

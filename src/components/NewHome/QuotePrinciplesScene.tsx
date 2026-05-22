@@ -165,9 +165,9 @@ export default function QuotePrinciplesScene({ scrollYProgress }: { scrollYProgr
         color1: 0x1a1a4e,
         color2: 0xe5997b,
         colorMode: 'lerp',
-        birdSize: 1.05,
-        wingSpan: 20,
-        speedLimit: 2.8,
+        birdSize: 1.25,
+        wingSpan: 24,
+        speedLimit: 3.4,
         separation: 26,
         alignment: 42,
         cohesion: 45,
@@ -189,7 +189,7 @@ export default function QuotePrinciplesScene({ scrollYProgress }: { scrollYProgr
       <div ref={sceneRef} className="relative h-full w-full overflow-hidden bg-[#f3f4f6]">
         
         {/* Layer Blur untuk meredupkan Vanta Birds */}
-        <div className="absolute inset-0 bg-[#f3f4f6]/80 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-[#f3f4f6]/55 backdrop-blur-[1px]" />
 
         {/* 1. Ornamen Grid Titik/Garis */}
         <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.04] [background-image:linear-gradient(#030035_1px,transparent_1px),linear-gradient(90deg,#030035_1px,transparent_1px)] [background-size:64px_64px]" />

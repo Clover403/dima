@@ -130,7 +130,7 @@ export default function ProductosIntroImmersive() {
           minWidth: 600.0,
           scale: 1.0,
           scaleMobile: 1.0,
-          backgroundColor: 0xFAFAFA,
+          backgroundColor: 0xF4F4F5,
           color1: 0x1a1a4e,
           color2: 0xE5997B,
           colorMode: 'lerp',
@@ -234,7 +234,7 @@ export default function ProductosIntroImmersive() {
     <section
       ref={sectionRef}
       className="relative h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: '#FAFAFA' }}
+      style={{ background: '#F4F4F5' }}
     >
       {/* Konten di atas Vanta */}
       <div className="relative z-10 max-w-4xl mx-auto text-center px-8">

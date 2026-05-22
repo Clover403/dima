@@ -158,7 +158,7 @@ export default function ModeloFuerzas() {
             <h3 className="reveal-el font-display text-3xl md:text-4xl lg:text-5xl text-navy leading-tight mb-6">
               Ingreso por Productividad
             </h3>
-            <p className="reveal-el font-body text-navy/60 text-lg leading-relaxed">
+            <p className="reveal-el font-body text-navy/60 text-xl leading-relaxed">
               En una transacción, algo debe darse para recibir algo, y lo que se recibe
               depende de cuánto se produce a lo largo del tiempo. Quienes son ingeniosos
               y trabajadores producen más, por lo tanto ganan más, lo que les da la
@@ -230,7 +230,7 @@ export default function ModeloFuerzas() {
             <h3 className="reveal-el font-display text-3xl md:text-4xl lg:text-5xl text-navy leading-tight mb-6">
               Los Ciclos de Deuda
             </h3>
-            <p className="reveal-el font-body text-navy/60 text-lg leading-relaxed">
+            <p className="reveal-el font-body text-navy/60 text-xl leading-relaxed">
               Existen dos tipos: Ciclos de Deuda a Largo Plazo y Ciclos de Deuda a
               Corto Plazo. Cada vez que pedimos prestado, creamos un ciclo. Esto no
               se debe a ninguna ley o regulación, sino a la naturaleza humana y al

@@ -79,7 +79,8 @@ export default function ServiciosCTA() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[80vh] flex items-center justify-center overflow-hidden"
+      // min-h-[80vh] dihapus, menggunakan padding agar tinggi bg lebih pendek
+      className="relative py-24 lg:py-32 flex items-center justify-center overflow-hidden"
     >
       {/* Background photo with navy overlay */}
       <div className="absolute inset-0">
@@ -117,22 +118,25 @@ export default function ServiciosCTA() {
       </motion.div>
 
       {/* Content */}
-      <div className="relative z-10 text-center max-w-3xl section-padding py-24 md:py-32">
-        <h2 className="cta-reveal font-display text-4xl md:text-5xl lg:text-6xl leading-tight mb-8">
+      <div className="relative z-10 text-center w-full max-w-[1200px] px-8 md:px-12">
+        {/* Teks diperbesar */}
+        <h2 className="cta-reveal font-display text-5xl md:text-6xl lg:text-7xl xl:text-[5.5rem] leading-[1.05] mb-10 tracking-tight">
           <span className="text-white">Transforme su estructura</span>
           <br />
           <span className="text-bronze italic">financiera hoy</span>
         </h2>
 
-        <p className="cta-reveal font-body text-white/50 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
+        {/* Deskripsi diperbesar dan dibuat lebih lebar (max-w-5xl) */}
+        <p className="cta-reveal font-body text-white/70 text-xl md:text-2xl lg:text-3xl max-w-5xl mx-auto leading-relaxed mb-14">
           Agende una consulta con nuestro equipo de ingeniería financiera y descubra
           cómo nuestros servicios pueden fortalecer la viabilidad y competitividad de su empresa.
         </p>
 
+        {/* Tombol kembali ke desain asli */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/contacto"
-            className="group relative inline-flex items-center justify-center px-8 py-4 bg-bronze text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy hover:pl-12 border border-bronze"
+            className="cta-button group relative inline-flex items-center justify-center px-8 py-4 bg-bronze text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy hover:pl-12 border border-bronze"
           >
             <span className="relative z-10">Agendar Consulta</span>
             <svg
@@ -151,7 +155,7 @@ export default function ServiciosCTA() {
           </Link>
           <Link
             to="/productos"
-            className="group relative inline-flex items-center justify-center px-8 py-4 bg-transparent text-bronze font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-bronze hover:text-white hover:pl-12 border border-bronze"
+            className="cta-button group relative inline-flex items-center justify-center px-8 py-4 bg-transparent text-bronze font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-bronze hover:text-white hover:pl-12 border border-bronze"
           >
             <span className="relative z-10">Ver Productos</span>
             <svg

@@ -1,7 +1,8 @@
 import { useRef } from 'react'
+import GeometryParticles from '../GeometryParticles'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -54,7 +55,7 @@ function TypingBody({ text, scrollYProgress, typeStart, typeEnd }: { text: strin
   const chars = text.split('')
   const N = chars.length
   return (
-    <p className="font-serif text-[#030035]/80 text-xl md:text-2xl lg:text-3xl leading-relaxed whitespace-pre-wrap">
+    <p className="font-serif text-[#030035]/80 text-2xl md:text-4xl lg:text-5xl leading-relaxed whitespace-pre-wrap">
       {chars.map((char, j) => {
         const charStart = typeStart + (j / N) * (typeEnd - typeStart)
         const charEnd = charStart + ((typeEnd - typeStart) / (N * 0.4))
@@ -156,107 +157,94 @@ function CornerIcons({ scrollYProgress }: { scrollYProgress: any }) {
         </svg>
       </div>
 
-     {/* ── IKON 2: KANAN BAWAH (Burung Hantu Gagah - Detail Full + Alis Naik) ── */}
-<div className="absolute -bottom-12 -right-12 w-[350px] h-[350px] md:w-[450px] md:h-[450px] opacity-70">
-  <svg viewBox="0 0 200 200" fill="none" className="w-full h-full overflow-visible drop-shadow-2xl">
-    <EngravingDefs />
-    
-    {/* Lingkaran latar */}
-    <motion.circle cx="100" cy="110" r="88" fill="url(#grad-white-radial)" style={{ opacity: draw2 }} />
-    <motion.circle cx="100" cy="110" r="85" stroke={N} strokeWidth="0.4" strokeDasharray="3 5" style={{ pathLength: draw2 }} />
-    <motion.circle cx="100" cy="110" r="82" stroke={N} strokeWidth="0.2" strokeDasharray="1 6" style={{ pathLength: draw2 }} />
+     {/* ── IKON 2: KANAN BAWAH (Burung Hantu) ── */}
+      <div className="absolute -bottom-12 -right-12 w-[350px] h-[350px] md:w-[450px] md:h-[450px] opacity-70">
+        <svg viewBox="0 0 200 200" fill="none" className="w-full h-full overflow-visible drop-shadow-2xl">
+          <EngravingDefs />
+          
+          <motion.circle cx="100" cy="110" r="88" fill="url(#grad-white-radial)" style={{ opacity: draw2 }} />
+          <motion.circle cx="100" cy="110" r="85" stroke={N} strokeWidth="0.4" strokeDasharray="3 5" style={{ pathLength: draw2 }} />
+          <motion.circle cx="100" cy="110" r="82" stroke={N} strokeWidth="0.2" strokeDasharray="1 6" style={{ pathLength: draw2 }} />
 
-    {/* ===== TANDUK (Ear Tufts) ===== */}
-    <g>
-      <motion.path d="M 68 52 L 40 8 L 62 18 L 52 6 L 72 42 Z" fill={N} stroke={B} strokeWidth="0.8" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
-      <motion.path d="M 65 48 L 42 12 L 58 20" stroke={B} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 60 38 L 50 16 L 58 26" stroke="#FFFFFF" strokeWidth="0.6" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 132 52 L 160 8 L 138 18 L 148 6 L 128 42 Z" fill={N} stroke={B} strokeWidth="0.8" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
-      <motion.path d="M 135 48 L 158 12 L 142 20" stroke={B} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 140 38 L 150 16 L 142 26" stroke="#FFFFFF" strokeWidth="0.6" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-    </g>
+          <g>
+            <motion.path d="M 68 52 L 40 8 L 62 18 L 52 6 L 72 42 Z" fill={N} stroke={B} strokeWidth="0.8" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
+            <motion.path d="M 65 48 L 42 12 L 58 20" stroke={B} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 60 38 L 50 16 L 58 26" stroke="#FFFFFF" strokeWidth="0.6" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 132 52 L 160 8 L 138 18 L 148 6 L 128 42 Z" fill={N} stroke={B} strokeWidth="0.8" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
+            <motion.path d="M 135 48 L 158 12 L 142 20" stroke={B} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 140 38 L 150 16 L 142 26" stroke="#FFFFFF" strokeWidth="0.6" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+          </g>
 
-    {/* ===== KEPALA ===== */}
-    <motion.path d="M 72 50 Q 100 32 128 50" stroke={N} strokeWidth="2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-    <motion.path d="M 75 46 Q 100 28 125 46" stroke={N} strokeWidth="0.8" strokeDasharray="2 3" fill="none" style={{ pathLength: draw2 }} />
-    
-    <g stroke={N} strokeWidth="0.7" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }}>
-      <motion.path d="M 85 43 L 82 38" /><motion.path d="M 92 37 L 90 32" /><motion.path d="M 100 35 L 100 29" /><motion.path d="M 108 37 L 110 32" /><motion.path d="M 115 43 L 118 38" />
-    </g>
+          <motion.path d="M 72 50 Q 100 32 128 50" stroke={N} strokeWidth="2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+          <motion.path d="M 75 46 Q 100 28 125 46" stroke={N} strokeWidth="0.8" strokeDasharray="2 3" fill="none" style={{ pathLength: draw2 }} />
+          
+          <g stroke={N} strokeWidth="0.7" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }}>
+            <motion.path d="M 85 43 L 82 38" /><motion.path d="M 92 37 L 90 32" /><motion.path d="M 100 35 L 100 29" /><motion.path d="M 108 37 L 110 32" /><motion.path d="M 115 43 L 118 38" />
+          </g>
 
-    {/* ===== FACIAL DISK ===== */}
-    <motion.path d="M 100 95 C 62 105 38 82 48 54 C 52 42 68 36 82 44 C 90 32 110 32 118 44 C 132 36 148 42 152 54 C 162 82 138 105 100 95 Z" fill="#FFFFFF" opacity="0.85" style={{ opacity: draw2 }} />
-    <motion.path d="M 100 95 C 62 105 38 82 48 54 C 52 42 68 36 82 44 C 90 32 110 32 118 44 C 132 36 148 42 152 54 C 162 82 138 105 100 95 Z" stroke={B} strokeWidth="1.8" fill="none" strokeLinejoin="round" style={{ pathLength: draw2 }} />
-    <motion.path d="M 100 92 C 68 100 48 80 56 56 C 60 46 72 42 84 48 C 90 40 110 40 116 48 C 128 42 140 46 144 56 C 152 80 132 100 100 92 Z" stroke={N} strokeWidth="0.6" strokeDasharray="2 3" fill="none" style={{ pathLength: draw2 }} />
-    <motion.path d="M 52 62 Q 68 48 84 60" stroke={N} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-    <motion.path d="M 148 62 Q 132 48 116 60" stroke={N} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+          <motion.path d="M 100 95 C 62 105 38 82 48 54 C 52 42 68 36 82 44 C 90 32 110 32 118 44 C 132 36 148 42 152 54 C 162 82 138 105 100 95 Z" fill="#FFFFFF" opacity="0.85" style={{ opacity: draw2 }} />
+          <motion.path d="M 100 95 C 62 105 38 82 48 54 C 52 42 68 36 82 44 C 90 32 110 32 118 44 C 132 36 148 42 152 54 C 162 82 138 105 100 95 Z" stroke={B} strokeWidth="1.8" fill="none" strokeLinejoin="round" style={{ pathLength: draw2 }} />
+          <motion.path d="M 100 92 C 68 100 48 80 56 56 C 60 46 72 42 84 48 C 90 40 110 40 116 48 C 128 42 140 46 144 56 C 152 80 132 100 100 92 Z" stroke={N} strokeWidth="0.6" strokeDasharray="2 3" fill="none" style={{ pathLength: draw2 }} />
+          <motion.path d="M 52 62 Q 68 48 84 60" stroke={N} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+          <motion.path d="M 148 62 Q 132 48 116 60" stroke={N} strokeWidth="1.2" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
 
-    {/* ===== MATA & ALIS (ALIS PINDAH KE ATAS) ===== */}
-    <g>
-      {/* Alis tebal (Naik 6px dari sebelumnya) */}
-      <motion.path d="M 48 49 L 92 62 M 52 54 L 88 66" stroke={N} strokeWidth="3" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 50 51 L 90 62" stroke={B} strokeWidth="1" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 152 49 L 108 62 M 148 54 L 112 66" stroke={N} strokeWidth="3" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
-      <motion.path d="M 150 51 L 110 62" stroke={B} strokeWidth="1" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+          <g>
+            <motion.path d="M 48 49 L 92 62 M 52 54 L 88 66" stroke={N} strokeWidth="3" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 50 51 L 90 62" stroke={B} strokeWidth="1" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 152 49 L 108 62 M 148 54 L 112 66" stroke={N} strokeWidth="3" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.path d="M 150 51 L 110 62" stroke={B} strokeWidth="1" fill="none" strokeLinecap="round" style={{ pathLength: draw2 }} />
+            <motion.circle cx="78" cy="68" r="10" stroke={N} strokeWidth="2" fill="none" style={{ pathLength: draw2 }} />
+            <motion.circle cx="122" cy="68" r="10" stroke={N} strokeWidth="2" fill="none" style={{ pathLength: draw2 }} />
+            <motion.circle cx="78" cy="68" r="5.5" fill={B} style={{ opacity: draw2 }} />
+            <motion.circle cx="122" cy="68" r="5.5" fill={B} style={{ opacity: draw2 }} />
+            <motion.circle cx="78" cy="68" r="3" fill={N} style={{ opacity: draw2 }} />
+            <motion.circle cx="122" cy="68" r="3" fill={N} style={{ opacity: draw2 }} />
+            <motion.circle cx="76" cy="66" r="1.2" fill="#FFFFFF" style={{ opacity: draw2 }} />
+            <motion.circle cx="120" cy="66" r="1.2" fill="#FFFFFF" style={{ opacity: draw2 }} />
+            <motion.path d="M 70 74 Q 78 80 86 74" stroke={N} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }} />
+            <motion.path d="M 114 74 Q 122 80 130 74" stroke={N} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }} />
+          </g>
 
-      {/* Bola mata tetap di tempat */}
-      <motion.circle cx="78" cy="68" r="10" stroke={N} strokeWidth="2" fill="none" style={{ pathLength: draw2 }} />
-      <motion.circle cx="122" cy="68" r="10" stroke={N} strokeWidth="2" fill="none" style={{ pathLength: draw2 }} />
-      <motion.circle cx="78" cy="68" r="5.5" fill={B} style={{ opacity: draw2 }} />
-      <motion.circle cx="122" cy="68" r="5.5" fill={B} style={{ opacity: draw2 }} />
-      <motion.circle cx="78" cy="68" r="3" fill={N} style={{ opacity: draw2 }} />
-      <motion.circle cx="122" cy="68" r="3" fill={N} style={{ opacity: draw2 }} />
-      <motion.circle cx="76" cy="66" r="1.2" fill="#FFFFFF" style={{ opacity: draw2 }} />
-      <motion.circle cx="120" cy="66" r="1.2" fill="#FFFFFF" style={{ opacity: draw2 }} />
-      <motion.path d="M 70 74 Q 78 80 86 74" stroke={N} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }} />
-      <motion.path d="M 114 74 Q 122 80 130 74" stroke={N} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }} />
-    </g>
+          <motion.path d="M 94 76 L 106 76 L 100 98 Z" fill={B} stroke={N} strokeWidth="2" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
+          <motion.path d="M 97 80 L 103 80 L 100 95 Z" fill="#FFFFFF" opacity="0.5" style={{ opacity: draw2 }} />
+          <motion.line x1="100" y1="76" x2="100" y2="96" stroke={N} strokeWidth="0.8" style={{ pathLength: draw2 }} />
+          <motion.ellipse cx="97" cy="82" rx="1" ry="0.8" fill={N} style={{ opacity: draw2 }} />
+          <motion.ellipse cx="103" cy="82" rx="1" ry="0.8" fill={N} style={{ opacity: draw2 }} />
 
-    {/* ===== PARUH ===== */}
-    <motion.path d="M 94 76 L 106 76 L 100 98 Z" fill={B} stroke={N} strokeWidth="2" strokeLinejoin="round" style={{ opacity: draw2, pathLength: draw2 }} />
-    <motion.path d="M 97 80 L 103 80 L 100 95 Z" fill="#FFFFFF" opacity="0.5" style={{ opacity: draw2 }} />
-    <motion.line x1="100" y1="76" x2="100" y2="96" stroke={N} strokeWidth="0.8" style={{ pathLength: draw2 }} />
-    <motion.ellipse cx="97" cy="82" rx="1" ry="0.8" fill={N} style={{ opacity: draw2 }} />
-    <motion.ellipse cx="103" cy="82" rx="1" ry="0.8" fill={N} style={{ opacity: draw2 }} />
+          <motion.path d="M 55 70 C 22 110 30 165 58 178" stroke={N} strokeWidth="3" fill="none" style={{ pathLength: draw2 }} />
+          <motion.path d="M 58 75 C 32 112 38 160 60 175" stroke={B} strokeWidth="1.2" fill="none" style={{ pathLength: draw2 }} />
+          <motion.path d="M 145 70 C 178 110 170 165 142 178" stroke={N} strokeWidth="3" fill="none" style={{ pathLength: draw2 }} />
+          <motion.path d="M 142 75 C 168 112 162 160 140 175" stroke={B} strokeWidth="1.2" fill="none" style={{ pathLength: draw2 }} />
+          <g stroke={N} strokeWidth="0.7" fill="none" style={{ pathLength: draw2 }}>
+            <motion.path d="M 42 100 L 52 115" /><motion.path d="M 38 115 L 48 130" /><motion.path d="M 158 100 L 148 115" /><motion.path d="M 162 115 L 152 130" />
+          </g>
 
-    {/* ===== SAYAP ===== */}
-    <motion.path d="M 55 70 C 22 110 30 165 58 178" stroke={N} strokeWidth="3" fill="none" style={{ pathLength: draw2 }} />
-    <motion.path d="M 58 75 C 32 112 38 160 60 175" stroke={B} strokeWidth="1.2" fill="none" style={{ pathLength: draw2 }} />
-    <motion.path d="M 145 70 C 178 110 170 165 142 178" stroke={N} strokeWidth="3" fill="none" style={{ pathLength: draw2 }} />
-    <motion.path d="M 142 75 C 168 112 162 160 140 175" stroke={B} strokeWidth="1.2" fill="none" style={{ pathLength: draw2 }} />
-    <g stroke={N} strokeWidth="0.7" fill="none" style={{ pathLength: draw2 }}>
-      <motion.path d="M 42 100 L 52 115" /><motion.path d="M 38 115 L 48 130" /><motion.path d="M 158 100 L 148 115" /><motion.path d="M 162 115 L 152 130" />
-    </g>
+          <motion.path d="M 72 100 Q 80 120 68 155 Q 78 178 100 180 Q 122 178 132 155 Q 120 120 128 100" stroke={N} strokeWidth="1.5" fill="#FFFFFF" opacity="0.6" style={{ opacity: draw2, pathLength: draw2 }} />
+          <g stroke={N} strokeWidth="1.4" fill="none" style={{ pathLength: draw2 }}>
+            <motion.path d="M 76 108 Q 90 122 100 108 Q 110 122 124 108" />
+            <motion.path d="M 72 122 Q 86 136 100 122 Q 114 136 128 122" />
+            <motion.path d="M 78 164 Q 89 178 100 164 Q 111 178 122 164" />
+          </g>
+          <g stroke={B} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }}>
+            <motion.path d="M 82 112 L 87 120" /><motion.path d="M 93 112 L 88 120" />
+            <motion.path d="M 78 126 L 83 134" /><motion.path d="M 111 126 L 116 134" />
+          </g>
 
-    {/* ===== BADAN / PERUT ===== */}
-    <motion.path d="M 72 100 Q 80 120 68 155 Q 78 178 100 180 Q 122 178 132 155 Q 120 120 128 100" stroke={N} strokeWidth="1.5" fill="#FFFFFF" opacity="0.6" style={{ opacity: draw2, pathLength: draw2 }} />
-    <g stroke={N} strokeWidth="1.4" fill="none" style={{ pathLength: draw2 }}>
-      <motion.path d="M 76 108 Q 90 122 100 108 Q 110 122 124 108" />
-      <motion.path d="M 72 122 Q 86 136 100 122 Q 114 136 128 122" />
-      <motion.path d="M 78 164 Q 89 178 100 164 Q 111 178 122 164" />
-    </g>
-    <g stroke={B} strokeWidth="0.8" fill="none" style={{ pathLength: draw2 }}>
-      <motion.path d="M 82 112 L 87 120" /><motion.path d="M 93 112 L 88 120" />
-      <motion.path d="M 78 126 L 83 134" /><motion.path d="M 111 126 L 116 134" />
-    </g>
+          <motion.rect x="30" y="178" width="140" height="10" rx="4" fill="#FFFFFF" stroke={N} strokeWidth="2" style={{ pathLength: draw2, opacity: draw2 }} />
+          <motion.line x1="35" y1="183" x2="165" y2="183" stroke={B} strokeWidth="1.2" style={{ pathLength: draw2 }} />
+          <HatchingScroll x1="35" y1="181" x2="165" y2="181" count={28} spacing={3.5} angle={90} color={N} strokeWidth="0.35" draw={draw2} fade={draw2} />
+          
+          <g fill={N} style={{ opacity: draw2 } as any}>
+            <motion.path d="M 72 172 C 68 185 72 192 78 192 C 84 192 82 185 80 172 Z" />
+            <motion.path d="M 120 172 C 120 185 124 192 128 192 C 132 192 130 185 128 172 Z" />
+          </g>
 
-    {/* ===== DAHAN & CAKAR ===== */}
-    <motion.rect x="30" y="178" width="140" height="10" rx="4" fill="#FFFFFF" stroke={N} strokeWidth="2" style={{ pathLength: draw2, opacity: draw2 }} />
-    <motion.line x1="35" y1="183" x2="165" y2="183" stroke={B} strokeWidth="1.2" style={{ pathLength: draw2 }} />
-    <HatchingScroll x1="35" y1="181" x2="165" y2="181" count={28} spacing={3.5} angle={90} color={N} strokeWidth="0.35" draw={draw2} fade={draw2} />
-    
-    <g fill={N} style={{ opacity: draw2 } as any}>
-      <motion.path d="M 72 172 C 68 185 72 192 78 192 C 84 192 82 185 80 172 Z" />
-      <motion.path d="M 120 172 C 120 185 124 192 128 192 C 132 192 130 185 128 172 Z" />
-    </g>
-
-    {/* ===== HIASAN BINTANG ===== */}
-    <g stroke={B} strokeWidth="0.5" fill="none" style={{ pathLength: draw2 }}>
-      <motion.path d="M 30 40 L 30 30 M 25 35 L 35 35" />
-      <motion.path d="M 170 25 L 170 15 M 165 20 L 175 20" />
-    </g>
-  </svg>
-</div>
+          <g stroke={B} strokeWidth="0.5" fill="none" style={{ pathLength: draw2 }}>
+            <motion.path d="M 30 40 L 30 30 M 25 35 L 35 35" />
+            <motion.path d="M 170 25 L 170 15 M 165 20 L 175 20" />
+          </g>
+        </svg>
+      </div>
 
       {/* ── IKON 3: KANAN ATAS (Premium Diamond Pillar) ── */}
       <div className="absolute top-4 -right-12 w-[350px] h-[350px] md:w-[450px] md:h-[450px] opacity-70">
@@ -311,7 +299,7 @@ function CornerIcons({ scrollYProgress }: { scrollYProgress: any }) {
   )
 }
 
-function ScrollBoundSlide({ p, index, scrollYProgress }: any) {
+function ScrollBoundSlide({ p, index, scrollYProgress, mouseX, mouseY }: any) {
   const start = index * 0.333
   const end = (index + 1) * 0.333
   const fadeIn = start + 0.01
@@ -329,10 +317,23 @@ function ScrollBoundSlide({ p, index, scrollYProgress }: any) {
   const iconOpacity = useTransform(scrollYProgress, [fadeIn, typeStart], [0, 1])
   const lineWidth = useTransform(scrollYProgress, [drawEnd, typeEnd], ["0%", "4rem"])
 
+  // ── LAYER PARALLAX KHUSUS UNTUK SETIAP SLIDE ──
+  const numX = useTransform(mouseX, [-0.5, 0.5], [30, -30])
+  const numY = useTransform(mouseY, [-0.5, 0.5], [30, -30])
+  
+  const textX = useTransform(mouseX, [-0.5, 0.5], [-15, 15])
+  const textY = useTransform(mouseY, [-0.5, 0.5], [-15, 15])
+  
+  const iconLayerX = useTransform(mouseX, [-0.5, 0.5], [-35, 35])
+  const iconLayerY = useTransform(mouseY, [-0.5, 0.5], [-35, 35])
+  const tiltX = useTransform(mouseY, [-0.5, 0.5], [15, -15])
+  const tiltY = useTransform(mouseX, [-0.5, 0.5], [-15, 15])
+
   return (
-    <motion.div style={{ opacity }} className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center w-full mt-10">
+    <motion.div style={{ opacity, perspective: 1200 }} className="absolute inset-0 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center w-full mt-10">
       <div className="lg:col-span-5 relative flex flex-col items-start">
-        <div className="absolute -top-24 -left-16 md:-left-28 select-none pointer-events-none z-0">
+        
+        <motion.div style={{ x: numX, y: numY }} className="absolute -top-24 -left-16 md:-left-28 select-none pointer-events-none z-0">
           <svg viewBox={p.viewBoxNum} className="w-[16rem] h-auto md:w-[22rem]">
             <motion.text
               x="0" y="110" fontFamily="serif" fontSize="180" fontWeight="400"
@@ -342,16 +343,16 @@ function ScrollBoundSlide({ p, index, scrollYProgress }: any) {
               {p.num}
             </motion.text>
           </svg>
-        </div>
-        
-        <motion.div 
-          style={{ scale: iconScale, opacity: iconOpacity }}
-          className="relative z-10 w-24 h-24 md:w-32 md:h-32 p-5 md:p-7 bg-white/50 backdrop-blur-xl border border-[#030035]/5 rounded-3xl shadow-[0_20px_40px_rgba(3,0,53,0.03)] mb-8 flex items-center justify-center"
-        >
-          <div className="w-full h-full text-[#E5997B]">{p.icon}</div>
         </motion.div>
         
-        <svg viewBox={p.viewBoxTitle} className="w-full h-auto relative z-10 -ml-1 overflow-visible">
+        <motion.div 
+          style={{ x: iconLayerX, y: iconLayerY, rotateX: tiltX, rotateY: tiltY, scale: iconScale, opacity: iconOpacity }}
+          className="relative z-10 w-24 h-24 md:w-32 md:h-32 p-5 md:p-7 bg-white/50 backdrop-blur-xl border border-[#030035]/5 rounded-3xl shadow-[0_20px_40px_rgba(3,0,53,0.03)] mb-8 flex items-center justify-center transform-style-3d"
+        >
+          <div className="w-full h-full text-[#E5997B] drop-shadow-md">{p.icon}</div>
+        </motion.div>
+        
+        <motion.svg style={{ x: textX, y: textY }} viewBox={p.viewBoxTitle} className="w-full h-auto relative z-10 -ml-1 overflow-visible">
           <motion.text
             x="0" y="50" fontFamily="serif" fontSize="60" fontWeight="400"
             fill="#030035" stroke="#030035" strokeWidth="1" strokeDasharray="1000"
@@ -359,14 +360,14 @@ function ScrollBoundSlide({ p, index, scrollYProgress }: any) {
           >
             {p.title}
           </motion.text>
-        </svg>
+        </motion.svg>
       </div>
 
       <div className="lg:col-span-7 relative z-10 flex flex-col justify-center">
-        <div className="h-full flex flex-col">
+        <motion.div style={{ x: textX, y: textY }} className="h-full flex flex-col">
           <motion.div style={{ width: lineWidth }} className="hidden lg:block h-[2px] bg-[#E5997B] mb-8" />
           <TypingBody text={p.body} scrollYProgress={scrollYProgress} typeStart={typeStart} typeEnd={typeEnd} />
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   )
@@ -375,16 +376,48 @@ function ScrollBoundSlide({ p, index, scrollYProgress }: any) {
 export default function ModeloProtitas() {
   const sectionRef = useRef<HTMLDivElement>(null)
 
+  // particle canvas available via import
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   })
 
+  // ── HOOKS MOUSE PARALLAX GLOBAL UNTUK SECTION INI ──
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const smoothMouseX = useSpring(mouseX, { stiffness: 60, damping: 25, mass: 0.5 })
+  const smoothMouseY = useSpring(mouseY, { stiffness: 60, damping: 25, mass: 0.5 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (typeof window === 'undefined') return
+    const x = (e.clientX / window.innerWidth) - 0.5
+    const y = (e.clientY / window.innerHeight) - 0.5
+    mouseX.set(x)
+    mouseY.set(y)
+  }
+
+  // Parallax Layer Grid Background
+  const bgGridX = useTransform(smoothMouseX, [-0.5, 0.5], [15, -15])
+  const bgGridY = useTransform(smoothMouseY, [-0.5, 0.5], [15, -15])
+
+  // Parallax Teks Header Utama
+  const headerX = useTransform(smoothMouseX, [-0.5, 0.5], [-10, 10])
+  const headerY = useTransform(smoothMouseY, [-0.5, 0.5], [-10, 10])
+
   return (
-    <section ref={sectionRef} className="relative bg-[#F4F4F5] w-full h-[400vh]">
+    <section 
+      ref={sectionRef} 
+      onMouseMove={handleMouseMove}
+      className="relative bg-[#F4F4F5] w-full h-[400vh]"
+    >
       <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center overflow-hidden">
+        {/* geometry particles background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <GeometryParticles particleCount={250} opacity={0.32} />
+        </div>
         
-        <div className="absolute inset-0 pointer-events-none z-0">
+        <motion.div style={{ x: bgGridX, y: bgGridY }} className="absolute inset-[-10%] pointer-events-none z-0">
           <div 
             className="absolute inset-0 opacity-[0.03]"
             style={{
@@ -394,25 +427,25 @@ export default function ModeloProtitas() {
               WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
             }}
           />
-        </div>
+        </motion.div>
 
         <CornerIcons scrollYProgress={scrollYProgress} />
 
-        <div className="absolute top-10 md:top-16 left-6 md:left-12 lg:left-24 z-30 w-full pointer-events-none">
+        <motion.div style={{ x: headerX, y: headerY }} className="absolute top-10 md:top-16 left-6 md:left-12 lg:left-24 z-30 w-full pointer-events-none">
           <div className="flex items-center gap-4 mb-4 md:mb-6">
             <div className="w-12 h-px bg-[#E5997B]" />
             <p className="text-[#E5997B] font-mono text-[10px] tracking-[0.5em] uppercase font-bold">
               Los 3 Protagonistas
             </p>
           </div>
-          <h1 className="font-serif text-[#030035] text-4xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight">
+          <h1 className="font-display text-[#030035] text-5xl md:text-6xl lg:text-8xl max-w-4xl tracking-tight">
             Las fuerzas que mueven la economía
           </h1>
-        </div>
+        </motion.div>
 
         <div className="relative z-20 w-full max-w-7xl px-6 md:px-12 lg:px-24 h-[60vh] mt-16 md:mt-24">
           {protagonists.map((p, index) => (
-            <ScrollBoundSlide key={p.num} p={p} index={index} scrollYProgress={scrollYProgress} />
+            <ScrollBoundSlide key={p.num} p={p} index={index} scrollYProgress={scrollYProgress} mouseX={smoothMouseX} mouseY={smoothMouseY} />
           ))}
         </div>
 

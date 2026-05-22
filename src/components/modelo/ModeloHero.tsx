@@ -1,11 +1,35 @@
 // ModeloHero.tsx
-import { useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useRef, type MouseEvent } from 'react'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import InteractiveConstellationText from '../InteractiveConstellationText'
 import type { TextLine } from '../InteractiveConstellationText'
 
 export default function ModeloHero() {
   const sectionRef = useRef<HTMLDivElement>(null)
+
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const smoothMouseX = useSpring(mouseX, { stiffness: 60, damping: 18, mass: 0.4 })
+  const smoothMouseY = useSpring(mouseY, { stiffness: 60, damping: 18, mass: 0.4 })
+
+  const bgX = useTransform(smoothMouseX, [-0.5, 0.5], [30, -30])
+  const bgY = useTransform(smoothMouseY, [-0.5, 0.5], [30, -30])
+  const decoX = useTransform(smoothMouseX, [-0.5, 0.5], [-18, 18])
+  const decoY = useTransform(smoothMouseY, [-0.5, 0.5], [-18, 18])
+  const contentX = useTransform(smoothMouseX, [-0.5, 0.5], [14, -14])
+  const contentY = useTransform(smoothMouseY, [-0.5, 0.5], [14, -14])
+
+  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
+    const rect = sectionRef.current?.getBoundingClientRect()
+    if (!rect) return
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5)
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5)
+  }
+
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
 
   const lines: TextLine[] = [
     { text: 'Equilibrio', y: 100 },
@@ -16,18 +40,30 @@ export default function ModeloHero() {
 
   return (
     <section
-  ref={sectionRef}
-  className="relative h-screen flex items-center justify-center overflow-hidden"
-  style={{ isolation: 'isolate' }}  // tambah ini
->
+      ref={sectionRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative h-screen flex items-center justify-center overflow-hidden"
+      style={{ isolation: 'isolate' }}
+    >
       {/* Background */}
-      <div className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url(/foto/illust-growth.jpg)' }}>
+      <motion.div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/foto/illust-growth.jpg)',
+          x: bgX,
+          y: bgY,
+          scale: 1.04,
+        }}
+      >
         <div className="absolute inset-0 bg-black/80" />
-      </div>
+      </motion.div>
 
       {/* Decorative geometric */}
-      <div className="geo-deco absolute inset-0 pointer-events-none select-none overflow-hidden z-5">
+      <motion.div
+        className="geo-deco absolute inset-0 pointer-events-none select-none overflow-hidden z-5"
+        style={{ x: decoX, y: decoY }}
+      >
         <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.04]"
           viewBox="0 0 800 800" fill="none">
           <path d="M400 40L760 400L400 760L40 400Z" stroke="#E5997B" strokeWidth="1" />
@@ -39,9 +75,12 @@ export default function ModeloHero() {
           <path d="M200 600L320 600L320 540L260 460L200 540Z" stroke="#E5997B" strokeWidth="0.5" />
           <path d="M480 600L600 600L600 540L540 460L480 540Z" stroke="#E5997B" strokeWidth="0.5" />
         </svg>
-      </div>
+      </motion.div>
 
-      <div className="hero-inner relative z-20 text-center max-w-4xl mx-auto px-6 section-padding">
+      <motion.div
+        className="hero-inner relative z-20 text-center max-w-4xl mx-auto px-6 section-padding"
+        style={{ x: contentX, y: contentY }}
+      >
         <motion.p
           initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
           animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
@@ -74,7 +113,7 @@ export default function ModeloHero() {
           de Ray Dalio, adaptados al contexto financiero mexicano. Estructuramos
           cada producto para mantener el equilibrio entre productividad y deuda.
         </motion.p>
-      </div>
+      </motion.div>
 
       {/* Scroll indicator */}
       <motion.div

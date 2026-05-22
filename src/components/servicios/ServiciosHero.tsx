@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import InteractiveConstellationText from '../InteractiveConstellationText'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -9,6 +9,29 @@ gsap.registerPlugin(ScrollTrigger)
 export default function ServiciosHero() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const bgRef      = useRef<HTMLImageElement>(null)
+
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const smoothMouseX = useSpring(mouseX, { stiffness: 60, damping: 18, mass: 0.4 })
+  const smoothMouseY = useSpring(mouseY, { stiffness: 60, damping: 18, mass: 0.4 })
+  const bgX = useTransform(smoothMouseX, [-0.5, 0.5], [20, -20])
+  const bgY = useTransform(smoothMouseY, [-0.5, 0.5], [16, -16])
+  const decoX = useTransform(smoothMouseX, [-0.5, 0.5], [-20, 20])
+  const decoY = useTransform(smoothMouseY, [-0.5, 0.5], [-20, 20])
+  const contentX = useTransform(smoothMouseX, [-0.5, 0.5], [10, -10])
+  const contentY = useTransform(smoothMouseY, [-0.5, 0.5], [10, -10])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = sectionRef.current?.getBoundingClientRect()
+    if (!rect) return
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5)
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5)
+  }
+
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -33,16 +56,16 @@ export default function ServiciosHero() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section ref={sectionRef} className="relative h-screen flex items-center justify-center overflow-hidden" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
       {/* Background */}
       <div className="absolute inset-0">
-        <img ref={bgRef} src="/foto/illust-shipping.jpg" alt=""
-          className="w-full h-full object-cover will-change-transform" />
+        <motion.img ref={bgRef} src="/foto/illust-shipping.jpg" alt=""
+          className="w-full h-full object-cover will-change-transform" style={{ x: bgX, y: bgY }} />
         <div className="absolute inset-0 bg-black/75" />
       </div>
 
       {/* Decorative lines */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <motion.div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ x: decoX, y: decoY }}>
         <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 900"
           fill="none" preserveAspectRatio="xMidYMid slice">
           <path className="geo-line" d="M1100 100 L1200 200 L1100 300 L1000 200 Z" stroke="#E5997B" strokeWidth="0.5" opacity="0.3" />
@@ -50,10 +73,10 @@ export default function ServiciosHero() {
           <path className="geo-line" d="M200 650 L280 650 L240 720 L280 790 L200 790 L240 720 Z" stroke="#E5997B" strokeWidth="0.5" opacity="0.25" />
           <line className="geo-line" x1="1300" y1="400" x2="1300" y2="700" stroke="#E5997B" strokeWidth="0.5" opacity="0.15" />
         </svg>
-      </div>
+      </motion.div>
 
       {/* Hero content */}
-      <div className="hero-content relative z-10 text-center w-full max-w-7xl px-8">
+      <motion.div className="hero-content relative z-10 text-center w-full max-w-7xl px-8" style={{ x: contentX, y: contentY }}>
         <motion.p
           initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
           animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
@@ -83,7 +106,7 @@ export default function ServiciosHero() {
           Más allá de los productos, ofrecemos un ecosistema de servicios diseñados para fortalecer la
           estructura financiera de nuestros clientes.
         </motion.p>
-      </div>
+      </motion.div>
 
       {/* Scroll indicator */}
       <motion.div

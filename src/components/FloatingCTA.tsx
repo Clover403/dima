@@ -18,19 +18,29 @@ const PRODUCT_OPTIONS = [
 ]
 
 type FormData = {
+  sector: string
   contactName: string
+  position: string
   email: string
   phone: string
   productType: string
+  loanAmount: string
+  loanCurrency: string
+  loanTBD: boolean
   termMonths: string
   termTBD: boolean
 }
 
 const INITIAL_FORM: FormData = {
+  sector: '',
   contactName: '',
+  position: '',
   email: '',
   phone: '',
   productType: '',
+  loanAmount: '',
+  loanCurrency: 'MXN',
+  loanTBD: false,
   termMonths: '',
   termTBD: false,
 }
@@ -155,12 +165,15 @@ export default function FloatingCTA() {
   const isEmailValid = validateEmail(formData.email)
   const isPhoneValid = formData.phone.replace(/[\s+\-()]/g, '').length >= 7
   const isFormValid = !!(
-    formData.contactName &&
-    isEmailValid &&
-    isPhoneValid &&
-    formData.productType &&
-    (formData.termTBD || formData.termMonths)
-  )
+  formData.sector &&
+  formData.contactName &&
+  formData.position &&
+  isEmailValid &&
+  isPhoneValid &&
+  formData.productType &&
+  (formData.loanTBD || formData.loanAmount) &&
+  (formData.termTBD || formData.termMonths)
+)
 
   // ── Handlers ──
   const closeModal = () => {
@@ -269,13 +282,15 @@ export default function FloatingCTA() {
 
             {/* ── Panel — diperlebar: md:w-[520px] ── */}
             <motion.aside
-              key="panel"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed top-0 right-0 h-screen z-[9999] w-screen md:w-[520px] overflow-y-auto"
-              style={{ backgroundColor: GRAY }}
+  key="panel"
+  initial={{ x: '100%' }}
+  animate={{ x: 0 }}
+  exit={{ x: '100%' }}
+  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+  className="fixed top-0 right-0 h-screen z-[9999] w-screen md:w-[520px] overflow-y-auto overscroll-contain"
+  onWheel={e => e.stopPropagation()}
+  onTouchMove={e => e.stopPropagation()}            
+ style={{ backgroundColor: GRAY }}
               role="dialog"
               aria-modal="true"
               aria-label="Agendar sesión"
@@ -309,163 +324,217 @@ export default function FloatingCTA() {
                   </p>
                   <div className="h-px w-12 my-7" style={{ backgroundColor: BRONZE }} />
 
-                  <form onSubmit={handleSubmit} className="space-y-7">
-                    {/* 1. Nombre */}
-                    <div>
-                      <label className={labelCls}>Nombre de Contacto</label>
-                      <input
-                        type="text"
-                        value={formData.contactName}
-                        onChange={(e) =>
-                          setFormData((p) => ({ ...p, contactName: e.target.value }))
-                        }
-                        className={`${inputBase} border-[#030035]/15 focus:border-[#E5997B] ${
-                          formData.contactName ? 'border-[#E5997B]' : ''
-                        }`}
-                        required
-                      />
-                    </div>
+                 <form onSubmit={handleSubmit} className="space-y-7">
 
-                    {/* 2. Email */}
-                    <div>
-                      <label className={labelCls}>Email Corporativo</label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={handleEmailChange}
-                        placeholder="nombre@empresa.com"
-                        className={`${inputBase} ${
-                          errors.email
-                            ? 'border-red-400'
-                            : formData.email && isEmailValid
-                            ? 'border-[#E5997B]'
-                            : 'border-[#030035]/15 focus:border-[#E5997B]'
-                        }`}
-                        required
-                      />
-                      {errors.email && <p className={errorNote}>{errors.email}</p>}
-                      {formData.email && isEmailValid && !errors.email && (
-                        <p className={validNote}>✓ válido</p>
-                      )}
-                    </div>
+  {/* ── Empresa ── */}
+  <p className="font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/35 -mb-3">
+    Empresa
+  </p>
 
-                    {/* 3. Teléfono */}
-                    <div>
-                      <label className={labelCls}>Teléfono</label>
-                      <input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handlePhoneChange}
-                        placeholder="+52 55 0000 0000"
-                        inputMode="tel"
-                        className={`${inputBase} ${
-                          formData.phone && isPhoneValid
-                            ? 'border-[#E5997B]'
-                            : 'border-[#030035]/15 focus:border-[#E5997B]'
-                        }`}
-                        required
-                      />
-                      {formData.phone && !isPhoneValid && (
-                        <p className="mt-1.5 font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/55">
-                          mín. 7 dígitos
-                        </p>
-                      )}
-                      {formData.phone && isPhoneValid && (
-                        <p className={validNote}>✓ válido</p>
-                      )}
-                    </div>
+  {/* 1. Sector */}
+  <div>
+    <label className={labelCls}>Sector / Industria</label>
+    <input
+      type="text"
+      value={formData.sector}
+      onChange={e => setFormData(p => ({ ...p, sector: e.target.value }))}
+      placeholder="Ej. Agroindustria, Construcción"
+      className={`${inputBase} ${formData.sector ? 'border-[#E5997B]' : 'border-[#030035]/15 focus:border-[#E5997B]'}`}
+      required
+    />
+  </div>
 
-                    {/* 4. Tipo de Producto */}
-                    <div>
-                      <label className={labelCls}>Tipo de Producto</label>
-                      <div className="relative">
-                        <select
-                          value={formData.productType}
-                          onChange={(e) =>
-                            setFormData((p) => ({ ...p, productType: e.target.value }))
-                          }
-                          className={`${inputBase} appearance-none cursor-pointer pr-6 ${
-                            formData.productType
-                              ? 'border-[#E5997B]'
-                              : 'border-[#030035]/15 focus:border-[#E5997B]'
-                          }`}
-                          required
-                        >
-                          <option value="" disabled>
-                            Seleccione...
-                          </option>
-                          {PRODUCT_OPTIONS.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown />
-                      </div>
-                    </div>
+  {/* ── Contacto ── */}
+  <p className="font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/35 -mb-3">
+    Contacto
+  </p>
 
-                    {/* 5. Plazo — FIXED: type text + inputMode numeric + readOnly ──*/}
-                    <div>
-                      <label className={labelCls}>Plazo Deseado</label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={formData.termTBD ? '' : formData.termMonths}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9]/g, '')
-                          setFormData((p) => ({ ...p, termMonths: val }))
-                        }}
-                        placeholder={formData.termTBD ? 'Por definir' : 'Ej. 24'}
-                        readOnly={formData.termTBD}
-                        className={`${inputBase} ${
-                          formData.termTBD
-                            ? 'border-[#030035]/5 text-[#030035]/30 cursor-not-allowed'
-                            : formData.termMonths
-                            ? 'border-[#E5997B]'
-                            : 'border-[#030035]/15 focus:border-[#E5997B]'
-                        }`}
-                        required={!formData.termTBD}
-                      />
-                      <p className="mt-1 font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/40">
-                        en meses
-                      </p>
-                      <label className="flex items-center gap-2.5 mt-3.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.termTBD}
-                          onChange={(e) =>
-                            setFormData((p) => ({
-                              ...p,
-                              termTBD: e.target.checked,
-                              termMonths: e.target.checked ? '' : p.termMonths,
-                            }))
-                          }
-                          className="w-4 h-4 accent-[#E5997B]"
-                        />
-                        <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/55">
-                          Por definir / TBD
-                        </span>
-                      </label>
-                    </div>
+  {/* 2. Nombre */}
+  <div>
+    <label className={labelCls}>Nombre de Contacto</label>
+    <input
+      type="text"
+      value={formData.contactName}
+      onChange={e => setFormData(p => ({ ...p, contactName: e.target.value }))}
+      className={`${inputBase} ${formData.contactName ? 'border-[#E5997B]' : 'border-[#030035]/15 focus:border-[#E5997B]'}`}
+      required
+    />
+  </div>
 
-                    {/* Submit */}
-                    <button
-                      type="submit"
-                      disabled={!isFormValid}
-                      className={`w-full mt-2 py-[18px] font-mono text-[12px] tracking-[0.3em] uppercase transition-all duration-300 ${
-                        isFormValid
-                          ? 'bg-[#030035] text-[#F4F4F5] hover:bg-[#E5997B] hover:text-[#030035] cursor-pointer'
-                          : 'bg-[#030035] text-[#F4F4F5] opacity-40 cursor-not-allowed'
-                      }`}
-                    >
-                      Continuar → Agendar
-                    </button>
+  {/* 3. Cargo */}
+  <div>
+    <label className={labelCls}>Cargo / Posición</label>
+    <input
+      type="text"
+      value={formData.position}
+      onChange={e => setFormData(p => ({ ...p, position: e.target.value }))}
+      placeholder="Ej. Director General, CFO"
+      className={`${inputBase} ${formData.position ? 'border-[#E5997B]' : 'border-[#030035]/15 focus:border-[#E5997B]'}`}
+      required
+    />
+  </div>
 
-                    <p className="text-center font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/35 pt-2">
-                      Sin compromiso · 30 min
-                    </p>
-                  </form>
+  {/* 4. Email */}
+  <div>
+    <label className={labelCls}>Email Corporativo</label>
+    <input
+      type="email"
+      value={formData.email}
+      onChange={handleEmailChange}
+      placeholder="nombre@empresa.com"
+      className={`${inputBase} ${
+        errors.email ? 'border-red-400'
+        : formData.email && isEmailValid ? 'border-[#E5997B]'
+        : 'border-[#030035]/15 focus:border-[#E5997B]'
+      }`}
+      required
+    />
+    {errors.email && <p className={errorNote}>{errors.email}</p>}
+    {formData.email && isEmailValid && !errors.email && <p className={validNote}>✓ válido</p>}
+  </div>
+
+  {/* 5. Teléfono */}
+  <div>
+    <label className={labelCls}>Teléfono</label>
+    <input
+      type="tel"
+      value={formData.phone}
+      onChange={handlePhoneChange}
+      placeholder="+52 55 0000 0000"
+      inputMode="tel"
+      className={`${inputBase} ${
+        formData.phone && isPhoneValid ? 'border-[#E5997B]'
+        : 'border-[#030035]/15 focus:border-[#E5997B]'
+      }`}
+      required
+    />
+    {formData.phone && !isPhoneValid && (
+      <p className="mt-1.5 font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/55">mín. 7 dígitos</p>
+    )}
+    {formData.phone && isPhoneValid && <p className={validNote}>✓ válido</p>}
+  </div>
+
+  {/* ── Crédito ── */}
+  <p className="font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/35 -mb-3">
+    Crédito
+  </p>
+
+  {/* 6. Tipo de Producto */}
+  <div>
+    <label className={labelCls}>Tipo de Producto</label>
+    <div className="relative">
+      <select
+        value={formData.productType}
+        onChange={e => setFormData(p => ({ ...p, productType: e.target.value }))}
+        className={`${inputBase} appearance-none cursor-pointer pr-6 ${
+          formData.productType ? 'border-[#E5997B]' : 'border-[#030035]/15 focus:border-[#E5997B]'
+        }`}
+        required
+      >
+        <option value="" disabled>Seleccione...</option>
+        {PRODUCT_OPTIONS.map(opt => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+      <ChevronDown />
+    </div>
+  </div>
+
+  {/* 7. Monto */}
+  <div>
+    <label className={labelCls}>Monto Requerido</label>
+    <div className="flex gap-3 items-end">
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={formData.loanTBD ? '' : formData.loanAmount}
+        onChange={e => setFormData(p => ({ ...p, loanAmount: e.target.value.replace(/[^0-9]/g, '') }))}
+        placeholder={formData.loanTBD ? 'Por definir' : 'Ej. 5000000'}
+        readOnly={formData.loanTBD}
+        className={`${inputBase} flex-1 ${
+          formData.loanTBD ? 'border-[#030035]/5 text-[#030035]/30 cursor-not-allowed'
+          : formData.loanAmount ? 'border-[#E5997B]'
+          : 'border-[#030035]/15 focus:border-[#E5997B]'
+        }`}
+      />
+      <div className="relative shrink-0">
+        <select
+          value={formData.loanCurrency}
+          onChange={e => setFormData(p => ({ ...p, loanCurrency: e.target.value }))}
+          disabled={formData.loanTBD}
+          className={`${inputBase} w-20 appearance-none cursor-pointer pr-5 border-[#030035]/15 focus:border-[#E5997B] text-center ${
+            formData.loanTBD ? 'opacity-30 cursor-not-allowed' : ''
+          }`}
+        >
+          {['MXN','USD','EUR','TBD'].map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <ChevronDown />
+      </div>
+    </div>
+    <label className="flex items-center gap-2.5 mt-3 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={formData.loanTBD}
+        onChange={e => setFormData(p => ({ ...p, loanTBD: e.target.checked, loanAmount: '' }))}
+        className="w-4 h-4 accent-[#E5997B]"
+      />
+      <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/55">
+        Por definir / TBD
+      </span>
+    </label>
+  </div>
+
+  {/* 8. Plazo */}
+  <div>
+    <label className={labelCls}>Plazo Deseado</label>
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={formData.termTBD ? '' : formData.termMonths}
+      onChange={e => setFormData(p => ({ ...p, termMonths: e.target.value.replace(/[^0-9]/g, '') }))}
+      placeholder={formData.termTBD ? 'Por definir' : 'Ej. 24'}
+      readOnly={formData.termTBD}
+      className={`${inputBase} ${
+        formData.termTBD ? 'border-[#030035]/5 text-[#030035]/30 cursor-not-allowed'
+        : formData.termMonths ? 'border-[#E5997B]'
+        : 'border-[#030035]/15 focus:border-[#E5997B]'
+      }`}
+    />
+    <p className="mt-1 font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/40">en meses</p>
+    <label className="flex items-center gap-2.5 mt-3 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={formData.termTBD}
+        onChange={e => setFormData(p => ({
+          ...p, termTBD: e.target.checked, termMonths: e.target.checked ? '' : p.termMonths
+        }))}
+        className="w-4 h-4 accent-[#E5997B]"
+      />
+      <span className="font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/55">
+        Por definir / TBD
+      </span>
+    </label>
+  </div>
+
+  {/* Submit */}
+  <button
+    type="submit"
+    disabled={!isFormValid}
+    className={`w-full mt-2 py-[18px] font-mono text-[12px] tracking-[0.3em] uppercase transition-all duration-300 ${
+      isFormValid
+        ? 'bg-[#030035] text-[#F4F4F5] hover:bg-[#E5997B] hover:text-[#030035] cursor-pointer'
+        : 'bg-[#030035] text-[#F4F4F5] opacity-40 cursor-not-allowed'
+    }`}
+  >
+    Continuar → Agendar
+  </button>
+
+  <p className="text-center font-mono text-[10px] tracking-[0.4em] uppercase text-[#030035]/35 pt-2">
+    Sin compromiso · 30 min
+  </p>
+</form>
                 </div>
               ) : (
                 /* ── STATE 2: CALENDLY ── */
@@ -479,9 +548,19 @@ export default function FloatingCTA() {
                       ← Editar
                     </button>
                     <div className="flex items-center gap-2 flex-wrap font-mono text-[11px] tracking-[0.25em] uppercase text-[#030035]/65">
+                      <span>{formData.sector}</span>
+                      <span style={{ color: BRONZE }}>·</span>
                       <span>{formData.contactName}</span>
                       <span style={{ color: BRONZE }}>·</span>
+                      <span>{formData.position}</span>
+                      <span style={{ color: BRONZE }}>·</span>
                       <span>{formData.productType}</span>
+                      <span style={{ color: BRONZE }}>·</span>
+                      <span>
+                        {formData.loanTBD
+                          ? 'Monto TBD'
+                          : `${formData.loanAmount} ${formData.loanCurrency}`}
+                      </span>
                       <span style={{ color: BRONZE }}>·</span>
                       <span>
                         {formData.termTBD ? 'Plazo TBD' : `${formData.termMonths} meses`}

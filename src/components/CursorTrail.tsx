@@ -15,14 +15,14 @@ class Particle {
   shape: ShapeType;
 
   constructor(x: number, y: number) {
-    this.x = x + (Math.random() - 0.5) * 15;
-    this.y = y + (Math.random() - 0.5) * 15;
-    this.vx = (Math.random() - 0.5) * 0.5;
-    this.vy = (Math.random() - 0.5) * 0.5;
-    this.size = Math.random() * 12 + 8; // 8 to 20px
+    this.x = x + (Math.random() - 0.5) * 18;
+    this.y = y + (Math.random() - 0.5) * 18;
+    this.vx = (Math.random() - 0.5) * 2.8;
+    this.vy = (Math.random() - 0.5) * 2.8;
+    this.size = Math.random() * 16 + 12; // 12 to 28px
     this.angle = Math.random() * Math.PI * 2;
-    this.spin = (Math.random() - 0.5) * 0.05;
-    this.maxLife = 600 + Math.random() * 200; // 600 to 800ms
+    this.spin = (Math.random() - 0.5) * 0.10;
+    this.maxLife = 900 + Math.random() * 400; // 900 to 1300ms
     this.life = this.maxLife;
 
     const shapes: ShapeType[] = ['diamond', 'cross', 'facet', 'triangle', 'lines'];
@@ -30,37 +30,38 @@ class Particle {
   }
 
   update(dt: number, cursorX: number, cursorY: number) {
-    // dt is typically ~16ms for 60fps
     const timeScale = dt / 16.66;
-    
-    // Magnetic/Gravity effect towards cursor
+
     const dx = cursorX - this.x;
     const dy = cursorY - this.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (dist > 5 && dist < 250) {
-      // Pull gently towards cursor
-      const force = 0.015;
+    // Magnetic pull lebih kuat, radius lebih jauh
+    if (dist > 5 && dist < 320) {
+      const force = 0.04;
       this.vx += (dx / dist) * force * timeScale;
       this.vy += (dy / dist) * force * timeScale;
     }
 
-    // Apply velocity
     this.x += this.vx * timeScale;
     this.y += this.vy * timeScale;
-    
-    // Slight air friction damping
-    this.vx *= Math.pow(0.96, timeScale);
-    this.vy *= Math.pow(0.96, timeScale);
+
+    // Friction lebih ringan agar partikel lebih lama melayang
+    this.vx *= Math.pow(0.98, timeScale);
+    this.vy *= Math.pow(0.98, timeScale);
 
     this.angle += this.spin * timeScale;
     this.life -= dt;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const alpha = Math.max(0, this.life / this.maxLife);
-    ctx.globalAlpha = alpha;
-    
+    const progress = this.life / this.maxLife;
+    // Fade in cepat (0→0.3 life), fade out lambat (0.3→0)
+    const alpha = progress > 0.85
+      ? ((1 - progress) / 0.15)        // fade in
+      : Math.pow(progress / 0.85, 0.6) // fade out lebih lambat
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha)) * 0.85;
+
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
@@ -83,7 +84,6 @@ class Particle {
         ctx.lineTo(-s * 0.8, s * 0.8);
         break;
       case 'facet':
-        // Half diamond
         ctx.moveTo(0, -s);
         ctx.lineTo(s * 0.6, 0);
         ctx.lineTo(0, s);
@@ -95,7 +95,6 @@ class Particle {
         ctx.closePath();
         break;
       case 'lines':
-        // Parallel hatching lines
         ctx.moveTo(-s * 0.5, -s * 0.8);
         ctx.lineTo(s * 0.5, -s * 0.4);
         ctx.moveTo(-s * 0.5, -s * 0.2);
@@ -176,12 +175,14 @@ export default function CursorTrail() {
         currentColor = isLight ? '#030035' : '#E5997B';
       }
       
-      // Limit emission rate
-      if (now - lastMouseEmitTime > 40) {
+      if (now - lastMouseEmitTime > 22) {
+        // Emit 2 partikel sekaligus saat mouse bergerak cepat
         particles.push(new Particle(mouseX, mouseY));
-        // Hard cap max elements
-        if (particles.length > 20) {
-          particles.shift();
+        if (now - lastMouseEmitTime < 12) {
+          particles.push(new Particle(mouseX, mouseY));
+        }
+        if (particles.length > 40) {
+          particles.splice(0, particles.length - 40);
         }
         lastMouseEmitTime = now;
       }
@@ -199,7 +200,7 @@ export default function CursorTrail() {
 
       if (particles.length > 0) {
         ctx.strokeStyle = currentColor;
-        ctx.lineWidth = 0.8; // Engraving aesthetic (delicate)
+        ctx.lineWidth = 1.3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
