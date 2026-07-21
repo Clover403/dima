@@ -170,15 +170,15 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
   }, [variant])
 
   const handleMouseEnter = () => {
-    gsap.to(stop1Ref.current, { stopColor: '#E5997B', stopOpacity: 0.5, duration: 0.3 })
-    gsap.to(stop2Ref.current, { stopColor: '#E5997B', stopOpacity: 0.15, duration: 0.3 })
-    gsap.to(stop3Ref.current, { stopColor: '#E5997B', stopOpacity: 0, duration: 0.3 })
+    gsap.to(stop1Ref.current, { stopColor: '#ffffff', stopOpacity: 0.5, duration: 0.3 })
+    gsap.to(stop2Ref.current, { stopColor: '#ffffff', stopOpacity: 0.15, duration: 0.3 })
+    gsap.to(stop3Ref.current, { stopColor: '#ffffff', stopOpacity: 0, duration: 0.3 })
   }
 
   const handleMouseLeave = () => {
-    gsap.to(stop1Ref.current, { stopColor: '#030035', stopOpacity: 0.12, duration: 0.3 })
-    gsap.to(stop2Ref.current, { stopColor: '#030035', stopOpacity: 0.04, duration: 0.3 })
-    gsap.to(stop3Ref.current, { stopColor: '#030035', stopOpacity: 0, duration: 0.3 })
+    gsap.to(stop1Ref.current, { stopColor: '#ffffff', stopOpacity: 0.12, duration: 0.3 })
+    gsap.to(stop2Ref.current, { stopColor: '#ffffff', stopOpacity: 0.04, duration: 0.3 })
+    gsap.to(stop3Ref.current, { stopColor: '#ffffff', stopOpacity: 0, duration: 0.3 })
   }
 
   return (
@@ -201,21 +201,21 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
         >
           <defs>
             <pattern id="hatch-light" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="0" y2="8" stroke="#030035" strokeWidth="0.6" opacity="0.4" />
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#ffffff" strokeWidth="0.6" opacity="0.4" />
             </pattern>
             <pattern id="hatch-med" width="6" height="6" patternTransform="rotate(-45 0 0)" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="0" y2="6" stroke="#030035" strokeWidth="0.8" opacity="0.6" />
-              <line x1="0" y1="0" x2="6" y2="0" stroke="#030035" strokeWidth="0.4" opacity="0.3" />
+              <line x1="0" y1="0" x2="0" y2="6" stroke="#ffffff" strokeWidth="0.8" opacity="0.6" />
+              <line x1="0" y1="0" x2="6" y2="0" stroke="#ffffff" strokeWidth="0.4" opacity="0.3" />
             </pattern>
             <pattern id="hatch-heavy" width="5" height="5" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="0" y2="5" stroke="#030035" strokeWidth="1" opacity="0.8" />
-              <line x1="0" y1="0" x2="5" y2="0" stroke="#030035" strokeWidth="1" opacity="0.8" />
+              <line x1="0" y1="0" x2="0" y2="5" stroke="#ffffff" strokeWidth="1" opacity="0.8" />
+              <line x1="0" y1="0" x2="5" y2="0" stroke="#ffffff" strokeWidth="1" opacity="0.8" />
             </pattern>
 
             <radialGradient id="inkGlow" cx="400" cy="400" r="300" gradientUnits="userSpaceOnUse">
-              <stop ref={stop1Ref} offset="0%"   stopColor="#030035" stopOpacity="0.12" />
-              <stop ref={stop2Ref} offset="40%"  stopColor="#030035" stopOpacity="0.04" />
-              <stop ref={stop3Ref} offset="100%" stopColor="#030035" stopOpacity="0" />
+              <stop ref={stop1Ref} offset="0%"   stopColor="#ffffff" stopOpacity="0.12" />
+              <stop ref={stop2Ref} offset="40%"  stopColor="#ffffff" stopOpacity="0.04" />
+              <stop ref={stop3Ref} offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -226,71 +226,71 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
           </g>
 
           <g ref={kawungRef} opacity="0.4">
-            <circle cx="400" cy="400" r="320" fill="none" stroke="#030035" strokeWidth="1" strokeDasharray="4 8" />
-            <ellipse cx="400" cy="90"  rx="28" ry="52" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="400" cy="710" rx="28" ry="52" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="90"  cy="400" rx="52" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="710" cy="400" rx="52" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <line x1="400" y1="80"  x2="400" y2="145" stroke="#030035" strokeWidth="0.8" />
-            <line x1="400" y1="655" x2="400" y2="720" stroke="#030035" strokeWidth="0.8" />
-            <line x1="80"  y1="400" x2="145" y2="400" stroke="#030035" strokeWidth="0.8" />
-            <line x1="655" y1="400" x2="720" y2="400" stroke="#030035" strokeWidth="0.8" />
+            <circle cx="400" cy="400" r="320" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="4 8" />
+            <ellipse cx="400" cy="90"  rx="28" ry="52" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="400" cy="710" rx="28" ry="52" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="90"  cy="400" rx="52" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="710" cy="400" rx="52" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="400" y1="80"  x2="400" y2="145" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="400" y1="655" x2="400" y2="720" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="80"  y1="400" x2="145" y2="400" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="655" y1="400" x2="720" y2="400" stroke="#ffffff" strokeWidth="0.8" />
           </g>
 
           <g ref={ringsRef} opacity="0.5">
-            <circle cx="400" cy="400" r="220" fill="none" stroke="#030035" strokeWidth="1" strokeDasharray="2 6" />
-            <circle cx="400" cy="400" r="258" fill="none" stroke="#030035" strokeWidth="0.5" />
-            <ellipse cx="400" cy="183" rx="15" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="400" cy="617" rx="15" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="183" cy="400" rx="28" ry="15" fill="none" stroke="#030035" strokeWidth="0.8" />
-            <ellipse cx="617" cy="400" rx="28" ry="15" fill="none" stroke="#030035" strokeWidth="0.8" />
+            <circle cx="400" cy="400" r="220" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="2 6" />
+            <circle cx="400" cy="400" r="258" fill="none" stroke="#ffffff" strokeWidth="0.5" />
+            <ellipse cx="400" cy="183" rx="15" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="400" cy="617" rx="15" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="183" cy="400" rx="28" ry="15" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="617" cy="400" rx="28" ry="15" fill="none" stroke="#ffffff" strokeWidth="0.8" />
           </g>
 
           <g ref={gemGroupRef}>
             <polygon
               points="260,200 540,200 700,340 400,700 100,340"
-              fill="#FDFBF9" 
-              stroke="#030035" 
+              fill="#E5997B" 
+              stroke="#ffffff" 
               strokeWidth="3"
               strokeLinejoin="round"
             />
             <polygon 
               points="260,200 320,340 100,340" 
               fill="url(#hatch-med)" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
             <polygon 
               points="540,200 700,340 480,340" 
               fill="none" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
             <polygon 
               points="260,200 540,200 480,340 320,340" 
               fill="url(#hatch-light)" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
             <polygon 
               points="100,340 320,340 400,700" 
               fill="url(#hatch-heavy)" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
             <polygon 
               points="700,340 400,700 480,340" 
               fill="url(#hatch-light)" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
             <polygon 
               points="320,340 480,340 400,700" 
               fill="url(#hatch-med)" 
-              stroke="#030035" 
+              stroke="#ffffff" 
               strokeWidth="1.5" strokeLinejoin="round" 
             />
-            <line x1="100" y1="340" x2="700" y2="340" stroke="#030035" strokeWidth="2" />
+            <line x1="100" y1="340" x2="700" y2="340" stroke="#ffffff" strokeWidth="2" />
           </g>
         </svg>
       </div>

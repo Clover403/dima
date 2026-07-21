@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import PageTransition from '../components/PageTransition'
-import ServiciosHero from '../components/servicios/ServiciosHero'
+import PageTransition from '../components/layout/PageTransition'
+import SharedHeroSection from '../components/layout/SharedHeroSection'
 import ServiciosNav from '../components/servicios/ServiciosNav'
 import ServicesShowcase from '../components/servicios/ServicesShowcase'
 import ServiciosValues from '../components/servicios/ServiciosValues'
-import ServiciosCTA from '../components/servicios/ServiciosCTA'
+import CTA from '../components/layout/CTA'
 
 /* ═══════════════════════════════════════════
    SERVICE DATA — 6 Services
@@ -167,13 +167,19 @@ export default function Services() {
 
   return (
     <PageTransition>
-      <ServiciosHero />
+      <SharedHeroSection
+        eyebrowText="Servicios"
+        titleTop="Acompañamiento"
+        titleBottom="estratégico"
+        description="Más allá de los productos, ofrecemos un ecosistema de servicios diseñados para fortalecer la estructura financiera de nuestros clientes."
+      />
       <ServiciosNav />
 
       <ServicesShowcase services={services} />
 
       <ServiciosValues />
-      <ServiciosCTA />
+      <CTA />
     </PageTransition>
   )
 }
+

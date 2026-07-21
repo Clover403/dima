@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion, AnimatePresence } from 'framer-motion'
+import SpotlightGridBackground from '../layout/SpotlightGridBackground'
+import { servicesData as DERIVATIVES } from '../../data/servicios'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,104 +27,30 @@ const PROTAGONIST = {
   description:
     'Ejecutamos operaciones de intermediación financiera con una ventaja estructural única: nuestro modelo macroeconómico — fundamentado en los principios de Ray Dalio — nos permite leer el ciclo económico antes de actuar. No somos un banco. Somos arquitectos de equilibrio.',
   model:
-    'El Modelo Ray Dalio nos permite anticipar la posición de la economía en su ciclo de deuda a largo plazo y en el ciclo de productividad. Esa lectura es el cimiento de cada operación que ejecutamos.',
+    'El Modelo Ray Dalio nos permite anticipar la posición de la economía en su ciclo de deuda a largo plazo y en el ciclo de productividad. Esa lectura es el cimiento de cada operation que ejecutamos.',
   tagline: 'Todo nace de aquí.',
 }
 
-const DERIVATIVES = [
-  {
-    id: '01',
-    name: 'Reingeniería de Deuda',
-    short: 'Estructura óptima de capital',
-    description:
-      'Rediseñamos la arquitectura de deuda corporativa para sincronizarla con los ciclos macroeconómicos actuales. No se trata solo de refinanciar — se trata de posicionar estratégicamente cada instrumento en el momento correcto del ciclo.',
-    connection:
-      'Nuestra capacidad de reestructurar deuda con precisión nace directamente del modelo macroeconómico que empleamos en correduría: entendemos cuándo los ciclos favorecen la renegociación y cuándo representan riesgo sistémico.',
-    deliverables: [
-      'Diagnóstico de estructura de deuda actual',
-      'Modelado de escenarios de refinanciamiento',
-      'Negociación estratégica con contraparte',
-    ],
-  },
-  {
-    id: '02',
-    name: 'Estrategia Financiera Cíclica',
-    short: 'Anticipación de ciclos económicos',
-    description:
-      'Diseñamos estrategias financieras que anticipan los movimientos del ciclo económico. La diferencia entre rentabilidad y pérdida está en la anticipación — no en la reacción. Cada decisión se calibra contra el estado actual del ciclo.',
-    connection:
-      'La anticipación de ciclos es el núcleo operativo de nuestra correduría. Esta capacidad analítica se extiende naturalmente al asesoramiento estratégico de cada cliente que lo necesite.',
-    deliverables: [
-      'Análisis de posición en el ciclo actual',
-      'Estrategia de asignación de capital',
-      'Monitoreo y ajuste continuo',
-    ],
-  },
-  {
-    id: '03',
-    name: 'Tesorería Avanzada',
-    short: 'Maximización de liquidez operativa',
-    description:
-      'Optimizamos la gestión de tesorería empresarial integrando visión macroeconómica con las necesidades operativas específicas de cada organización. Liquidez inteligente, no solo disponible.',
-    connection:
-      'La visibilidad que tenemos sobre flujos de mercado como corredores nos permite diseñar estructuras de tesorería que el análisis interno puro no puede alcanzar. Conocemos el ciclo desde adentro.',
-    deliverables: [
-      'Diagnóstico de flujos de caja',
-      'Optimización de posiciones de liquidez',
-      'Estructura de inversión de excedentes',
-    ],
-  },
-  {
-    id: '04',
-    name: 'Valuación Estratégica',
-    short: 'Determinación del valor real',
-    description:
-      'Determinamos el valor real de activos, empresas e instrumentos financieros con metodologías que integran contexto macroeconómico y ciclo de mercado. El valor no es estático — depende del momento del ciclo.',
-    connection:
-      'Valuar correctamente requiere entender el ciclo en el que se encuentra el activo. Nuestra posición como corredores nos da acceso a información de mercado que enriquece cada valuación más allá del análisis de escritorio.',
-    deliverables: [
-      'Valuación de empresas y activos financieros',
-      'Due diligence de valor',
-      'Informes para decisiones de inversión',
-    ],
-  },
-  {
-    id: '05',
-    name: 'Gobernanza Financiera',
-    short: 'Institucionalización de decisiones',
-    description:
-      'Diseñamos estructuras de gobernanza que institucionalizan la toma de decisiones financieras y crean organizaciones financieramente resilientes. La disciplina analítica como cultura, no solo como consultoría.',
-    connection:
-      'La gobernanza que diseñamos incorpora los principios macroeconómicos de nuestra correduría, trasladando esa disciplina al ADN de la organización. No enseñamos metodología — instalamos mentalidad.',
-    deliverables: [
-      'Diseño de comités financieros',
-      'Políticas y procedimientos financieros',
-      'Implementación de KPIs estratégicos',
-    ],
-  },
-]
+// Data DERIVATIVES moved to src/data/servicios.ts
 
-// ─── Componente Icono ─────────────────────────────────────────────────────────
 function DiamondIcon({ size = 16, opacity = 1 }: { size?: number; opacity?: number }) {
   return (
     <svg viewBox="0 0 20 20" fill="none" style={{ width: size, height: size, flexShrink: 0 }} aria-hidden>
-      <path d="M10 1L19 10L10 19L1 10Z" stroke="#030035" strokeWidth="1.5" opacity={opacity} />
+      <path d="M10 1L19 10L10 19L1 10Z" stroke="#F4F4F5" strokeWidth="1.5" opacity={opacity} />
     </svg>
   )
 }
 
-// ─── Komponen Utama ───────────────────────────────────────────────────────────
 export default function ServicesShowcase(_props?: { services?: any }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const vantaRef = useRef<HTMLDivElement>(null)
+  const effectRef = useRef<any>(null)
   const [selected, setSelected] = useState(0)
-  // Note: component uses internal DERIVATIVES data, param is accepted for page compatibility
 
   // ── Setup Vanta Globe Full Background ───────────────────────────────────
   useEffect(() => {
     let mounted = true
     let attempts = 0
-    let effect: any = null
 
     async function initVanta() {
       try {
@@ -133,7 +61,7 @@ export default function ServicesShowcase(_props?: { services?: any }) {
           if (!mounted) return
           attempts++
           if ((window as any).VANTA?.GLOBE && vantaRef.current) {
-            effect = (window as any).VANTA.GLOBE({
+            effectRef.current = (window as any).VANTA.GLOBE({
               el: vantaRef.current,
               THREE: (window as any).THREE,
               mouseControls: true,
@@ -143,11 +71,17 @@ export default function ServicesShowcase(_props?: { services?: any }) {
               minWidth: 200.00,
               scale: 1.00,
               scaleMobile: 1.00,
-              color: 0x030035,
+              color: 0xF4F4F5,
               color2: 0xe5997b,
               size: 1.30,
-              backgroundColor: 0xf5f5f5 
+              backgroundColor: 0x030035 
             })
+            
+            // Paksa kalkulasi ulang ukuran canvas setelah inisialisasi awal berhasil
+            setTimeout(() => {
+              if (effectRef.current?.resize) effectRef.current.resize()
+            }, 500)
+            
           } else if (attempts < 50) {
             setTimeout(checkVanta, 100)
           }
@@ -162,7 +96,7 @@ export default function ServicesShowcase(_props?: { services?: any }) {
 
     return () => {
       mounted = false
-      if (effect) effect.destroy()
+      if (effectRef.current) effectRef.current.destroy()
     }
   }, [])
 
@@ -171,24 +105,38 @@ export default function ServicesShowcase(_props?: { services?: any }) {
     if (!containerRef.current) return
 
     const ctx = gsap.context(() => {
+      // 1. Timeline untuk memudarkan Protagonist (Globe + Text) saat scroll melewati 50vh extra
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: '.protagonist-wrapper',
           start: 'top top',
-          end: '+=150%',
+          end: 'bottom top',
           scrub: 1,
-          pin: true,
+          onRefresh: () => {
+            if (effectRef.current?.resize) effectRef.current.resize()
+          }
         },
       })
 
       tl.to('.protagonist-content', { opacity: 0, y: -50, scale: 0.98, duration: 1 })
         .to('.vanta-bg', { opacity: 0, duration: 1 }, '<')
-        .fromTo(
-          '.derivatives-section',
-          { opacity: 0, y: 50, pointerEvents: 'none' },
-          { opacity: 1, y: 0, pointerEvents: 'auto', duration: 1 },
-          '<0.2'
-        )
+
+      // 2. Efek fade-in halus saat section derivatif mulai masuk ke layar
+      gsap.fromTo(
+        '.derivatives-section',
+        { opacity: 0, y: 80 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 1.2, 
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.derivatives-section',
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      )
     }, containerRef)
 
     return () => ctx.revert()
@@ -206,132 +154,154 @@ export default function ServicesShowcase(_props?: { services?: any }) {
     return () => ctx.revert()
   }, [])
 
+  // ── Reset Globe ke Tengah secara Langsung ────────────────────────────────
+  const handleMouseLeave = () => {
+    if (effectRef.current) {
+      effectRef.current.mouseX = 0;
+      effectRef.current.mouseY = 0;
+      // Memastikan ukuran canvas tidak mengecil/terpotong saat kursor keluar
+      if (effectRef.current.resize) effectRef.current.resize()
+    }
+
+    window.dispatchEvent(
+      new MouseEvent('mousemove', {
+        clientX: window.innerWidth / 2,
+        clientY: window.innerHeight / 2,
+        bubbles: true,
+      })
+    );
+  };
+
   return (
     <section 
       ref={containerRef} 
       id="servicios" 
-      className="relative h-screen w-full overflow-hidden bg-[#F5F5F5]"
+      className="relative w-full bg-[#030035]"
+      onMouseLeave={handleMouseLeave} 
     >
-      <div className="vanta-bg absolute inset-0 z-0 w-full h-full" ref={vantaRef} />
 
       {/* ════════════════════════════════════════════════════
           BAGIAN 1: PROTAGONISTA 
-          (Dipindah ke kiri sejajar dengan padding Services)
       ════════════════════════════════════════════════════ */}
-      <div className="absolute inset-0 z-10 flex items-center w-full h-full pointer-events-none">
-        {/* Diganti menjadi justify-start agar sejajar kiri */}
-        <div className="w-full max-w-[1600px] mx-auto px-8 md:px-12 lg:px-16 xl:px-20 flex justify-start pointer-events-auto">
-          <div className="w-full lg:w-[65%] xl:w-[55%] protagonist-content">
-            
-            <div className="prot-anim flex items-center gap-5 mb-8">
-              <DiamondIcon size={24} opacity={1} />
-              <span className="font-body text-[#030035] uppercase tracking-[0.5em] text-sm md:text-base lg:text-lg font-bold">
-                {PROTAGONIST.eyebrow}
-              </span>
-              <div className="flex-1 h-px max-w-[150px]" style={{ background: 'rgba(3,0,53,0.3)' }} />
+      <div className="protagonist-wrapper relative w-full h-[150vh]">
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="vanta-bg absolute inset-0 z-0 w-full h-full" ref={vantaRef} />
+
+          <div className="absolute inset-0 z-10 flex items-center w-full h-full pointer-events-none">
+            <div className="w-full max-w-[1600px] mx-auto px-8 md:px-12 lg:px-16 xl:px-20 flex justify-start pointer-events-auto">
+              <div className="w-full lg:w-[65%] xl:w-[55%] protagonist-content">
+                
+                <div className="prot-anim flex items-center gap-5 mb-8">
+                  <DiamondIcon size={24} opacity={1} />
+                  <span className="font-body text-[#F4F4F5] uppercase tracking-[0.5em] text-sm md:text-base lg:text-lg font-bold">
+                    {PROTAGONIST.eyebrow}
+                  </span>
+                  <div className="flex-1 h-px max-w-[150px]" style={{ background: 'rgba(244,244,245,0.3)' }} />
+                </div>
+
+                <h2 className="prot-anim mb-8 font-display text-[#F4F4F5] leading-[0.95] text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] tracking-tight">
+                  {PROTAGONIST.title[0]}
+                  <br />
+                  <em className="italic text-[#E5997B]">
+                    {PROTAGONIST.title[1]}
+                  </em>
+                </h2>
+
+                <p className="prot-anim font-body mb-10 text-[#F4F4F5]/80 uppercase tracking-[0.4em] text-sm md:text-base lg:text-lg font-bold">
+                  {PROTAGONIST.tagline}
+                </p>
+
+                <p className="prot-anim font-body mb-12 leading-relaxed text-[#F4F4F5]/80 text-xl md:text-2xl lg:text-[1.75rem]">
+                  {PROTAGONIST.description}
+                </p>
+
+                <div className="prot-anim relative pl-8 mb-12 border-l-4 border-[#F4F4F5]/20">
+                  <p className="font-body italic leading-relaxed text-[#F4F4F5]/70 text-lg md:text-xl lg:text-2xl">
+                    "{PROTAGONIST.model}"
+                  </p>
+                </div>
+                
+              </div>
             </div>
 
-            <h2 className="prot-anim mb-8 font-display text-[#030035] leading-[0.95] text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] tracking-tight">
-              {PROTAGONIST.title[0]}
-              <br />
-              <em className="italic text-[#E5997B]">
-                {PROTAGONIST.title[1]}
-              </em>
-            </h2>
-
-            <p className="prot-anim font-body mb-10 text-[#030035]/80 uppercase tracking-[0.4em] text-sm md:text-base lg:text-lg font-bold">
-              {PROTAGONIST.tagline}
-            </p>
-
-            <p className="prot-anim font-body mb-12 leading-relaxed text-[#030035]/80 text-xl md:text-2xl lg:text-[1.75rem]">
-              {PROTAGONIST.description}
-            </p>
-
-            <div className="prot-anim relative pl-8 mb-12 border-l-4 border-[#030035]/20">
-              <p className="font-body italic leading-relaxed text-[#030035]/70 text-lg md:text-xl lg:text-2xl">
-                "{PROTAGONIST.model}"
-              </p>
-            </div>
-            
+            <motion.div
+              animate={{ y: [0, 15, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="protagonist-content absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20 pointer-events-auto"
+            >
+              <span className="font-body uppercase text-[#F4F4F5]/60 text-xs md:text-sm tracking-[0.5em] font-extrabold">Scroll</span>
+              <div className="w-px h-20 bg-gradient-to-b from-[#F4F4F5]/40 to-transparent" />
+            </motion.div>
           </div>
         </div>
-
-        <motion.div
-          animate={{ y: [0, 15, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="protagonist-content absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20 pointer-events-auto"
-        >
-          <span className="font-body uppercase text-[#030035]/60 text-xs md:text-sm tracking-[0.5em] font-extrabold">Scroll</span>
-          <div className="w-px h-20 bg-gradient-to-b from-[#030035]/40 to-transparent" />
-        </motion.div>
       </div>
 
       {/* ════════════════════════════════════════════════════
-          BAGIAN 2: SERVICIOS DERIVADOS 
+          BAGIAN 2: SERVICIOS DERIVADOS (Natural Scroll Flow)
       ════════════════════════════════════════════════════ */}
-      <div className="derivatives-section absolute inset-0 z-20 flex items-center w-full h-full pt-10">
+      <div className="derivatives-section relative z-20 w-full bg-[#030035] pt-12 pb-32">
+        <SpotlightGridBackground />
+        
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-8 md:px-12 lg:px-16 xl:px-20">
-          <div className="w-full">
+          
+          {/* Header area */}
+          <div className="mb-6 lg:mb-10">
+            <div className="flex items-center gap-5 mb-6">
+              <DiamondIcon size={20} opacity={1} />
+              <span className="font-body text-[#F4F4F5] uppercase text-[10px] font-bold tracking-[0.5em]">
+                Capacidades Derivadas
+              </span>
+            </div>
+            <h3 className="font-display text-[#F4F4F5] leading-[0.95] text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] tracking-tight">
+              Servicios que nacen de
+              <br />
+              <em className="italic text-[#E5997B]">nuestro núcleo</em>
+            </h3>
+          </div>
 
-            <div className="mb-12 lg:mb-16">
-              <div className="flex items-center gap-5 mb-6">
-                <DiamondIcon size={24} opacity={1} />
-                <span className="font-body text-[#030035] uppercase text-sm md:text-base lg:text-lg font-bold tracking-[0.5em]">
-                  Capacidades Derivadas
+          <div className="flex flex-wrap gap-x-8 gap-y-4 mb-4 border-b border-[#F4F4F5]/10 pb-2" role="tablist">
+            {DERIVATIVES.map((svc, i) => (
+              <button
+                key={svc.id}
+                role="tab"
+                onClick={() => setSelected(i)}
+                className="relative group text-left py-2 transition-colors duration-300 focus:outline-none"
+                style={{ color: selected === i ? '#F4F4F5' : 'rgba(244,244,245,0.4)' }}
+              >
+                <span className="font-body block mb-1 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase"
+                  style={{ color: selected === i ? '#E5997B' : undefined }}>
+                  {svc.id}
                 </span>
-              </div>
-              <h3 className="font-display text-[#030035] leading-[0.95] text-5xl md:text-6xl lg:text-[5.5rem] xl:text-[6.5rem] tracking-tight">
-                Servicios que nacen de
-                <br />
-                <em className="italic text-[#E5997B]">nuestro núcleo</em>
-              </h3>
-            </div>
-
-            {/* Navigasi Tab (Ukuran font diperkecil) */}
-            <div className="flex flex-wrap gap-x-8 gap-y-4 mb-10 border-b border-[#030035]/10 pb-2" role="tablist">
-              {DERIVATIVES.map((svc, i) => (
-                <button
-                  key={svc.id}
-                  role="tab"
-                  onClick={() => setSelected(i)}
-                  className="relative group text-left py-3 transition-colors duration-300 focus:outline-none"
-                  style={{ color: selected === i ? '#030035' : 'rgba(3,0,53,0.4)' }}
-                >
-                  {/* Nomor diperkecil */}
-                  <span className="font-body block mb-2 text-xs md:text-sm font-bold tracking-[0.3em] uppercase"
-                    style={{ color: selected === i ? '#E5997B' : undefined }}>
-                    {svc.id}
-                  </span>
-                  {/* Nama Tab diperkecil menyesuaikan dengan list image */}
-                  <span className="font-display block text-lg md:text-xl lg:text-2xl font-semibold">
-                    {svc.name}
-                  </span>
-                  <motion.div
-                    className="absolute bottom-[-9px] left-0 h-[2px] bg-[#E5997B]"
-                    initial={false}
-                    animate={{ width: selected === i ? '100%' : '0%' }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </button>
-              ))}
-            </div>
-
-            <div className="relative min-h-[380px]">
-              <AnimatePresence mode="wait">
+                <span className="font-display block text-base md:text-lg lg:text-xl font-semibold">
+                  {svc.name}
+                </span>
                 <motion.div
-                  key={selected}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.4 }}
-                  className="pt-8"
-                >
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 xl:gap-24">
-                    <div className="lg:col-span-8">
-                      <p className="font-body text-[#030035] uppercase mb-6 text-sm md:text-base lg:text-lg font-bold tracking-[0.3em]">
+                  className="absolute bottom-[-9px] left-0 h-[2px] bg-[#E5997B]"
+                  initial={false}
+                  animate={{ width: selected === i ? '100%' : '0%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </button>
+            ))}
+          </div>
+
+          <div className="relative pt-12 lg:pt-16">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selected}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="flex flex-col gap-16 lg:gap-24">
+                  {/* Top Section: Text Left, Image Right */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+                    <div className="lg:col-span-7">
+                      <p className="font-body text-[#F4F4F5] uppercase mb-6 text-sm md:text-base lg:text-lg font-bold tracking-[0.3em]">
                         {DERIVATIVES[selected].short}
                       </p>
-                      <p className="font-body leading-relaxed text-[#030035]/80 text-xl md:text-2xl lg:text-[1.75rem] mb-10">
+                      <p className="font-body leading-relaxed text-[#F4F4F5]/80 text-xl md:text-2xl lg:text-[1.75rem] mb-10">
                         {DERIVATIVES[selected].description}
                       </p>
                       
@@ -345,7 +315,7 @@ export default function ServicesShowcase(_props?: { services?: any }) {
                             className="flex items-center gap-5"
                           >
                             <DiamondIcon size={16} opacity={0.8} />
-                            <span className="font-body text-lg md:text-xl lg:text-2xl text-[#030035] font-semibold">
+                            <span className="font-body text-lg md:text-xl lg:text-2xl text-[#F4F4F5] font-semibold">
                               {d}
                             </span>
                           </motion.div>
@@ -353,40 +323,65 @@ export default function ServicesShowcase(_props?: { services?: any }) {
                       </div>
                     </div>
 
-                    <div className="lg:col-span-4 lg:pl-12 xl:pl-16 lg:border-l-2 border-[#030035]/10 flex flex-col justify-center">
+                    <div className="lg:col-span-5 flex items-start justify-center lg:-mt-12">
+                      <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl">
+                        <img 
+                          src={DERIVATIVES[selected].image1} 
+                          alt={DERIVATIVES[selected].name} 
+                          className="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700 ease-out"
+                        />
+                        <div className="absolute inset-0 bg-[#030035]/10 mix-blend-multiply" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Section: Image Left, Text Right */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+                    <div className="lg:col-span-5 order-2 lg:order-1 flex items-center justify-center">
+                      <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl">
+                        <img 
+                          src={DERIVATIVES[selected].image2} 
+                          alt={DERIVATIVES[selected].name} 
+                          className="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700 ease-out"
+                        />
+                        <div className="absolute inset-0 bg-[#030035]/10 mix-blend-multiply" />
+                      </div>
+                    </div>
+
+                    <div className="lg:col-span-7 order-1 lg:order-2 lg:pl-16 flex flex-col justify-center">
                       <div className="flex items-center gap-4 mb-8">
                         <DiamondIcon size={18} opacity={1} />
-                        <span className="font-body uppercase text-[#030035] text-sm md:text-base lg:text-lg font-bold tracking-widest">
+                        <span className="font-body uppercase text-[#F4F4F5] text-sm md:text-base lg:text-lg font-bold tracking-widest">
                           Por qué es posible
                         </span>
                       </div>
-                      <p className="font-body italic leading-relaxed text-[#030035]/70 text-lg md:text-xl lg:text-2xl mb-12">
+                      <p className="font-body italic leading-relaxed text-[#F4F4F5]/70 text-lg md:text-xl lg:text-2xl mb-12">
                         {DERIVATIVES[selected].connection}
                       </p>
 
-                      <div className="flex items-center gap-6 pt-8 border-t-2 border-[#030035]/10">
-                        <div className="w-16 h-16 flex items-center justify-center border-2 border-[#030035]/30 rounded-md">
+                      <div className="flex items-center gap-6 pt-8 border-t-2 border-[#F4F4F5]/10">
+                        <div className="w-16 h-16 flex items-center justify-center border-2 border-[#F4F4F5]/30 rounded-md shrink-0">
                           <svg viewBox="0 0 20 20" fill="none" style={{ width: 24, height: 24 }}>
-                            <path d="M10 2L18 10L10 18L2 10Z" stroke="#030035" strokeWidth="1.5" />
-                            <circle cx="10" cy="10" r="3" fill="#030035" opacity="0.8" />
+                            <path d="M10 2L18 10L10 18L2 10Z" stroke="#F4F4F5" strokeWidth="1.5" />
+                            <circle cx="10" cy="10" r="3" fill="#F4F4F5" opacity="0.8" />
                           </svg>
                         </div>
                         <div>
-                          <p className="font-body uppercase mb-2 text-[#030035]/60 text-xs md:text-sm font-bold tracking-widest">
+                          <p className="font-body uppercase mb-2 text-[#F4F4F5]/60 text-xs md:text-sm font-bold tracking-widest">
                             Habilitado por
                           </p>
-                          <p className="font-display text-[#030035] text-xl md:text-2xl font-bold">
+                          <p className="font-display text-[#F4F4F5] text-xl md:text-2xl font-bold">
                             Correduría Financiera
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
+
         </div>
       </div>
     </section>

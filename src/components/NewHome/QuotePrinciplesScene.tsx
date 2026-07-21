@@ -90,7 +90,7 @@ function QuoteReveal({ quote, progress, index }: { quote: typeof QUOTES_DATA[0];
             letterSpacing="-0.03em"
             fontWeight="400"
             fill="none"               
-            stroke="#030035" 
+            stroke="#f3f4f6" 
             strokeWidth="1.5"         
             strokeLinejoin="round" 
             strokeLinecap="round" 
@@ -110,7 +110,7 @@ function QuoteReveal({ quote, progress, index }: { quote: typeof QUOTES_DATA[0];
             fontSize="90"             
             letterSpacing="-0.03em"
             fontWeight="400"
-            fill="#030035" 
+            fill="#f3f4f6" 
             stroke="none"             
             style={{ opacity: fillOpacity }} 
           >
@@ -122,8 +122,8 @@ function QuoteReveal({ quote, progress, index }: { quote: typeof QUOTES_DATA[0];
 
         <motion.div style={{ opacity: fillOpacity }} className="mt-8 md:mt-12 flex flex-col sm:flex-row sm:items-end justify-between gap-4 md:gap-6 overflow-visible w-full">
           <div className="flex flex-col items-start">
-            <p className="font-display font-bold text-[#030035] text-xl md:text-3xl mb-1">— {quote.author}</p>
-            <p className="text-[10px] md:text-xs text-[#030035]/40 font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">{quote.labelLeft}</p>
+            <p className="font-display font-bold text-[#f3f4f6] text-xl md:text-3xl mb-1">— {quote.author}</p>
+            <p className="text-[10px] md:text-xs text-[#f3f4f6]/40 font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">{quote.labelLeft}</p>
           </div>
           <div className="text-left sm:text-right">
             <p className="text-[10px] md:text-xs text-[#E5997B] font-bold tracking-[0.2em] md:tracking-[0.5em] uppercase">{quote.labelRight}</p>
@@ -161,7 +161,7 @@ export default function QuotePrinciplesScene({ scrollYProgress }: { scrollYProgr
         minWidth: 600.0,
         scale: 1.0,
         scaleMobile: 1.0,
-        backgroundColor: 0xf3f4f6,
+        backgroundColor: 0x030035,
         color1: 0x1a1a4e,
         color2: 0xe5997b,
         colorMode: 'lerp',
@@ -186,22 +186,22 @@ export default function QuotePrinciplesScene({ scrollYProgress }: { scrollYProgr
 
   return (
     <motion.div style={{ opacity: sceneOpacity, y: sceneY }} className="absolute inset-0 z-25 pointer-events-none">
-      <div ref={sceneRef} className="relative h-full w-full overflow-hidden bg-[#f3f4f6]">
+      <div ref={sceneRef} className="relative h-full w-full overflow-hidden bg-[#030035]">
         
         {/* Layer Blur untuk meredupkan Vanta Birds */}
-        <div className="absolute inset-0 bg-[#f3f4f6]/55 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-[#030035]/55 backdrop-blur-[1px]" />
 
         {/* 1. Ornamen Grid Titik/Garis */}
-        <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.04] [background-image:linear-gradient(#030035_1px,transparent_1px),linear-gradient(90deg,#030035_1px,transparent_1px)] [background-size:64px_64px]" />
+        <div className="absolute inset-0 pointer-events-none z-10 opacity-[0.04] [background-image:linear-gradient(#f3f4f6_1px,transparent_1px),linear-gradient(90deg,#f3f4f6_1px,transparent_1px)] [background-size:64px_64px]" />
 
         {/* 2. Ornamen SVG Garis Melingkar ala Blueprint/Engraving (Responsive) */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-10 z-10">
           <svg viewBox="0 0 1000 1000" className="w-[150vw] h-[150vw] md:w-[120vw] md:h-[120vw] max-w-[1500px] animate-spin-slow">
-            <circle cx="500" cy="500" r="400" fill="none" stroke="#030035" strokeWidth="0.5" strokeDasharray="4 8" />
-            <circle cx="500" cy="500" r="300" fill="none" stroke="#030035" strokeWidth="0.5" />
-            <circle cx="500" cy="500" r="150" fill="none" stroke="#030035" strokeWidth="0.5" strokeDasharray="1 4" />
-            <path d="M 500 50 L 500 950 M 50 500 L 950 500" stroke="#030035" strokeWidth="0.5" strokeDasharray="6 6" />
-            <path d="M 180 180 L 820 820 M 180 820 L 820 180" stroke="#030035" strokeWidth="0.5" strokeDasharray="4 10" />
+            <circle cx="500" cy="500" r="400" fill="none" stroke="#f3f4f6" strokeWidth="0.5" strokeDasharray="4 8" />
+            <circle cx="500" cy="500" r="300" fill="none" stroke="#f3f4f6" strokeWidth="0.5" />
+            <circle cx="500" cy="500" r="150" fill="none" stroke="#f3f4f6" strokeWidth="0.5" strokeDasharray="1 4" />
+            <path d="M 500 50 L 500 950 M 50 500 L 950 500" stroke="#f3f4f6" strokeWidth="0.5" strokeDasharray="6 6" />
+            <path d="M 180 180 L 820 820 M 180 820 L 820 180" stroke="#f3f4f6" strokeWidth="0.5" strokeDasharray="4 10" />
           </svg>
         </div>
 

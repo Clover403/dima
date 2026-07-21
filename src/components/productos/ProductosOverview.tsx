@@ -1,71 +1,44 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Link } from 'react-router-dom'
-import AnimatedGrid from '../AnimatedGrid'
+import { productsData } from '../../data/productos'
+import RippleGrid from '../../components/RippleGrid'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const products = [
-  {
-    num: '01',
-    name: 'Crédito Simple',
-    hook: 'Capital a plazo fijo, pagos predecibles.',
-    desc: 'Obtén capital para proyectos específicos sin afectar tu flujo de caja. Monto definido, tasa fija, amortizaciones estructuradas.',
-    use: 'Adquisición de activos y expansión',
-  },
-  {
-    num: '02',
-    name: 'Crédito Puente',
-    hook: 'Financiamiento alineado al avance de obra.',
-    desc: 'Diseñado para cubrir costos de un proyecto inmobiliario mientras se materializa la fuente de pago esperada.',
-    use: 'Desarrollos inmobiliarios',
-  },
-  {
-    num: '03',
-    name: 'Cuenta Corriente',
-    hook: 'Línea revolvente para ciclos operativos.',
-    desc: 'Una vez liquidado, el crédito vuelve a estar disponible mientras el contrato esté activo. Control centralizado de operaciones.',
-    use: 'Capital de trabajo recurrente',
-  },
-  {
-    num: '04',
-    name: 'Crédito Agroindustrial',
-    hook: 'Financiamiento calibrado a ciclos de cosecha.',
-    desc: 'Pagos estructurados según ciclos de producción agrícola. Evaluación del proyecto, aprobación y disposición de recursos.',
-    use: 'Sector agropecuario',
-  },
-  {
-    num: '05',
-    name: 'Arrendamiento Financiero',
-    hook: 'Activos productivos sin descapitalización.',
-    desc: 'Uso y adquisición final del activo mediante pagos periódicos. El bien se registra en balance con deducción fiscal de intereses y depreciación.',
-    use: 'Maquinaria y tecnología',
-  },
-  {
-    num: '06',
-    name: 'Factoring',
-    hook: 'Liquidez inmediata sobre cuentas por cobrar.',
-    desc: 'Anticipo sobre el valor de tus facturas. La institución gestiona la cobranza. No esperes a que tus clientes paguen.',
-    use: 'Cadena de valor y flujo de efectivo',
-  },
-]
+// ─── Konfigurasi timing ───
+const TEXT_HIDE_DURATION   = 1.5
+const GAP                  = 0.3
+const LINE_WIDEN_DURATION  = 1.2
+const CURVE_APPEAR_DURATION= 0.8
+const CURTAIN_DURATION     = 2.5
+const CURVE_MAX_DEPTH      = 120 
+const SLIDE_DUR            = 3
 
-const ZOOM_END     = 3.5
-const SLIDES_START = 4
-const SLIDE_DUR    = 3
+const LINE_WIDEN_START   = TEXT_HIDE_DURATION + GAP
+const CURVE_APPEAR_START = LINE_WIDEN_START + LINE_WIDEN_DURATION * 0.55
+const VERTICAL_START     = CURVE_APPEAR_START + CURVE_APPEAR_DURATION + 0.2
+const SLIDES_START       = VERTICAL_START + CURTAIN_DURATION + GAP
 
 export default function ProductosOverview() {
-  const wrapperRef = useRef<HTMLDivElement>(null)
+  const wrapperRef            = useRef<HTMLDivElement>(null)
+  const slidesRef             = useRef<HTMLDivElement>(null)
+  const topCurveWrapRef       = useRef<HTMLDivElement>(null)
+  const bottomCurveWrapRef    = useRef<HTMLDivElement>(null)
+  const topCurveRef           = useRef<SVGPathElement>(null)
+  const bottomCurveRef        = useRef<SVGPathElement>(null)
+  const sectionBottomCurveRef = useRef<SVGPathElement>(null)
+  
+  const spotlightGridRef   = useRef<HTMLDivElement>(null)
+  const spotlightDotsRef   = useRef<HTMLDivElement>(null)
+  
   const [active, setActive] = useState(0)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (!wrapperRef.current) return
 
-      gsap.set('.productos-overlay', { opacity: 1 })
-      gsap.set('.productos-word',    { scale: 1, opacity: 1 })
-      gsap.set('.productos-slides',  { opacity: 0 })
+      gsap.set('.producto-char',     { opacity: 1 }) 
       gsap.set('.product-slide',     { opacity: 0, yPercent: 0 })
       gsap.set('.product-slide:first-child', { opacity: 1 })
 
@@ -76,6 +49,77 @@ export default function ProductosOverview() {
         ease: 'none',
       })
 
+      const gridAngleProxy = { angle: 0 }
+      const dotsAngleProxy = { angle: 0 }
+
+      gsap.set(spotlightGridRef.current, { '--grid-angle': '0deg' })
+      gsap.set(spotlightDotsRef.current, { '--dots-angle': '0deg' })
+
+      gsap.to(gridAngleProxy, {
+        angle: "+=360",
+        duration: 7,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          if (spotlightGridRef.current) {
+            spotlightGridRef.current.style.setProperty('--grid-angle', `${gridAngleProxy.angle}deg`)
+          }
+        }
+      })
+
+      gsap.to(dotsAngleProxy, {
+        angle: "-=360",
+        duration: 7,
+        ease: "none",
+        repeat: -1,
+        onUpdate: () => {
+          if (spotlightDotsRef.current) {
+            spotlightDotsRef.current.style.setProperty('--dots-angle', `${dotsAngleProxy.angle}deg`)
+          }
+        }
+      })
+
+      const band = { insetX: 50, insetY: 49.9, depth: 0 }
+
+      // ─── UPDATE SVG PATH SECARA DINAMIS AGAR LANCIP ───
+      const updateBand = () => {
+        if (slidesRef.current) {
+          slidesRef.current.style.clipPath =
+            `inset(${band.insetY}% ${band.insetX}% ${band.insetY}% ${band.insetX}%)`
+        }
+
+        const depth = band.depth
+        
+        // Konversi persentase insetX ke koordinat viewBox SVG (1440px)
+        const xStart  = 1440 * (band.insetX / 100)
+        const xEnd    = 1440 * (1 - band.insetX / 100)
+        const xCenter = 720
+
+        // Kalkulasi handle/control point Bezier agar transisi kurva smooth dari ujung lancip
+        const cp1X = xStart + (xCenter - xStart) * 0.35
+        const cp2X = xCenter - (xCenter - xStart) * 0.35
+        const cp3X = xCenter + (xEnd - xCenter) * 0.35
+        const cp4X = xEnd - (xEnd - xCenter) * 0.35
+        
+        // Path dibuat menggantung dinamis dari xStart menuju xEnd
+        const dTop = `M${xStart},120 C${cp1X},120 ${cp2X},${120 - depth} ${xCenter},${120 - depth} C${cp3X},${120 - depth} ${cp4X},120 ${xEnd},120 Z`
+        const dBottom = `M${xStart},0 C${cp1X},0 ${cp2X},${depth} ${xCenter},${depth} C${cp3X},${depth} ${cp4X},0 ${xEnd},0 Z`
+
+        if (topCurveRef.current) topCurveRef.current.setAttribute('d', dTop)
+        if (bottomCurveRef.current) bottomCurveRef.current.setAttribute('d', dBottom)
+        
+        if (topCurveWrapRef.current) {
+          topCurveWrapRef.current.style.top = `${band.insetY}%`
+          topCurveWrapRef.current.style.clipPath = 'none' // Lepas clip kotak
+        }
+        if (bottomCurveWrapRef.current) {
+          bottomCurveWrapRef.current.style.top = `${100 - band.insetY}%`
+          bottomCurveWrapRef.current.style.clipPath = 'none' // Lepas clip kotak
+        } 
+      }
+      
+      updateBand()
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: wrapperRef.current,
@@ -85,13 +129,14 @@ export default function ProductosOverview() {
           scrub: 1.2,
           anticipatePin: 1,
           onUpdate: (self) => {
+            const total = self.animation?.duration() ?? 1
+            const slidesPhaseStart = SLIDES_START / total
             const p = self.progress
-            const slidesPhaseStart = SLIDES_START / 19
             if (p >= slidesPhaseStart) {
               const slidesProgress = (p - slidesPhaseStart) / (1 - slidesPhaseStart)
               const idx = Math.min(
-                Math.floor(slidesProgress * products.length),
-                products.length - 1
+                Math.floor(slidesProgress * productsData.length),
+                productsData.length - 1
               )
               setActive(idx)
             }
@@ -99,35 +144,42 @@ export default function ProductosOverview() {
         },
       })
 
-      tl.to('.productos-word', {
-        scale: 80,
+      tl.to('.producto-char', {
+        opacity: 0,
         ease: 'power2.inOut',
-        duration: ZOOM_END,
+        duration: 0.6,
+        stagger: {
+          each: 0.1,
+          from: 'end'
+        }
       }, 0)
 
-      tl.to('.productos-overlay', {
-        opacity: 0,
-        ease: 'power3.in',
-        duration: 0.4,
-      }, 2.9)
+      tl.to(band, {
+        insetX: 0,
+        duration: LINE_WIDEN_DURATION,
+        ease: 'power2.inOut',
+        onUpdate: updateBand,
+      }, LINE_WIDEN_START)
 
-      tl.to('.productos-word', {
-        opacity: 0,
-        ease: 'power2.in',
-        duration: 0.3,
-      }, 3.1)
+      tl.to(band, {
+        depth: CURVE_MAX_DEPTH, 
+        duration: CURVE_APPEAR_DURATION,
+        ease: 'power2.inOut',
+        onUpdate: updateBand,
+      }, CURVE_APPEAR_START)
 
-      tl.to('.productos-slides', {
-        opacity: 1,
-        ease: 'power2.out',
-        duration: 0.5,
-      }, 3.2)
+      tl.to(band, {
+        insetY: 0,
+        depth: 0, 
+        duration: CURTAIN_DURATION,
+        ease: 'power2.inOut',
+        onUpdate: updateBand,
+      }, VERTICAL_START)
 
       const slides = gsap.utils.toArray<HTMLElement>('.product-slide')
 
       slides.forEach((slide, i) => {
         const base = SLIDES_START + i * SLIDE_DUR
-
         if (i !== 0) {
           tl.fromTo(
             slide,
@@ -145,204 +197,230 @@ export default function ProductosOverview() {
         }
       })
 
+      const bottomSectionCurve = { depth: 0 }
+      const maxCurve = 90
+      const END_OF_SLIDES = SLIDES_START + productsData.length * SLIDE_DUR
+
+      tl.to(bottomSectionCurve, {
+        depth: maxCurve,
+        duration: 2,
+        ease: 'none',
+        onUpdate: () => {
+          if (sectionBottomCurveRef.current) {
+            sectionBottomCurveRef.current.setAttribute(
+              'd',
+              `M0,0 L1440,0 C1100,0 950,${bottomSectionCurve.depth} 720,${bottomSectionCurve.depth} C490,${bottomSectionCurve.depth} 340,0 0,0 Z`
+            )
+          }
+        }
+      }, END_OF_SLIDES - 1)
+
     }, wrapperRef)
     return () => ctx.revert()
   }, [])
 
   return (
     <div>
-      <div ref={wrapperRef} className="relative w-full h-screen overflow-hidden">
-        <AnimatedGrid cellSize={60} color="229,153,123" />
+      <div ref={wrapperRef} className="relative w-full h-screen overflow-hidden bg-[#030035]">
 
-        {/* ── LAYER 0: Product slides ── */}
-        <div className="productos-slides absolute inset-0 z-0" style={{ background: '#F4F4F5' }}>
-
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.45]"
-            style={{
-              backgroundImage: 'radial-gradient(circle, rgba(3,0,53,0.12) 1px, transparent 1px)',
-              backgroundSize: '28px 28px',
-            }}
+       {/* ── LAYER 0: Overlay Navy dengan Ripple Grid ── */}
+        <div className="productos-overlay absolute inset-0 z-0 bg-[#030035]">
+          <RippleGrid 
+            baseColor="rgba(229, 229, 229, 0.05)" 
+            accentColor="rgba(229, 229, 229, 0.25)" 
           />
+        </div>
 
-          <div
-            className="absolute inset-0 opacity-[0.06] pointer-events-none"
-            style={{
-              backgroundImage: `linear-gradient(to right, #030035 1px, transparent 1px), linear-gradient(to bottom, #030035 1px, transparent 1px)`,
-              backgroundSize: '60px 60px',
-            }}
-          />
+        {/* ── LAYER 1: Product Slides (Light Background) ── */}
+        <div
+          ref={slidesRef}
+          className="productos-slides absolute inset-0 z-10"
+          style={{ background: '#E5E5E5', clipPath: 'inset(49.9% 50% 49.9% 50%)' }}
+        >
+          {/* Spotlight Grid */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-60">
+            <div
+              ref={spotlightGridRef}
+              className="absolute inset-0 w-full h-full"
+              style={{
+                maskImage: 'radial-gradient(circle at center, transparent 8%, rgba(0,0,0,0.65) 22%, black 36%, rgba(0,0,0,0.5) 58%, transparent 95%), conic-gradient(from calc(var(--grid-angle) - 180deg) at center, transparent 30deg, rgba(0,0,0,0.02) 70deg, rgba(0,0,0,0.4) 170deg, black 230deg, rgba(0,0,0,0.4) 290deg, rgba(0,0,0,0.02) 330deg, transparent 360deg)',
+                WebkitMaskImage: 'radial-gradient(circle at center, transparent 8%, rgba(0,0,0,0.65) 22%, black 36%, rgba(0,0,0,0.5) 58%, transparent 95%), conic-gradient(from calc(var(--grid-angle) - 180deg) at center, transparent 30deg, rgba(0,0,0,0.02) 70deg, rgba(0,0,0,0.4) 170deg, black 230deg, rgba(0,0,0,0.4) 290deg, rgba(0,0,0,0.02) 330deg, transparent 360deg)',
+                maskComposite: 'intersect',
+                WebkitMaskComposite: 'intersect',
+                '--grid-angle': '0deg',
+              } as React.CSSProperties}
+            >
+              <div
+                className="absolute inset-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 w-screen h-screen"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(to right, rgba(3, 0, 53, 0.5) 1px, transparent 1px), 
+                    linear-gradient(to bottom, rgba(3, 0, 53, 0.5) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '72px 72px',
+                  backgroundPosition: '36px 36px',
+                  maskImage: 'radial-gradient(circle at center, transparent 8px, black 12px)',
+                  WebkitMaskImage: 'radial-gradient(circle at center, transparent 8px, black 12px)',
+                  maskSize: '72px 72px',
+                  WebkitMaskSize: '72px 72px',
+                }}
+              />
+            </div>
+            <div
+              ref={spotlightDotsRef}
+              className="absolute inset-0 w-full h-full"
+              style={{
+                maskImage: 'radial-gradient(circle at center, transparent 15%, rgba(0,0,0,0.5) 25%, black 40%, rgba(0,0,0,0.5) 55%, transparent 70%), conic-gradient(from calc(var(--dots-angle) - 180deg) at center, transparent 30deg, rgba(0,0,0,0.02) 70deg, rgba(0,0,0,0.4) 170deg, black 230deg, rgba(0,0,0,0.4) 290deg, rgba(0,0,0,0.02) 330deg, transparent 360deg)',
+                WebkitMaskImage: 'radial-gradient(circle at center, transparent 15%, rgba(0,0,0,0.5) 25%, black 40%, rgba(0,0,0,0.5) 55%, transparent 70%), conic-gradient(from calc(var(--dots-angle) - 180deg) at center, transparent 30deg, rgba(0,0,0,0.02) 70deg, rgba(0,0,0,0.4) 170deg, black 230deg, rgba(0,0,0,0.4) 290deg, rgba(0,0,0,0.02) 330deg, transparent 360deg)',
+                maskComposite: 'intersect',
+                WebkitMaskComposite: 'intersect',
+                '--dots-angle': '0deg',
+              } as React.CSSProperties}
+            >
+              <div
+                className="absolute inset-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 w-screen h-screen"
+                style={{
+                  backgroundImage: `
+                    radial-gradient(circle at 36px 36px, rgba(3, 0, 53, 0.7) 1.5px, transparent 1.5px)
+                  `,
+                  backgroundSize: '72px 72px',
+                  backgroundPosition: '0px 0px',
+                }}
+              />
+            </div>
+          </div>
 
-          <div className="absolute top-[15%] left-0 overflow-hidden opacity-[0.04] select-none pointer-events-none whitespace-nowrap flex">
+          <div className="absolute top-[15%] left-0 overflow-hidden opacity-[0.05] select-none pointer-events-none whitespace-nowrap flex">
             {[...Array(4)].map((_, i) => (
-              <span
-                key={i}
-                className="productos-marquee font-display text-[15vw] leading-none uppercase pr-20 text-[#030035]"
-              >
+              <span key={i} className="productos-marquee font-display text-[15vw] leading-none uppercase pr-20 text-[#030035]">
                 Dima Finance • Crédito • Capital • Liquidez •
               </span>
             ))}
           </div>
 
-          {/* Left: animated counter — ✅ lebih besar */}
           <div className="absolute left-8 md:left-16 bottom-10 z-30">
             <div className="overflow-hidden" style={{ height: '140px' }}>
-              <div
-                className="transition-transform duration-700 ease-out"
-                style={{ transform: `translateY(-${active * 140}px)` }}
-              >
-                {products.map((p, i) => (
+              <div className="transition-transform duration-700 ease-out" style={{ transform: `translateY(-${active * 140}px)` }}>
+                {productsData.map((p, i) => (
                   <span
                     key={i}
                     className="block font-display text-[120px] leading-[140px] transition-colors duration-500"
-                    style={{ color: active === i ? '#E5997B' : 'rgba(3,0,53,0.12)' }}
+                    style={{ color: active === i ? '#E5997B' : 'rgba(3, 0, 53, 0.12)' }}
                   >
-                    {p.num}
+                    {p.number}
                   </span>
                 ))}
               </div>
             </div>
-            <p className="font-mono text-[#030035]/25 text-[10px] tracking-[0.5em] uppercase mt-2">
+            <p className="font-mono text-[#030035]/30 text-[10px] tracking-[0.5em] uppercase mt-2 font-bold">
               Portafolio DIMA
             </p>
           </div>
 
-          {/* Right: progress bar */}
           <div className="absolute right-8 md:right-16 top-0 h-full flex flex-col justify-center items-center gap-3 z-30">
             <div className="h-[180px] w-px bg-[#030035]/10 relative">
-              <div
-                className="absolute top-0 left-0 w-full bg-[#E5997B] transition-all duration-700 ease-out"
-                style={{ height: `${((active + 1) / products.length) * 100}%` }}
-              />
+              <div className="absolute top-0 left-0 w-full bg-[#E5997B] transition-all duration-700 ease-out" style={{ height: `${((active + 1) / productsData.length) * 100}%` }} />
             </div>
-            <span
-              className="font-mono text-[#030035]/25 text-[10px] tracking-[0.5em] uppercase"
-              style={{ writingMode: 'vertical-rl' }}
-            >
+            <span className="font-mono text-[#030035]/30 text-[10px] tracking-[0.5em] uppercase font-bold" style={{ writingMode: 'vertical-rl' }}>
               {String(active + 1).padStart(2, '0')} / 06
             </span>
           </div>
 
-          {/* Slides */}
           <div className="relative w-full h-full z-10">
-            {products.map((p) => (
-              <div
-                key={p.num}
-                className="product-slide absolute inset-0 flex flex-col items-center justify-center px-8 md:px-20 lg:px-36"
-              >
+            {productsData.map((p) => (
+              <div key={p.number} className="product-slide absolute inset-0 flex flex-col items-center justify-center px-8 md:px-20 lg:px-36">
                 <div className="max-w-6xl w-full">
-
-                  {/* Bronze bar */}
                   <div className="w-28 h-[3px] bg-[#E5997B] mb-10" />
-
-                  {/* Product name — ✅ lebih besar */}
                   <h2 className="font-display text-5xl md:text-7xl lg:text-8xl text-[#030035] leading-[1.05] mb-8 tracking-tight">
-                    <span className="text-[#E5997B] italic">"</span>{p.name}<span className="text-[#E5997B] italic">"</span>
+                    <span className="text-[#E5997B] italic">"</span>{p.label}<span className="text-[#E5997B] italic">"</span>
                   </h2>
-
-                  {/* Hook — ✅ lebih besar */}
-                  <p className="font-body text-2xl md:text-3xl text-[#030035]/55 leading-relaxed mb-6 max-w-3xl">
-                    {p.hook}
+                  <p className="font-body text-2xl md:text-3xl text-[#030035]/60 leading-relaxed mb-6 max-w-3xl">
+                    {p.tagline}
                   </p>
-
-                  {/* Description — ✅ lebih besar */}
-                  <p className="font-body text-lg md:text-xl text-[#030035]/40 leading-relaxed max-w-2xl mb-10">
+                  <p className="font-body text-lg md:text-xl text-[#030035]/50 leading-relaxed max-w-2xl mb-10">
                     {p.desc}
                   </p>
-
-                  {/* Bottom row */}
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-8 border-t border-[#030035]/8">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-8 border-t border-[#030035]/10">
                     <div>
-                      <p className="font-body text-[#030035] text-xl md:text-2xl font-semibold">
-                        — {p.name}
-                      </p>
-                      <p className="text-[#030035]/30 font-mono text-[11px] tracking-[0.4em] uppercase mt-1">
-                        DIMA Finance — Portafolio Crediticio
-                      </p>
+                      <p className="font-body text-[#030035] text-xl md:text-2xl font-semibold">— {p.label}</p>
+                      <p className="text-[#030035]/40 font-mono text-[11px] tracking-[0.4em] uppercase mt-1 font-bold">DIMA Finance — Portafolio Crediticio</p>
                     </div>
-                    {/* Use tag — ✅ lebih besar */}
                     <p className="font-mono text-[#E5997B] text-xs md:text-sm tracking-[0.6em] uppercase font-bold">
-                      {p.use}
+                      {p.sector}
                     </p>
                   </div>
-
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Scroll hint */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none">
-            <span className="font-mono text-[#030035]/20 text-[9px] tracking-[0.5em] uppercase">
-              Scroll para explorar
-            </span>
+            <span className="font-mono text-[#030035]/30 text-[9px] tracking-[0.5em] uppercase font-bold">Scroll para explorar</span>
             <div className="w-px h-6 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />
           </div>
-        </div>
 
-        {/* ── LAYER 1: Lightgray overlay ── */}
-        <div className="productos-overlay absolute inset-0 z-10 pointer-events-none" style={{ background: '#F4F4F5' }} />
-
-        {/* ── LAYER 2: Scaling word ── */}
-        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-          <span
-            className="productos-word select-none font-display font-light tracking-tight leading-none text-[#030035]"
-            style={{
-              fontSize: 'clamp(6rem, 22vw, 18rem)',
-              transformOrigin: '54% 62%',
-              willChange: 'transform, opacity',
-              WebkitFontSmoothing: 'antialiased',
-              MozOsxFontSmoothing: 'grayscale',
-              backfaceVisibility: 'hidden',
-              WebkitBackfaceVisibility: 'hidden',
-            }}
-          >
-            Productos
-          </span>
-        </div>
-
-      </div>
-
-      {/* CTA strip */}
-      <div className="relative py-24 bg-[#F4F4F5] border-t border-[#030035]/5 flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.45]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(3,0,53,0.12) 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
-          }}
-        />
-        <div className="relative z-10 flex flex-col items-center gap-8 text-center">
-          <div className="flex items-center gap-4">
-            <div className="w-8 h-px bg-[#030035]/20" />
-            <span className="font-mono text-[#030035]/35 text-[13px] tracking-[0.6em] uppercase">
-              ¿Cuál es el adecuado para su empresa?
-            </span>
-            <div className="w-8 h-px bg-[#030035]/20" />
+          <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
+            <div className="relative w-full h-24 md:h-32">
+              <svg
+                viewBox="0 0 1440 120"
+                fill="none"
+                preserveAspectRatio="none"
+                className="w-full h-full"
+                style={{ transform: 'scaleY(-1)' }}
+              >
+                <path
+                  ref={sectionBottomCurveRef}
+                  d="M0,0 L1440,0 C1100,0 950,0 720,0 C490,0 340,0 0,0 Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
           </div>
-          <Link
-            to="/contacto"
-            className="group relative inline-flex items-center justify-center px-8 py-4 bg-bronze text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-navy hover:pl-12 border border-bronze"
-          >
-            <span className="relative z-10">Solicitar Asesoría Personalizada</span>
-            <svg
-              className="absolute left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </Link>
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-[#030035]/20">
-            Sesión de 30 min · Sin compromiso
-          </p>
+
         </div>
+
+        {/* ── LAYER 1.5: Cekungan Cembung Ke Luar Tirai ── */}
+        <div
+          ref={topCurveWrapRef}
+          className="absolute left-0 w-full z-[15] pointer-events-none text-[#E5E5E5]"
+          style={{ top: '49.9%', height: '120px', transform: 'translateY(-100%)' }}
+        >
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none" className="w-full h-full" style={{ overflow: 'visible' }}>
+            <path ref={topCurveRef} fill="currentColor" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        </div>
+        
+        <div
+          ref={bottomCurveWrapRef}
+          className="absolute left-0 w-full z-[15] pointer-events-none text-[#E5E5E5]"
+          style={{ top: '50.1%', height: '120px' }}
+        >
+          <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none" className="w-full h-full" style={{ overflow: 'visible' }}>
+            <path ref={bottomCurveRef} fill="currentColor" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        </div>
+
+        {/* ── LAYER 2: Teks Tunggal "Productos" ── */}
+        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+          <div className="overflow-hidden py-4 px-4 flex items-center justify-center">
+            <div
+              className="block select-none font-display font-light tracking-tight leading-none text-[#F4F4F5]"
+              style={{
+                fontSize: 'clamp(6rem, 22vw, 18rem)',
+                willChange: 'transform, opacity',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+              }}
+            >
+              {"Productos".split('').map((char, index) => (
+                <span key={index} className="producto-char inline-block">
+                  {char === ' ' ? '\u00A0' : char}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )

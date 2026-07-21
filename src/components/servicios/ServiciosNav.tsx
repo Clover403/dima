@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ─── Helper: dynamic script loader ───
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) return resolve()
@@ -18,78 +17,77 @@ function loadScript(src: string): Promise<void> {
 }
 
 /* ─── Service-specific SVG icons ─── */
-function IconCore() {
+function IconCore({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-12 h-12 text-[#1A2540]">
+    <svg viewBox="0 0 64 64" fill="none" className={`w-10 h-10 md:w-12 md:h-12 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
       <path d="M32 2L62 32L32 62L2 32Z" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="32" cy="32" r="8" fill="#E5997B" />
+      <circle cx="32" cy="32" r="8" fill={isActive ? '#E5997B' : '#030035'} />
       <path d="M20 32H44M32 20V44" stroke="currentColor" strokeWidth="1" opacity="0.5" />
     </svg>
   )
 }
 
-function Icon01() {
+function Icon01({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M18 32C18 22 26 14 36 14" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M46 32C46 42 38 50 28 50" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M32 9L36 14L32 19" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M32 55L28 50L32 45" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M32 27L37 32L32 37L27 32Z" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M18 32C18 22 26 14 36 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M46 32C46 42 38 50 28 50" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M32 9L36 14L32 19" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 55L28 50L32 45" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 27L37 32L32 37L27 32Z" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon02() {
+function Icon02({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="8" y1="50" x2="56" y2="50" stroke="#E5997B" strokeWidth="0.6" opacity="0.4" />
-      <circle cx="56" cy="18" r="2.5" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="8" y1="50" x2="56" y2="50" stroke="currentColor" strokeWidth="0.6" opacity="0.4" />
+      <circle cx="56" cy="18" r="2.5" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon03() {
+function Icon03({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M32 10L54 32L32 54L10 32Z" stroke="#E5997B" strokeWidth="1.2" />
-      <path d="M22 32L42 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M36 26L42 32L36 38" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="32" cy="32" r="4" stroke="#E5997B" strokeWidth="0.8" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M32 10L54 32L32 54L10 32Z" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M22 32L42 32" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M36 26L42 32L36 38" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="32" cy="32" r="4" stroke="currentColor" strokeWidth="0.8" />
     </svg>
   )
 }
 
-function Icon04() {
+function Icon04({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <line x1="32" y1="12" x2="32" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="20" y1="52" x2="44" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="32" y1="22" x2="14" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="32" y1="22" x2="50" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M10 30L14 36H18L14 30Z" stroke="#E5997B" strokeWidth="1" />
-      <path d="M46 30L50 36H54L50 30Z" stroke="#E5997B" strokeWidth="1" />
-      <circle cx="32" cy="14" r="3" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <line x1="32" y1="12" x2="32" y2="52" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="20" y1="52" x2="44" y2="52" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="14" y2="30" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="50" y2="30" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M10 30L14 36H18L14 30Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M46 30L50 36H54L50 30Z" stroke="currentColor" strokeWidth="1" />
+      <circle cx="32" cy="14" r="3" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon05() {
+function Icon05({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <rect x="10" y="36" width="44" height="16" rx="1" stroke="#E5997B" strokeWidth="1.2" />
-      <rect x="22" y="24" width="20" height="12" rx="1" stroke="#E5997B" strokeWidth="1.2" />
-      <line x1="32" y1="12" x2="32" y2="24" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="32" cy="10" r="3" stroke="#E5997B" strokeWidth="1" />
-      <line x1="18" y1="44" x2="18" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
-      <line x1="32" y1="44" x2="32" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
-      <line x1="46" y1="44" x2="46" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <rect x="10" y="36" width="44" height="16" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="22" y="24" width="20" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="32" y1="12" x2="32" y2="24" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="32" cy="10" r="3" stroke="currentColor" strokeWidth="1" />
+      <line x1="18" y1="44" x2="18" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <line x1="32" y1="44" x2="32" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <line x1="46" y1="44" x2="46" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
     </svg>
   )
 }
 
-// Data Array Tunggal — Ukuran card derivatives disamakan semua (1x1)
 const allServices = [
   {
     id: 'core',
@@ -98,7 +96,6 @@ const allServices = [
     descriptor: 'Servicio Núcleo e Intermediación Estructural',
     Icon: IconCore,
     details: 'Ejecutamos operaciones de intermediación financiera con una ventaja estructural única: nuestro modelo macroeconómico — fundamentado en los principios de Ray Dalio — nos permite leer el ciclo económico antes de actuar. Todo nace de aquí.',
-    className: 'lg:col-span-2 lg:row-span-2' // Menguasai Kiri Atas (Slot 2x2)
   },
   { 
     id: 's1',
@@ -106,7 +103,7 @@ const allServices = [
     name: 'Reingeniería de Deuda', 
     descriptor: 'Estructura óptima de capital', 
     Icon: Icon01,
-    className: 'lg:col-span-1 lg:row-span-1' // Kolom 3, Baris 1
+    details: 'Rediseñamos la arquitectura de deuda corporativa para sincronizarla con los ciclos macroeconómicos actuales. Posicionamos estratégicamente cada instrumento en el momento correcto del ciclo.',
   },
   { 
     id: 's2',
@@ -114,7 +111,7 @@ const allServices = [
     name: 'Estrategia Financiera Cíclica', 
     descriptor: 'Anticipación de ciclos económicos', 
     Icon: Icon02,
-    className: 'lg:col-span-1 lg:row-span-1' // Kolom 3, Baris 2
+    details: 'Diseñamos estrategias financieras que anticipan los movimientos del ciclo económico. Cada decisión se calibra contra el estado actual del ciclo para maximizar rentabilidad.',
   },
   { 
     id: 's3',
@@ -122,7 +119,7 @@ const allServices = [
     name: 'Tesorería Avanzada', 
     descriptor: 'Maximización de liquidez operativa', 
     Icon: Icon03,
-    className: 'lg:col-span-1 lg:row-span-1' // Kolom 1, Baris 3
+    details: 'Optimizamos la gestión de tesorería empresarial integrando visión macroeconómica con las necesidades operativas específicas. Liquidez inteligente, no solo disponible.',
   },
   { 
     id: 's4',
@@ -130,7 +127,7 @@ const allServices = [
     name: 'Valuación Estratégica', 
     descriptor: 'Determinación del valor real', 
     Icon: Icon04,
-    className: 'lg:col-span-1 lg:row-span-1' // Kolom 2, Baris 3
+    details: 'Determinamos el valor real de activos, empresas e instrumentos con metodologías que integran contexto macroeconómico. El valor no es estático — depende del ciclo.',
   },
   { 
     id: 's5',
@@ -138,19 +135,40 @@ const allServices = [
     name: 'Gobernanza Financiera', 
     descriptor: 'Institucionalización de decisiones', 
     Icon: Icon05,
-    className: 'lg:col-span-1 lg:row-span-1' // PAS DI SUDUT: Kolom 3, Baris 3
+    details: 'Diseñamos estructuras que institucionalizan la toma de decisiones financieras. Instalamos mentalidad analítica como cultura dentro de la organización.',
   },
 ]
+
+const sequencedLayoutTransition: any = {
+  layout: { type: "spring", bounce: 0, duration: 1, delay: 0.1 },
+  backgroundColor: { duration: 1, delay: 0.1 },
+  borderColor: { duration: 1, delay: 0.1 }
+}
+
+const engraveVariants = {
+  hidden: { opacity: 0, filter: 'blur(8px)', scale: 1.05, y: 15 },
+  visible: { 
+    opacity: 1, 
+    filter: 'blur(0px)', 
+    scale: 1, 
+    y: 0, 
+    transition: { duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] as const } 
+  },
+  exit: { 
+    opacity: 0, 
+    transition: { duration: 0 } 
+  }
+}
 
 export default function ServiciosNav() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const vantaRef = useRef<any>(null)
-  const [activeModal, setActiveModal] = useState<any>(null)
+  
+  // 1. Ubah initial state menjadi null agar semua tertutup di awal
+  const [activeIndex, setActiveIndex] = useState<number | null>(null) 
 
-  // ── Vanta BIRDS init ──────────────────────────────────────
   useEffect(() => {
     let destroyed = false
-
     async function initVanta() {
       try {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
@@ -169,8 +187,8 @@ export default function ServiciosNav() {
           minWidth: 600.0,
           scale: 1.0,
           scaleMobile: 1.0,
-          backgroundColor: 0xF5F5F5,
-          color1: 0x1a1a4e,
+          backgroundColor: 0x030035,
+          color1: 0xF4F4F5,
           color2: 0xE5997B,
           colorMode: 'lerp',
           birdSize: 1.1,
@@ -185,25 +203,19 @@ export default function ServiciosNav() {
         console.error('Vanta BIRDS init failed:', err)
       }
     }
-
     initVanta()
-
     return () => {
       destroyed = true
       vantaRef.current?.destroy()
     }
   }, [])
 
-  // ── GSAP Animations ─────────────────────────────────────
   useEffect(() => {
     if (!sectionRef.current) return
-
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
-
-      /* Heading reveal */
       gsap.fromTo(
-        el.querySelector('.section-heading'),
+        el.querySelector('.section-header'),
         { opacity: 0, y: 30 },
         {
           opacity: 1, y: 0,
@@ -211,197 +223,150 @@ export default function ServiciosNav() {
           scrollTrigger: { trigger: el, start: 'top 80%' },
         }
       )
-
-      /* Bento Staggered reveal */
-      const cards = el.querySelectorAll('.bento-card')
       gsap.fromTo(
-        cards,
-        { opacity: 0, y: 40, scale: 0.96 },
+        el.querySelector('.accordion-container'),
+        { opacity: 0, y: 50 },
         {
-          opacity: 1, y: 0, scale: 1,
-          duration: 0.8,
-          ease: 'power4.out',
-          stagger: 0.06,
-          scrollTrigger: { trigger: el, start: 'top 70%' },
+          opacity: 1, y: 0,
+          duration: 1, ease: 'power4.out', delay: 0.2,
+          scrollTrigger: { trigger: el, start: 'top 75%' },
         }
       )
-
-      /* Parallax effect on inner numbers */
-      const bgNums = el.querySelectorAll('.card-bg-num')
-      bgNums.forEach((num) => {
-        gsap.fromTo(
-          num,
-          { y: 15 },
-          {
-            y: -15,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: num.closest('.bento-card'),
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          }
-        )
-      })
     }, sectionRef)
-
     return () => ctx.revert()
   }, [])
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const card = e.currentTarget
-    const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    const rotateX = ((y - centerY) / centerY) * -4
-    const rotateY = ((x - centerX) / centerX) * 4
-    
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`
-  }
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-  }
-
   return (
-    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 bg-[#F5F5F5]">
+    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 bg-[#030035] min-h-screen flex flex-col justify-center">
       
-      {/* BACKGROUND DECORATIONS */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0">
-        <svg viewBox="0 0 1000 1000" fill="none" className="w-[1000px] h-[1000px] opacity-[0.03]">
-          <path d="M500 50L950 500L500 950L50 500Z" stroke="#1A2540" strokeWidth="0.6" />
-        </svg>
-      </div>
-
-      {/* BLURRED MESH GRADIENT BLOBS */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40">
-        <div className="absolute top-[15%] -left-[10%] w-[600px] h-[600px] rounded-full bg-gradient-to-r from-[#1A2540]/25 to-transparent filter blur-[100px]" />
-        <div className="absolute bottom-[10%] right-[-5%] w-[700px] h-[700px] rounded-full bg-gradient-to-r from-[#E5997B]/20 to-transparent filter blur-[120px]" />
-      </div>
-
-      {/* HEADER SECTION */}
-      <div className="section-heading relative z-10 text-center mb-24 max-w-7xl mx-auto px-4">
+      <div className="section-header relative z-10 max-w-[1600px] mx-auto w-full px-6 lg:px-12 mb-12 text-center">
         <p className="text-[#E5997B] font-body text-xs tracking-[0.4em] uppercase mb-4 font-bold">
           Arquitectura del Valor
         </p>
-        <h2 className="font-display text-[#1A2540] text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight">
-          Ecosistema de Servicios
-          <br />
-          <em className="text-[#E5997B] italic">y capacidades core</em>
+        <h2 className="font-display text-[#F4F4F5] text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight">
+          Ecosistema de <em className="text-[#E5997B] italic">Servicios</em>
         </h2>
       </div>
 
-      {/* 3x3 PERFECT BALANCED GRID */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3 gap-6 items-stretch">
-        {allServices.map((svc) => {
-          const SvcIcon = svc.Icon
-          const isCore = svc.id === 'core'
+      <div className="accordion-container relative z-10 max-w-[1600px] mx-auto w-full px-6 lg:px-12">
+        <div className="flex flex-col lg:flex-row h-auto lg:h-[650px] w-full gap-4 lg:gap-2">
+          
+          {allServices.map((svc, index) => {
+            const isActive = activeIndex === index
+            const isCore = index === 0 // Variabel untuk mengecek card pertama
+            const SvcIcon = svc.Icon
 
-          return (
-            <motion.div 
-              key={svc.id} 
-              className={`bento-card group perspective-1000 ${svc.className}`}
-              whileHover={{ y: -4 }}
-            >
-              <button
-                onClick={() => setActiveModal(svc)}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                className={`relative w-full text-left rounded-2xl p-8 overflow-hidden transition-all duration-300 ease-out border border-white/50 backdrop-blur-xl h-full flex flex-col justify-between
-                           ${isCore ? 'bg-white/30 shadow-xl md:p-10' : 'bg-white/20 shadow-md min-h-[240px]'}`}
-                style={{ 
-                  boxShadow: isCore ? '0 30px 60px -15px rgba(26,37,64,0.12)' : '0 20px 45px -10px rgba(26,37,64,0.05)',
+            return (
+              <motion.div
+                key={svc.id}
+                layout
+                // 2. Logika Toggle: Kalau sudah aktif, jadikan null (tutup). Kalau tidak, buka index-nya.
+                onClick={() => setActiveIndex(isActive ? null : index)}
+                animate={{
+                  backgroundColor: isActive ? 'rgba(244, 244, 245, 0.85)' : 'rgba(229, 153, 123, 0.85)',
+                  borderColor: isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)',
                 }}
+                transition={sequencedLayoutTransition}
+                style={{ 
+                  minHeight: isActive ? '500px' : '150px',
+                  clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 2.5rem), 50% 100%, 0 calc(100% - 2.5rem))'
+                }}
+                className={`relative rounded-t-2xl border cursor-pointer flex flex-col overflow-hidden backdrop-blur-md
+                  ${isActive ? 'lg:flex-[2.5]' : 'lg:flex-[1]'}`}
               >
-                {/* Background Number (Untuk kartu turunan) */}
-                {!isCore && (
-                  <span className="card-bg-num absolute -bottom-6 -right-2 font-display leading-none select-none pointer-events-none text-[#1A2540]/[0.03] group-hover:text-[#1A2540]/[0.07] transition-all duration-700 text-8xl font-black">
-                    {svc.number}
-                  </span>
+                
+                {/* 3. Hiasan Elegan Khusus untuk Card Pertama (Core) */}
+                {isCore && (
+                  <>
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-t-2xl z-0">
+                       {/* Subtle gradient glow di pojok kiri atas */}
+                       <div className="absolute -top-16 -left-16 w-40 h-40 bg-[#030035] opacity-20 blur-3xl rounded-full mix-blend-overlay"></div>
+                       {/* Border emas tipis di dalam card */}
+                       <div className="absolute inset-0 border-[1.5px] border-[#030035]/10 rounded-t-2xl"></div>
+                    </div>
+                  </>
                 )}
 
-                <div className="relative z-10 w-full">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className={`rounded-xl border shadow-sm backdrop-blur-sm transition-all duration-500 group-hover:scale-105 group-hover:rotate-3
-                                    ${isCore ? 'p-4 bg-white/80 border-white' : 'p-3 bg-white/50 border-white/80'}`}>
-                      <SvcIcon />
-                    </div>
-                    <span className={`font-body text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full
-                                    ${isCore ? 'text-[#E5997B] bg-[#E5997B]/10' : 'text-[#1A2540]/40 group-hover:text-[#E5997B] transition-colors'}`}>
-                      {isCore ? 'NÚCLEO' : svc.number}
-                    </span>
+                <div className="relative z-10 w-full h-full p-6 lg:p-10 pb-20 flex flex-col items-center text-center mt-2">
+                  
+                  <div className="flex flex-col items-center w-full z-20">
+                    <motion.div 
+                      layout
+                      transition={sequencedLayoutTransition}
+                      // Berikan sedikit sentuhan warna border berbeda jika dia core tapi tidak aktif
+                      className={`rounded-xl border shadow-sm backdrop-blur-sm p-2 transition-colors duration-700
+                        ${isActive ? 'bg-[#030035]/10 border-[#030035]/20' : isCore ? 'bg-white/30 border-white/40' : 'bg-white/20 border-white/30'}`}
+                    >
+                      <SvcIcon isActive={isActive} />
+                    </motion.div>
+                    
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.span 
+                          initial={{ opacity: 0, scale: 0.5, filter: 'blur(4px)' }} 
+                          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, delay: 1.2, ease: [0.22, 1, 0.36, 1] as const } }}
+                          exit={{ opacity: 0, transition: { duration: 0 } }}
+                          className={`mt-4 font-body text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full text-[#F4F4F5] bg-[#030035] shadow-md`}>
+                          {svc.number}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </div>
 
-                  <h3 className={`font-display text-[#1A2540] font-bold leading-tight mb-3
-                                  ${isCore ? 'text-3xl md:text-4xl lg:text-5xl mb-4' : 'text-xl md:text-2xl'}`}>
-                    {svc.name}
-                  </h3>
-                  
-                  <p className={`font-body text-[#1A2540]/60 leading-relaxed
-                                ${isCore ? 'text-base md:text-lg uppercase tracking-wide mb-6 font-semibold' : 'text-sm'}`}>
-                    {svc.descriptor}
-                  </p>
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div 
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        variants={engraveVariants}
+                        className="flex flex-col items-center mt-10 w-full z-10 absolute top-32 px-8 md:px-16"
+                      >
+                        <h3 
+                          className="font-display text-center text-[#030035] font-bold leading-tight mb-2 text-2xl md:text-4xl"
+                          style={{ textShadow: '0px -1px 1px rgba(0,0,0,0.15), 0px 1px 1px rgba(255,255,255,1)' }}
+                        >
+                          {svc.name}
+                        </h3>
+                        
+                        <p className={`font-body mb-6 max-w-lg font-bold uppercase tracking-widest text-[#E5997B] drop-shadow-sm text-sm md:text-base`}>
+                          {svc.descriptor}
+                        </p>
 
-                  {isCore && svc.details && (
-                    <p className="font-body text-[#1A2540]/80 text-base md:text-lg leading-relaxed max-w-xl mt-4">
-                      {svc.details}
-                    </p>
-                  )}
-                </div>
+                        <p className="font-body text-[#030035]/90 text-base md:text-lg leading-relaxed max-w-2xl font-medium">
+                          {svc.details}
+                        </p>
+                        
+                        <button className="mt-8 px-6 py-3 bg-[#030035] text-[#F4F4F5] font-body text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#E5997B] hover:text-[#030035] transition-colors duration-300 shadow-lg">
+                          Explorar Detalle
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-                {/* Footer Action */}
-                <div className={`relative z-10 flex items-center gap-2 mt-8 w-full
-                                ${isCore ? 'pt-6 border-t border-[#1A2540]/10' : 'opacity-60 group-hover:opacity-100 transition-opacity'}`}>
-                  <span className="font-body text-[#E5997B] text-[10px] font-bold tracking-widest uppercase">
-                    {isCore ? 'Ver matriz de impacto' : 'Explorar'}
-                  </span>
-                  <div className={`h-px bg-[#E5997B] transition-all duration-500
-                                  ${isCore ? 'w-12 group-hover:w-20' : 'w-6 group-hover:w-10'}`} />
+                  <AnimatePresence>
+                    {!isActive && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.9, transition: { duration: 0.8, delay: 1.2 } }}
+                        exit={{ opacity: 0, transition: { duration: 0 } }}
+                        className="hidden lg:flex absolute inset-0 items-center justify-center pointer-events-none mt-20"
+                      >
+                        <span className={`font-display whitespace-nowrap text-2xl font-bold -rotate-90 tracking-widest drop-shadow-sm ${isCore ? 'text-[#030035]/70' : 'text-[#F4F4F5]'}`}>
+                          {svc.name}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                 </div>
-              </button>
-            </motion.div>
-          )
-        })}
+              </motion.div>
+            )
+          })}
+
+        </div>
       </div>
 
-      {/* DETAIL MODAL DIALOGUE */}
-      <AnimatePresence>
-        {activeModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A2540]/40 backdrop-blur-md"
-            onClick={() => setActiveModal(null)}
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#F5F5F5] border border-white w-full max-w-2xl rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <span className="text-[#E5997B] font-body text-xs font-bold tracking-widest block mb-1">
-                    SERVICIO {activeModal.number}
-                  </span>
-                  <h4 className="font-display text-[#1A2540] text-2xl md:text-3xl font-bold">
-                    {activeModal.name}
-                  </h4>
-                </div>
-                <button onClick={() => setActiveModal(null)} className="p-2 text-[#1A2540]/40 hover:text-[#1A2540] font-bold">✕</button>
-              </div>
-              <p className="font-body text-[#1A2540]/80 text-lg leading-relaxed mb-6">
-                {activeModal.details || activeModal.descriptor}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   )
 }

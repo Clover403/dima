@@ -46,8 +46,8 @@ export default function ServiciosValues() {
       minWidth: 600.0,
       scale: 1.0,
       scaleMobile: 1.0,
-      backgroundColor: 0xF5F5F5,   // lightgray (sama dengan bg section)
-      color1: 0x1a1a4e,              // navy soft
+      backgroundColor: 0x030035,   // navy (sama dengan bg section)
+      color1: 0xF4F4F5,              // light
       color2: 0xE5997B,              // bronze
       colorMode: 'lerp',
       birdSize: 1.5,
@@ -149,7 +149,7 @@ export default function ServiciosValues() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-lightgray min-h-screen flex items-center overflow-hidden"
+      className="relative bg-navy min-h-screen flex items-center overflow-hidden"
       style={{ zIndex: 1 }}
     >
       {/* Vanta Birds canvas akan render di background */}
@@ -174,10 +174,10 @@ export default function ServiciosValues() {
                   i === 0 ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight mb-8 max-w-4xl">
+                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-[#F4F4F5] leading-tight mb-8 max-w-4xl">
                   &ldquo;{s.quote}&rdquo;
                 </h3>
-                <p className="font-body text-navy text-base md:text-lg max-w-2xl leading-relaxed">
+                <p className="font-body text-[#F4F4F5]/80 text-base md:text-lg max-w-2xl leading-relaxed">
                   {s.subtext}
                 </p>
               </div>

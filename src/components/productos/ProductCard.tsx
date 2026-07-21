@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { PRODUCTOS_CTA_LINK } from '../../data/productos'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion } from 'framer-motion'
@@ -17,7 +18,6 @@ interface ProductCardProps {
   illustration?: string
   layout: 'left' | 'right'
   theme: 'dark' | 'light'
-  ctaLink: string
 }
 
 export default function ProductCard({
@@ -31,7 +31,6 @@ export default function ProductCard({
   illustration,
   layout,
   theme,
-  ctaLink,
 }: ProductCardProps) {
   const sectionRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -318,7 +317,7 @@ export default function ProductCard({
                 transition={{ type: 'spring', stiffness: 400, damping: 10 }}
               >
                 <Link
-                  to={ctaLink}
+                  to={PRODUCTOS_CTA_LINK}
                   className={`inline-flex items-center gap-3 ${
                     isDark ? 'btn-bronze' : 'btn-bronze'
                   }`}
