@@ -106,7 +106,7 @@ export default function ModeloFuerzas() {
 
           <div className="reveal-el flex items-center justify-center">
             <img 
-              src="/illustration/models/penggiling.png" 
+              src="/illustration-compressed/models/penggiling.webp" 
               alt="Ingreso por Productividad" 
               className="w-full max-w-2xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
             />
@@ -117,7 +117,7 @@ export default function ModeloFuerzas() {
         <div className="block-b grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32 md:mb-48">
           <div className="reveal-el flex items-center justify-center order-2 lg:order-1">
             <img 
-              src="/illustration/models/balon2.png" 
+              src="/illustration-compressed/models/balon2.webp" 
               alt="Los Ciclos de Deuda" 
               className="w-full max-w-2xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
             />

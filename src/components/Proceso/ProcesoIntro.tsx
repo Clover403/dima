@@ -13,21 +13,21 @@ const PHASES = [
     code: 'FASE 01',
     label: 'Diagnóstico Estructural',
     desc: 'Antes de estructurar cualquier instrumento, entendemos la anatomía financiera de tu empresa. Mapeamos activos, pasivos, flujo libre y genética de valor — con la misma precisión con la que Ray Dalio lee los ciclos macroeconómicos.',
-    image: '/illustration/process/ukuran.png',
+    image: '/illustration-compressed/process/ukuran.webp',
   },
   {
     num: '02',
     code: 'FASE 02',
     label: 'Reingeniería de Riesgos',
     desc: 'No rechazamos. Intervenimos. Si la evaluación detecta solvencia subóptima, activamos el protocolo ITERAR — una transformación activa del balance corporativo hasta que la estructura sea apta para el crédito que mereces.',
-    image: '/illustration/process/gear-tingkat.png',
+    image: '/illustration-compressed/process/gear-tingkat.webp',
   },
   {
     num: '03',
     code: 'FASE 03',
     label: 'Despliegue y Escalabilidad',
     desc: 'El capital no es el final del proceso — es el comienzo. Formalizamos, dispersamos y luego acompañamos la gobernanza financiera para que cada ciclo crediticio sea más eficiente que el anterior.',
-    image: '/illustration/process/tiang.png',
+    image: '/illustration-compressed/process/tiang.webp',
   },
 ]
 

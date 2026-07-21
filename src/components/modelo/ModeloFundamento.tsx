@@ -164,7 +164,7 @@ export default function ModeloFundamento() {
             
             {/* Gambar diset w-full dengan batas container yang jauh lebih besar */}
             <img 
-              src="/illustration/3rodaekonomi.png" 
+              src="/illustration-compressed/home/3rodaekonomi.webp" 
               alt="3 Roda Ekonomi" 
               className="w-full h-auto object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
             />

@@ -114,7 +114,7 @@ export default function ProductoDetalle() {
                 animate={{ opacity: 0.85, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                src={['/illustration/products/bridge.png', '/illustration/products/cycle.png', '/illustration/products/gear-machine.png', '/illustration/products/invoice.png', '/illustration/products/menara.png', '/illustration/products/tabung.png'][displayIndex] || '/illustration/products/bridge.png'}
+                src={['/illustration-compressed/products/bridge.webp', '/illustration-compressed/products/cycle.webp', '/illustration-compressed/products/gear-machine.webp', '/illustration-compressed/products/invoice.webp', '/illustration-compressed/products/menara.webp', '/illustration-compressed/products/tabung.webp'][displayIndex] || '/illustration-compressed/products/bridge.webp'}
                 alt="Product Showcase"
                 className="absolute inset-0 w-full h-full object-cover z-0"
               />

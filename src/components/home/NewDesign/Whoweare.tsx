@@ -87,7 +87,7 @@ export default function WhoWeAreSection() {
         <div className="absolute inset-0 flex items-center justify-center p-4 md:p-12 pointer-events-none z-0">
           <div className="relative w-full max-w-xl md:max-w-4xl lg:max-w-6xl aspect-square flex items-center justify-center transform translate-y-24 md:translate-y-32">
             <img
-              src="/illustration/jembatan3.png"
+              src="/illustration-compressed/home/jembatan3.webp"
               alt="DIMA Finance Illustration"
               className="w-full h-full object-contain"
             />

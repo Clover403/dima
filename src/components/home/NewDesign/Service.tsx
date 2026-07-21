@@ -10,7 +10,7 @@ const services = [
   {
     number: '01',
     name: 'Reingeniería de Deuda',
-    image: '/illustration/serviceHome/crene.png',
+    image: '/illustration-compressed/serviceHome/crene.webp',
     description: [
       'Rediseñamos la arquitectura de deuda corporativa para sincronizarla con los ciclos',
       'macroeconómicos actuales. No se trata solo de refinanciar — se trata de posicionar',
@@ -20,7 +20,7 @@ const services = [
   {
     number: '02',
     name: 'Estrategia Financiera Cíclica',
-    image: '/illustration/serviceHome/armilarry.png',
+    image: '/illustration-compressed/serviceHome/armilarry.webp',
     description: [
       'Diseñamos estrategias financieras que anticipan los movimientos del ciclo económico.',
       'La diferencia entre rentabilidad y pérdida está en la anticipación — no en la reacción.',
@@ -30,7 +30,7 @@ const services = [
   {
     number: '03',
     name: 'Tesorería Avanzada',
-    image: '/illustration/serviceHome/jam-air.png',
+    image: '/illustration-compressed/serviceHome/jam-air.webp',
     description: [
       'Optimizamos la gestión de tesorería empresarial integrando visión macroeconómica',
       'con las necesidades operativas específicas de cada organización.',
@@ -40,7 +40,7 @@ const services = [
   {
     number: '04',
     name: 'Valuación Estratégica',
-    image: '/illustration/serviceHome/berlian.png',
+    image: '/illustration-compressed/serviceHome/berlian.webp',
     description: [
       'Determinamos el valor real de activos, empresas e instrumentos financieros con',
       'metodologías que integran contexto macroeconómico y ciclo de mercado.',
@@ -50,7 +50,7 @@ const services = [
   {
     number: '05',
     name: 'Gobernanza Financiera',
-    image: '/illustration/serviceHome/buku.png',
+    image: '/illustration-compressed/serviceHome/buku.webp',
     description: [
       'Diseñamos estructuras de gobernanza que institucionalizan la toma de decisiones',
       'financieras y crean organizaciones financieramente resilientes.',

@@ -4,9 +4,9 @@ import { ChevronDown } from 'lucide-react';
 import PageTransition from '../layout/PageTransition';
 
 const backgroundImages = [
-  '/illustration/nosotros/nosotros1.png',
-  '/illustration/nosotros/nosotros2.png',
-  '/illustration/nosotros/nosotros3.png',
+  '/illustration-compressed/nosotros/nosotros1.webp',
+  '/illustration-compressed/nosotros/nosotros2.webp',
+  '/illustration-compressed/nosotros/nosotros3.webp',
 ];
 
 const chapters = [

@@ -101,7 +101,7 @@ export default function Contact() {
               </div>
              <div className="relative group overflow-hidden border border-[#F4F4F5]/10 bg-[#F4F4F5]/5 rounded-2xl shadow-2xl">
   <img 
-    src="/illustration/contact/invoice2.png" 
+    src="/illustration-compressed/contact/invoice2.webp" 
     alt="Corporate Architecture" 
     className="w-full h-[450px] lg:h-[650px] object-cover object-center contrast-110 group-hover:scale-105 transition-transform duration-700 ease-out" 
   />

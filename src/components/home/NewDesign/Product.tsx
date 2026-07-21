@@ -11,37 +11,37 @@ const items = [
     num: "01",
     title: "Capital para crecer",
     desc: "Financia proyectos específicos sin afectar tu flujo de caja.",
-    image: "/illustration/products/menara.png"
+    image: "/illustration-compressed/products/menara.webp"
   },
   {
     num: "02",
     title: "Financiamiento al ritmo de obra",
     desc: "Cubre los costos de construcción mientras llega el pago esperado.",
-    image: "/illustration/products/bridge.png"
+    image: "/illustration-compressed/products/bridge.webp"
   },
   {
     num: "03",
     title: "Liquidez que se adapta",
     desc: "Disponibilidad que se restablece sola, sin nuevas gestiones.",
-    image: "/illustration/products/tabung.png"
+    image: "/illustration-compressed/products/tabung.webp"
   },
   {
     num: "04",
     title: "Respeta los ciclos de la tierra",
     desc: "Pagos alineados a tu cosecha o venta de ganado.",
-    image: "/illustration/products/cycle.png"
+    image: "/illustration-compressed/products/cycle.webp"
   },
   {
     num: "05",
     title: "El activo se paga solo",
     desc: "Úsalo hoy, decide si lo compras al final del contrato.",
-    image: "/illustration/products/gear-machine.png"
+    image: "/illustration-compressed/products/gear-machine.webp"
   },
   {
     num: "06",
     title: "Cuentas por cobrar hoy",
     desc: "Anticipo inmediato sobre tus facturas, sin esperar el pago.",
-    image: "/illustration/products/invoice.png"
+    image: "/illustration-compressed/products/invoice.webp"
   }
 ];
 

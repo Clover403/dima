@@ -3,8 +3,8 @@ import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 const backgroundImages = [
-  "/illustration/models/lilin1.png",
-  "/illustration/models/lilin2.png"
+  "/illustration-compressed/models/lilin1.webp",
+  "/illustration-compressed/models/lilin2.webp"
 ];
 
 const chapters = [

@@ -22,12 +22,12 @@ export const LAYERS: { key: LayerKey; label: string; sublabel: string; connector
 ]
 
 const PRODUCT_IMAGES = [
-  '/illustration/products/bridge.png', 
-  '/illustration/products/cycle.png', 
-  '/illustration/products/gear-machine.png', 
-  '/illustration/products/invoice.png', 
-  '/illustration/products/menara.png', 
-  '/illustration/products/tabung.png'
+  '/illustration-compressed/products/bridge.webp', 
+  '/illustration-compressed/products/cycle.webp', 
+  '/illustration-compressed/products/gear-machine.webp', 
+  '/illustration-compressed/products/invoice.webp', 
+  '/illustration-compressed/products/menara.webp', 
+  '/illustration-compressed/products/tabung.webp'
 ]
 
 /* ─────────────── HELPERS ─────────────── */

@@ -3,9 +3,9 @@ import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 const backgroundImages = [
-  "/illustration/models/modelo1.png",
-  "/illustration/models/modelo2.png",
-  "/illustration/models/modelo4.png"
+  "/illustration-compressed/models/modelo1.webp",
+  "/illustration-compressed/models/modelo2.webp",
+  "/illustration-compressed/models/modelo4.webp"
 ];
 
 const chapters = [

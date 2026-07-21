@@ -96,7 +96,7 @@ export default function CreditModelSection() {
             {/* Gambar Timbangan */}
             <div className="model-visual w-full flex justify-center lg:justify-start mb-24 lg:mb-36 xl:mb-44">
               <img
-                src="/illustration/timbangan1.png"
+                src="/illustration-compressed/home/timbangan1.webp"
                 alt="Modelo Crediticio DIMA"
                 className="w-full max-w-none h-auto object-contain scale-140 lg:scale-150 origin-center lg:origin-left transform -translate-x-[25%] lg:-translate-x-[35%] transition-transform duration-700"
               />

@@ -25,8 +25,8 @@ export const servicesData: ServiceData[] = [
       'Modelado de escenarios de refinanciamiento',
       'Negociación estratégica con contraparte',
     ],
-    image1: '/illustration/services/1a.png',
-    image2: '/illustration/services/1b.png',
+    image1: '/illustration-compressed/services/1a.webp',
+    image2: '/illustration-compressed/services/1b.webp',
   },
   {
     id: '02',
@@ -42,8 +42,8 @@ export const servicesData: ServiceData[] = [
       'Estrategia de asignación de capital',
       'Monitoreo y ajuste continuo',
     ],
-    image1: '/illustration/services/2a.png',
-    image2: '/illustration/services/2b.png',
+    image1: '/illustration-compressed/services/2a.webp',
+    image2: '/illustration-compressed/services/2b.webp',
   },
   {
     id: '03',
@@ -59,8 +59,8 @@ export const servicesData: ServiceData[] = [
       'Optimización de posiciones de liquidez',
       'Estructura de inversión de excedentes',
     ],
-    image1: '/illustration/services/3a.png',
-    image2: '/illustration/services/3b.png',
+    image1: '/illustration-compressed/services/3a.webp',
+    image2: '/illustration-compressed/services/3b.webp',
   },
   {
     id: '04',
@@ -76,8 +76,8 @@ export const servicesData: ServiceData[] = [
       'Due diligence de valor',
       'Informes para decisiones de inversión',
     ],
-    image1: '/illustration/services/4a.png',
-    image2: '/illustration/services/4b.png',
+    image1: '/illustration-compressed/services/4a.webp',
+    image2: '/illustration-compressed/services/4b.webp',
   },
   {
     id: '05',
@@ -93,7 +93,7 @@ export const servicesData: ServiceData[] = [
       'Políticas y procedimientos financieros',
       'Implementación de KPIs estratégicos',
     ],
-    image1: '/illustration/services/5a.png',
-    image2: '/illustration/services/5b.png',
+    image1: '/illustration-compressed/services/5a.webp',
+    image2: '/illustration-compressed/services/5b.webp',
   },
 ]

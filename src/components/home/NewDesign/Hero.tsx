@@ -100,7 +100,7 @@ export default function HeroSection() {
           className="absolute inset-x-0 bottom-0 z-0 pointer-events-none flex justify-center h-[105%]"
           style={{ y: backgroundY, x: backgroundX }}
         >
-          <img src="/illustration/temple6.png" alt="Temple Background" className="w-full h-full object-cover object-bottom" />
+          <img src="/illustration-compressed/home/temple6.webp" alt="Temple Background" className="w-full h-full object-cover object-bottom" />
         </motion.div>
 
         {/* 
@@ -190,7 +190,7 @@ export default function HeroSection() {
           className="absolute inset-x-0 bottom-0 z-20 pointer-events-none flex justify-center h-[105%]"
           style={{ y: foregroundY, x: foregroundX }}
         >
-          <img src="/illustration/temple9.png" alt="Temple Foreground" className="w-full h-full object-cover object-bottom" />
+          <img src="/illustration-compressed/home/temple9.webp" alt="Temple Foreground" className="w-full h-full object-cover object-bottom" />
         </motion.div>
       </div>
     </div>
