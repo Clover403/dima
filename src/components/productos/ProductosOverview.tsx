@@ -209,19 +209,19 @@ export default function ProductosOverview() {
           if (sectionBottomCurveRef.current) {
             sectionBottomCurveRef.current.setAttribute(
               'd',
-              `M0,0 L1440,0 C1100,0 950,${bottomSectionCurve.depth} 720,${bottomSectionCurve.depth} C490,${bottomSectionCurve.depth} 340,0 0,0 Z`
+              // Kita tambahkan M0,-50 L1440,-50 agar bentuknya "lubèr" ke bawah
+              `M0,-50 L1440,-50 L1440,0 C1100,0 950,${bottomSectionCurve.depth} 720,${bottomSectionCurve.depth} C490,${bottomSectionCurve.depth} 340,0 0,0 Z`
             )
           }
         }
       }, END_OF_SLIDES - 1)
-
     }, wrapperRef)
     return () => ctx.revert()
   }, [])
 
   return (
     <div>
-      <div ref={wrapperRef} className="relative w-full h-screen overflow-hidden bg-[#030035]">
+      <div ref={wrapperRef} className="relative w-full h-screen overflow-hidden bg-[#030035] border-b-[2px] border-[#030035] box-content">
 
        {/* ── LAYER 0: Overlay Navy dengan Ripple Grid ── */}
         <div className="productos-overlay absolute inset-0 z-0 bg-[#030035]">
@@ -354,32 +354,37 @@ export default function ProductosOverview() {
             ))}
           </div>
 
+       {/* ... scroll para explorar ... */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none">
             <span className="font-mono text-[#030035]/30 text-[9px] tracking-[0.5em] uppercase font-bold">Scroll para explorar</span>
             <div className="w-px h-6 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />
           </div>
 
-          <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
-            <div className="relative w-full h-24 md:h-32">
-              <svg
-                viewBox="0 0 1440 120"
-                fill="none"
-                preserveAspectRatio="none"
-                className="w-full h-full"
-                style={{ transform: 'scaleY(-1)' }}
-              >
-                <path
-                  ref={sectionBottomCurveRef}
-                  d="M0,0 L1440,0 C1100,0 950,0 720,0 C490,0 340,0 0,0 Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </div>
+        </div> 
+        {/* ⇧⇧⇧ INI PENUTUP DARI DIV "productos-slides", JANGAN DIHAPUS ⇧⇧⇧ */}
+
+
+        {/* ── PASTE CEKUNGAN BAWAH DI SINI (DI LUAR SLIDES) ── */}
+        <div className="absolute -bottom-[2px] left-0 w-full z-[60] pointer-events-none text-[#030035]">
+          <div className="relative w-full h-24 md:h-32 scale-x-110">
+            <svg
+              viewBox="0 0 1440 120"
+              fill="none"
+              preserveAspectRatio="none"
+              className="w-full h-full"
+              style={{ transform: 'scaleY(-1)', overflow: 'visible' }}
+            >
+              <path
+                ref={sectionBottomCurveRef}
+                d="M0,-50 L1440,-50 L1440,0 C1100,0 950,0 720,0 C490,0 340,0 0,0 Z"
+                fill="currentColor"
+              />
+            </svg>
           </div>
-
         </div>
+        {/* ─────────────────────────────────────────────────── */}
 
-        {/* ── LAYER 1.5: Cekungan Cembung Ke Luar Tirai ── */}
+
         <div
           ref={topCurveWrapRef}
           className="absolute left-0 w-full z-[15] pointer-events-none text-[#E5E5E5]"
@@ -396,7 +401,7 @@ export default function ProductosOverview() {
           style={{ top: '50.1%', height: '120px' }}
         >
           <svg viewBox="0 0 1440 120" fill="none" preserveAspectRatio="none" className="w-full h-full" style={{ overflow: 'visible' }}>
-            <path ref={bottomCurveRef} fill="currentColor" stroke="currentColor" strokeWidth="2" />
+           <path ref={bottomCurveRef} fill="currentColor" stroke="currentColor" strokeWidth="2" />
           </svg>
         </div>
 

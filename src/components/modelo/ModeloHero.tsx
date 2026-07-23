@@ -178,8 +178,8 @@ export default function ModeloHero() {
     });
   };
 
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.015], [1, 0]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [0.5, 0.5, 0]);
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.015, 1], [1, 0, 0]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [0.6, 0.7, 0]);
 
   return (
     <div ref={containerRef} className="relative h-[650vh] w-full bg-[#F4F4F5]">
@@ -206,23 +206,26 @@ export default function ModeloHero() {
           style={{ opacity: overlayOpacity }}
         />
 
-       {/* Logo & Teks DIMA FINANCE (z-20) */}
-        <motion.div 
-          className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex flex-col items-center"
-          style={{ opacity: logoOpacity }}
-        >
-          {/* Logo */}
-          <img src="/logo/Imagen 1.png" alt="Logo" className="w-45 md:w-56 lg:w-64 h-auto mb-6" />          
-          {/* Teks persis seperti gambar */}
-          <div className="flex flex-col items-start text-white font-sans">
-            <span className="text-7xl md:text-8xl lg:text-[7.5rem] font-normal leading-[0.85] tracking-tight">
-              DIMA
-            </span>
-            <span className="text-3xl md:text-5xl lg:text-[3.67rem] font-semibold leading-none tracking-widest mt-1 ml-1 md:ml-2">
-              FINANCE
-            </span>
-          </div>
-        </motion.div>
+      {/* Logo & Teks DIMA FINANCE (z-20) */}
+<motion.div 
+  className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex flex-col items-center"
+  style={{ opacity: logoOpacity }}
+>
+  {/* Logo (diatur ke skala sedang: w-52 / w-68 / w-80) */}
+  <img src="/logo/Imagen 1.png" alt="Logo" className="w-52 md:w-68 lg:w-80 h-auto mb-7 md:mb-8" />          
+  
+  {/* Teks persis seperti gambar */}
+  <div className="flex flex-col items-start text-white font-sans">
+    {/* DIMA (menggunakan font-medium) */}
+    <span className="text-7xl md:text-8xl lg:text-[9rem] font-normal leading-[0.85] tracking-tight">
+      DIMA
+    </span>
+    {/* FINANCE (diatur seimbang di bawah DIMA) */}
+    <span className="text-4xl md:text-6xl lg:text-[4.4rem] font-semibold leading-none tracking-widest mt-1.5 ml-1.5 md:ml-2.5">
+      FINANCE
+    </span>
+  </div>
+</motion.div>
 
         {/* Text Layer */}
         <div className="absolute inset-0 z-10 pointer-events-none">
@@ -234,15 +237,16 @@ export default function ModeloHero() {
             const chapterProgress = useTransform(scrollYProgress, [start, end], [0, 1]);
             const buttonOpacity = useTransform(chapterProgress, [0.5, 0.7], [0, 1]);
             
-            const blockOpacity = useTransform(
-              scrollYProgress,
-              isLast 
-                ? [start, start + slot * 0.05] 
-                : [start, start + slot * 0.05, end - slot * 0.05, end],
-              isLast 
-                ? [0, 1] 
-                : [0, 1, 1, 0]
-            );
+            // Ubah bagian blockOpacity menjadi ini:
+const blockOpacity = useTransform(
+  scrollYProgress,
+  isLast 
+    ? [start, start + slot * 0.05, 1] // Tambahkan 1 di sini
+    : [start, start + slot * 0.05, end - slot * 0.05, end],
+  isLast 
+    ? [0, 1, 1] // Tambahkan 1 di sini
+    : [0, 1, 1, 0]
+);
 
             const eyebrowOpacity = useTransform(
               chapterProgress,

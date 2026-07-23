@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion, AnimatePresence } from 'framer-motion'
-import SpotlightGridBackground from '../layout/SpotlightGridBackground'
 import { servicesData as DERIVATIVES } from '../../data/servicios'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -240,7 +239,7 @@ export default function ServicesShowcase(_props?: { services?: any }) {
           BAGIAN 2: SERVICIOS DERIVADOS (Natural Scroll Flow)
       ════════════════════════════════════════════════════ */}
       <div className="derivatives-section relative z-20 w-full bg-[#030035] pt-12 pb-32">
-        <SpotlightGridBackground />
+        {/* <SpotlightGridBackground /> */}
         
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-8 md:px-12 lg:px-16 xl:px-20">
           

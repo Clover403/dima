@@ -79,11 +79,11 @@ export default function HeroSection() {
   const foregroundX = useTransform(scrollYProgress, [TEXT_END, 1], ['0%', '-3%']);
 
   // Animasi Wordmark "DIMA FINANCE" (Hanya Fade-Out pas discroll tanpa bergeser)
-  const introOpacity = useTransform(
-    scrollYProgress,
-    [0, INTRO_END * 0.8, INTRO_END],
-    [1, 1, 0]
-  );
+ const introOpacity = useTransform(
+  scrollYProgress,
+  [0, INTRO_END * 0.8, INTRO_END, 1],
+  [1, 1, 0, 0]
+);
 
   const n = chapters.length;
   const chapterSpan = TEXT_END - INTRO_END;

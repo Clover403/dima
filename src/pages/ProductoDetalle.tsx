@@ -5,6 +5,8 @@ import { productsData, PRODUCTOS_CTA_LINK } from '../data/productos'
 import { ProductLayerTabs, type LayerKey } from '../components/productos/ProductosShowcase'
 import SpotlightGridBackground from '../components/layout/SpotlightGridBackground'
 import SharedHeroSection from '../components/layout/SharedHeroSection'
+import CTA from '../components/layout/CTA';
+
 
 function AccentHeading({ heading }: { heading: string }) {
   const words = heading.trim().split(/\s+/)
@@ -149,6 +151,7 @@ export default function ProductoDetalle() {
 
       </div>
       </div>
+      <CTA/>
     </motion.div>
   )
 }

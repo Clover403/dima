@@ -4,6 +4,8 @@ import PageTransition from '../components/layout/PageTransition'
 import SharedHeroSection from '../components/layout/SharedHeroSection'
 import { servicesData } from '../data/servicios'
 import RippleGrid from '../components/RippleGrid'
+import CTA from '../components/layout/CTA';
+
 // import Footer from '../components/layout/Footer'
 
 function DiamondIcon({ size = 16, opacity = 1 }: { size?: number; opacity?: number }) {
@@ -145,7 +147,7 @@ export default function ServicioDetalle() {
         </div>
       </section>
       
-      {/* <Footer /> */}
+      <CTA />
     </PageTransition>
   )
 }

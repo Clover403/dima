@@ -11,10 +11,22 @@ export function useLenis() {
   useEffect(() => {
     if (lenisInstance) return
 
+   // Deteksi Firefox
+    const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('firefox');
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.5, // Naikin dikit biar lebih smooth nahan laju Chrome
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      
+      // Paksa turun drastis di Chrome/Safari
+      wheelMultiplier: isFirefox ? 1 : 0.3, 
+      
+      // Tambahin ini kalo lu scroll pake touchpad laptop
+      touchMultiplier: isFirefox ? 1 : 0.3, 
+      
+      // Buka komen di bawah ini kalau wheelMultiplier tetep ga ngaruh (tergantung versi Lenis)
+      // multiplier: isFirefox ? 1 : 0.3, 
     })
 
     lenisInstance = lenis

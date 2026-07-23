@@ -224,10 +224,10 @@ export default function NosotrosHeroScroll() {
   const b2Start = boundary2 - fadeWidth / 2;
   const b2End = boundary2 + fadeWidth / 2;
 
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 0.6]);
+ const overlayOpacity = useTransform(scrollYProgress, [0, 0.05, 1], [0, 0.6, 0.6]);
   
   // Animasi untuk logo (memudar seiring scroll bab pertama)
-  const logoOpacity = useTransform(scrollYProgress, [0, slot * 0.5, slot], [1, 1, 0]);
+  const logoOpacity = useTransform(scrollYProgress, [0, slot * 0.5, slot, 1], [1, 1, 0, 0]);
 
   return (
     <PageTransition>
@@ -297,19 +297,19 @@ export default function NosotrosHeroScroll() {
                 isFirst ? [1, 1] : [0, 1]
               );
 
-              const blockOpacity = useTransform(
-                scrollYProgress,
-                isFirst 
-                  ? [0, slot * 0.5, slot] 
-                  : isLast
-                    ? [start, start + slot * 0.05]
-                    : [start, start + slot * 0.05, end - slot * 0.05, end],
-                isFirst
-                  ? [1, 1, 0]
-                  : isLast
-                    ? [0, 1]
-                    : [0, 1, 1, 0]
-              );
+            const blockOpacity = useTransform(
+  scrollYProgress,
+  isFirst 
+    ? [0, slot * 0.5, slot, 1] 
+    : isLast
+      ? [start, start + slot * 0.05, 1]
+      : [start, start + slot * 0.05, end - slot * 0.05, end],
+  isFirst
+    ? [1, 1, 0, 0]
+    : isLast
+      ? [0, 1, 1]
+      : [0, 1, 1, 0]
+);
 
               const pointerEvents = useTransform(blockOpacity, (v) => v > 0.1 ? "auto" : "none");
               

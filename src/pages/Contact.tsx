@@ -18,7 +18,7 @@ export default function Contact() {
   const ctaState = location.state || {}
 
   const [formData, setFormData] = useState({
-    sector: '', contactName: ctaState.contactName || '', position: '', email: ctaState.email || '', phone: '',
+    sector: ctaState.sector || '', contactName: ctaState.contactName || '', position: ctaState.position || '', email: ctaState.email || '', phone: ctaState.phone || '',
     productType: ctaState.productType || '', loanAmount: '', loanCurrency: 'MXN', loanTBD: false,
     termMonths: '', termTBD: false,
   })

@@ -107,10 +107,11 @@ export default function PrincipiosHero() {
 
   const slot = 1 / chapters.length;
 
-  const image1Opacity = useTransform(scrollYProgress, [0.7, 0.8], [1, 0]);
-  const image2Opacity = useTransform(scrollYProgress, [0.7, 0.8], [0, 1]);
+  // Ubah bagian ini
+const image1Opacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [1, 0, 0]);
+const image2Opacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [0, 1, 1]);
 
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.4], [0, 0.55]);
+const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55]);
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
   const activeChapterRef = useRef(0);
@@ -177,16 +178,15 @@ export default function PrincipiosHero() {
             const chapterProgress = useTransform(scrollYProgress, [start, end], [0, 1]);
             const buttonOpacity = useTransform(chapterProgress, [0.5, 0.7], [0, 1]);
             
-            // FIX: blockOpacity sekarang menggunakan [0, 1] biar fade in secara mulus pas chapternya masuk
             const blockOpacity = useTransform(
-              scrollYProgress,
-              isLast 
-                ? [start, start + slot * 0.15] 
-                : [start, start + slot * 0.1, end - slot * 0.15, end],
-              isLast 
-                ? [0, 1] 
-                : [0, 1, 1, 0]
-            );
+  scrollYProgress,
+  isLast 
+    ? [start, start + slot * 0.15, 1] // Tambahkan 1 di akhir
+    : [start, start + slot * 0.1, end - slot * 0.15, end],
+  isLast 
+    ? [0, 1, 1] // Tambahkan 1 di akhir
+    : [0, 1, 1, 0]
+);
 
             const xTransform = useTransform(
               scrollYProgress,

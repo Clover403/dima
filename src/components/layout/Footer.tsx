@@ -157,7 +157,7 @@ export default function Footer() {
 
   return (
     // Implementasi margin negatif (-mt-14 md:-mt-24) agar melayang di atas section sebelumnya
-    <footer className="relative w-full min-h-screen flex flex-col bg-transparent -mt-14 md:-mt-24">
+    <footer className="relative z-20 w-full min-h-screen flex flex-col bg-transparent -mt-14 md:-mt-24">
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* LAYER BACKGROUND (Cekungan Bolong & Warna Solid) */}

@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-
-import SpotlightGridBackground from '../layout/SpotlightGridBackground'
 import ProductVisual from './ProductVisual'
 import { PRODUCTOS_CTA_LINK, type ProductData } from '../../data/productos'
 
@@ -179,7 +177,7 @@ export default function ProductosShowcase({ products }: Props) {
     <div className="relative w-full h-screen overflow-hidden bg-[#030035]">
       
       {/* ── GRID & MESH BACKGROUND ── */}
-      <SpotlightGridBackground isHighContrast={true} />
+      {/* <SpotlightGridBackground isHighContrast={true} /> */}
 
       <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-[#030035] via-[#030035]/60 to-[#030035]/20" />
 

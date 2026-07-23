@@ -118,7 +118,7 @@ export default function DalioPrinciplesSection() {
       // ═══════════════════════════════════════════════════════════════════
       // ANIMASI CEKUNGAN DINAMIS
       // ═══════════════════════════════════════════════════════════════════
-      const maxCurve = 90 // Batas maksimal kedalaman kurva (agak turun supaya tidak over)
+      const maxCurve = 70 // Batas maksimal kedalaman kurva (agak turun supaya tidak over)
 
       // 1. Cekungan Atas: Mulai melurus saat section masuk layar dari bawah
       gsap.to({}, {
