@@ -56,7 +56,7 @@ export default function Contact() {
     const ctx = gsap.context(() => {
       if (formRef.current) {
         gsap.fromTo(formRef.current.querySelectorAll('.form-reveal'),
-          { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.08, scrollTrigger: { trigger: formRef.current, start: 'top 80%' } })
+          { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.08, scrollTrigger: { trigger: formRef.current, start: 'top 80%' } })
       }
     }, sectionRef)
     return () => ctx.revert()
@@ -76,52 +76,52 @@ export default function Contact() {
   const isFormValid = !!(formData.sector && formData.contactName && formData.position && isEmailValid && isPhoneValid && formData.productType && (formData.loanTBD || (formData.loanAmount && formData.loanCurrency)) && (formData.termTBD || formData.termMonths))
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (!isFormValid) return; setShowCalendly(true); window.scrollTo({ top: formRef.current?.offsetTop || 0, behavior: 'smooth' }) }
 
-  // Penyesuaian Style untuk form berwarna lightgray
-  const labelStyle = 'block font-sans text-base md:text-lg font-medium text-[#030035]/80 mb-2.5 pl-2'
-  const capsuleInput = 'w-full px-6 py-4 bg-white border border-[#030035]/10 rounded-full text-[#030035] font-normal text-base md:text-lg focus:outline-none focus:border-[#E5997B] focus:ring-1 focus:ring-[#E5997B]/50 transition-all duration-300 shadow-sm'
-  const capsuleSelect = 'w-full px-6 py-4 bg-white border border-[#030035]/10 rounded-full text-[#030035] font-normal text-base md:text-lg focus:outline-none focus:border-[#E5997B] focus:ring-1 focus:ring-[#E5997B]/50 transition-all duration-300 shadow-sm'
-  const placeholderStyle = 'placeholder:text-[#030035]/40 placeholder:font-light placeholder:text-base md:placeholder:text-lg'
+  // Penyesuaian Style untuk form - Turun satu tingkat
+  const labelStyle = 'block font-sans text-sm md:text-base font-medium text-[#030035]/80 mb-2 pl-2'
+  const capsuleInput = 'w-full px-5 py-3.5 bg-white border border-[#030035]/10 rounded-full text-[#030035] font-normal text-sm md:text-base focus:outline-none focus:border-[#E5997B] focus:ring-1 focus:ring-[#E5997B]/50 transition-all duration-300 shadow-sm'
+  const capsuleSelect = 'w-full px-5 py-3.5 bg-white border border-[#030035]/10 rounded-full text-[#030035] font-normal text-sm md:text-base focus:outline-none focus:border-[#E5997B] focus:ring-1 focus:ring-[#E5997B]/50 transition-all duration-300 shadow-sm'
+  const placeholderStyle = 'placeholder:text-[#030035]/40 placeholder:font-light placeholder:text-sm md:placeholder:text-base'
 
   return (
     <PageTransition>
       <div ref={sectionRef} className="bg-[#030035]">
 
         <section ref={formRef} className="relative min-h-screen bg-[#030035] overflow-hidden">
-          <div className="relative z-10 max-w-[1920px] w-[95%] mx-auto flex flex-col lg:flex-row gap-16 lg:gap-24 items-start pt-32 pb-32 md:pt-40 md:pb-40">
+          <div className="relative z-10 max-w-[1600px] w-[95%] mx-auto flex flex-col lg:flex-row gap-12 lg:gap-16 items-start pt-24 pb-24 md:pt-32 md:pb-32">
 
             {/* ═══ KIRI ═══ */}
-            <div className="w-full lg:w-5/12 lg:sticky lg:top-8 space-y-6 form-reveal mt-8">
+            <div className="w-full lg:w-5/12 lg:sticky lg:top-8 space-y-5 form-reveal mt-6">
               <div>
-                <h1 className="font-display text-[clamp(3.2rem,6vw,6.5rem)] text-[#F4F4F5] leading-[1.05] mb-4 font-normal tracking-tight">
+                <h1 className="font-display text-[clamp(2.8rem,5vw,5.5rem)] text-[#F4F4F5] leading-[1.05] mb-3 font-normal tracking-tight">
                   Formulario de <br/><span className="text-[#E5997B] ">Inscripción</span>
                 </h1>
-                <p className="font-body text-[#F4F4F5]/70 text-lg md:text-xl lg:text-2xl leading-relaxed font-light">
+                <p className="font-body text-[#F4F4F5]/70 text-base md:text-lg lg:text-xl leading-relaxed font-light">
                   Complete la información y agende directamente su sesión con nuestro equipo de ingeniería financiera.
                 </p>
               </div>
              <div className="relative group overflow-hidden border border-[#F4F4F5]/10 bg-[#F4F4F5]/5 rounded-2xl shadow-2xl">
-  <img 
-    src="/illustration-compressed/contact/invoice2.webp" 
-    alt="Corporate Architecture" 
-    className="w-full h-[450px] lg:h-[650px] object-cover object-center contrast-110 group-hover:scale-105 transition-transform duration-700 ease-out" 
-  />
-  <div className="absolute bottom-6 left-6 z-20 flex items-center gap-3">
-    <div className="w-8 h-px bg-[#E5997B]" />
-    <span className="font-mono text-[11px] tracking-[0.3em] uppercase text-[#F4F4F5]/80">DIMA Finance — 2026</span>
-  </div>
-</div>
+                <img 
+                  src="/illustration-compressed/contact/invoice2.webp" 
+                  alt="Corporate Architecture" 
+                  className="w-full h-[400px] lg:h-[550px] object-cover object-center contrast-110 group-hover:scale-105 transition-transform duration-700 ease-out" 
+                />
+                <div className="absolute bottom-5 left-5 z-20 flex items-center gap-2.5">
+                  <div className="w-6 h-px bg-[#E5997B]" />
+                  <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-[#F4F4F5]/80">DIMA Finance — 2026</span>
+                </div>
+              </div>
             </div>
 
             {/* ═══ KANAN: FORM BERWARNA LIGHT GRAY ═══ */}
-            <div className="w-full lg:w-7/12 bg-[#E5E7EB] border border-white/50 p-8 md:p-12 lg:p-14 rounded-3xl relative shadow-[0_0_50px_rgba(0,0,0,0.4)]">
+            <div className="w-full lg:w-7/12 bg-[#E5E7EB] border border-white/50 p-6 md:p-10 lg:p-12 rounded-3xl relative shadow-[0_0_50px_rgba(0,0,0,0.4)]">
               {!showCalendly ? (
-                <form onSubmit={handleSubmit} className="space-y-10">
+                <form onSubmit={handleSubmit} className="space-y-8">
                   
                   {/* STEP 1 */}
-                  <div className="form-reveal space-y-6">
-                    <div className="flex items-center gap-3 border-b border-[#030035]/15 pb-6">
-                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#E5997B]/20 text-[#E5997B] font-mono text-sm font-bold">1</span>
-                      <span className="font-sans text-lg md:text-xl text-[#030035] font-bold tracking-wide">Información de Contacto</span>
+                  <div className="form-reveal space-y-5">
+                    <div className="flex items-center gap-3 border-b border-[#030035]/15 pb-5">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#E5997B]/20 text-[#E5997B] font-mono text-xs font-bold">1</span>
+                      <span className="font-sans text-base md:text-lg text-[#030035] font-bold tracking-wide">Información de Contacto</span>
                     </div>
                     
                     <div>
@@ -129,7 +129,7 @@ export default function Contact() {
                       <input type="text" name="sector" value={formData.sector} onChange={handleChange} placeholder="Ej. Manufactura, Agroindustria..." className={`${capsuleInput} ${placeholderStyle}`} required />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className={labelStyle}>Nombre de Contacto</label>
                         <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} placeholder="Ej. Alejandro Magno" className={`${capsuleInput} ${placeholderStyle}`} required />
@@ -140,31 +140,31 @@ export default function Contact() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className={labelStyle}>Email Corporativo</label>
                         <input type="email" name="email" value={formData.email} onChange={handleEmailChange} onBlur={() => { if (formData.email && !validateEmail(formData.email)) setErrors(p => ({ ...p, email: 'Ingrese un correo electrónico válido' })) }} placeholder="nombre@empresa.com" className={`${capsuleInput} ${errors.email ? 'border-red-500 focus:border-red-500' : formData.email && isEmailValid ? 'border-[#E5997B]' : ''} ${placeholderStyle}`} required />
-                        {errors.email && <p className="mt-2 pl-4 font-sans text-sm text-red-500">{errors.email}</p>}
+                        {errors.email && <p className="mt-1.5 pl-3 font-sans text-xs text-red-500">{errors.email}</p>}
                       </div>
                       <div>
                         <label className={labelStyle}>Teléfono</label>
                         <input type="tel" name="phone" value={formData.phone} onChange={handlePhoneChange} onKeyDown={(e) => { if (!['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','(',')',' '].includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault() }} placeholder="+52 55 0000 0000" inputMode="tel" className={`${capsuleInput} ${formData.phone && isPhoneValid ? 'border-[#E5997B]' : ''} ${placeholderStyle}`} required />
-                        {formData.phone && !isPhoneValid && <p className="mt-2 pl-4 font-sans text-sm text-[#030035]/50">Mínimo 8 dígitos</p>}
+                        {formData.phone && !isPhoneValid && <p className="mt-1.5 pl-3 font-sans text-xs text-[#030035]/50">Mínimo 8 dígitos</p>}
                       </div>
                     </div>
                   </div>
 
                   {/* STEP 2 */}
-                  <div className="form-reveal space-y-6 pt-4">
-                    <div className="flex items-center gap-3 border-b border-[#030035]/15 pb-6">
-                      <span className="flex items-center justify-center w-7 h-7 rounded-full bg-[#E5997B]/20 text-[#E5997B] font-mono text-sm font-bold">2</span>
-                      <span className="font-sans text-lg md:text-xl text-[#030035] font-bold tracking-wide">Información del Producto</span>
+                  <div className="form-reveal space-y-5 pt-3">
+                    <div className="flex items-center gap-3 border-b border-[#030035]/15 pb-5">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#E5997B]/20 text-[#E5997B] font-mono text-xs font-bold">2</span>
+                      <span className="font-sans text-base md:text-lg text-[#030035] font-bold tracking-wide">Información del Producto</span>
                     </div>
 
                     <div>
                       <label className={labelStyle}>Tipo de Producto</label>
                       <div className="relative">
-                        <select name="productType" value={formData.productType} onChange={handleChange} className={`${capsuleSelect} ${placeholderStyle} appearance-none cursor-pointer pr-12`} required>
+                        <select name="productType" value={formData.productType} onChange={handleChange} className={`${capsuleSelect} ${placeholderStyle} appearance-none cursor-pointer pr-10`} required>
                           <option value="" disabled className="bg-white text-[#030035]/50">Seleccione un producto...</option>
                           <option value="Crédito Simple" className="bg-white text-[#030035]">Crédito Simple</option>
                           <option value="Crédito Puente" className="bg-white text-[#030035]">Crédito Puente</option>
@@ -174,65 +174,65 @@ export default function Contact() {
                           <option value="Factoring" className="bg-white text-[#030035]">Factoring</option>
                           <option value="Por definir" className="bg-white text-[#030035]">Por definir / TBD</option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-[#030035]/50">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#030035]/50">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className={labelStyle}>Monto Requerido</label>
-                        <div className="flex bg-white border border-[#030035]/10 rounded-full p-1.5 focus-within:border-[#E5997B] focus-within:ring-1 focus-within:ring-[#E5997B]/50 transition-all duration-300 shadow-sm">
-                          <input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange} placeholder="0" disabled={formData.loanTBD} className={`w-full px-5 py-2.5 bg-transparent text-[#030035] font-normal text-base md:text-lg focus:outline-none ${formData.loanTBD ? 'text-[#030035]/30' : ''} ${placeholderStyle}`} />
-                          <select name="loanCurrency" value={formData.loanCurrency} onChange={handleChange} disabled={formData.loanTBD} className={`px-5 py-2.5 bg-[#E5E7EB] rounded-full border-0 text-[#030035] font-normal text-base md:text-lg focus:outline-none cursor-pointer ${formData.loanTBD ? 'text-[#030035]/30' : ''}`}>
+                        <div className="flex bg-white border border-[#030035]/10 rounded-full p-1 focus-within:border-[#E5997B] focus-within:ring-1 focus-within:ring-[#E5997B]/50 transition-all duration-300 shadow-sm">
+                          <input type="number" name="loanAmount" value={formData.loanAmount} onChange={handleChange} placeholder="0" disabled={formData.loanTBD} className={`w-full px-4 py-2 bg-transparent text-[#030035] font-normal text-sm md:text-base focus:outline-none ${formData.loanTBD ? 'text-[#030035]/30' : ''} ${placeholderStyle}`} />
+                          <select name="loanCurrency" value={formData.loanCurrency} onChange={handleChange} disabled={formData.loanTBD} className={`px-4 py-2 bg-[#E5E7EB] rounded-full border-0 text-[#030035] font-normal text-sm md:text-base focus:outline-none cursor-pointer ${formData.loanTBD ? 'text-[#030035]/30' : ''}`}>
                             <option value="MXN" className="bg-white">MXN</option>
                             <option value="USD" className="bg-white">USD</option>
                             <option value="EUR" className="bg-white">EUR</option>
                             <option value="Por definir" className="bg-white">TBD</option>
                           </select>
                         </div>
-                        <label className="flex items-center gap-2.5 mt-3 pl-3 cursor-pointer group w-max">
-                          <input type="checkbox" name="loanTBD" checked={formData.loanTBD} onChange={handleChange} className="w-4 h-4 rounded accent-[#E5997B] border-[#030035]/30" />
-                          <span className="font-sans text-sm md:text-base text-[#030035]/70 group-hover:text-[#030035] transition-colors">Por definir / TBD</span>
+                        <label className="flex items-center gap-2 mt-2.5 pl-2 cursor-pointer group w-max">
+                          <input type="checkbox" name="loanTBD" checked={formData.loanTBD} onChange={handleChange} className="w-3.5 h-3.5 rounded accent-[#E5997B] border-[#030035]/30" />
+                          <span className="font-sans text-xs md:text-sm text-[#030035]/70 group-hover:text-[#030035] transition-colors">Por definir / TBD</span>
                         </label>
                       </div>
 
                       <div>
-                        <label className={labelStyle}>Plazo Deseado <span className="text-[#030035]/50 text-sm font-light">(meses)</span></label>
+                        <label className={labelStyle}>Plazo Deseado <span className="text-[#030035]/50 text-xs font-light">(meses)</span></label>
                         <input type="number" name="termMonths" value={formData.termMonths} onChange={handleChange} placeholder="0" disabled={formData.termTBD} className={`${capsuleInput} ${formData.termTBD ? 'text-[#030035]/30 bg-white/50' : ''} ${placeholderStyle}`} />
-                        <label className="flex items-center gap-2.5 mt-3 pl-3 cursor-pointer group w-max">
-                          <input type="checkbox" name="termTBD" checked={formData.termTBD} onChange={handleChange} className="w-4 h-4 rounded accent-[#E5997B] border-[#030035]/30" />
-                          <span className="font-sans text-sm md:text-base text-[#030035]/70 group-hover:text-[#030035] transition-colors">Por definir / TBD</span>
+                        <label className="flex items-center gap-2 mt-2.5 pl-2 cursor-pointer group w-max">
+                          <input type="checkbox" name="termTBD" checked={formData.termTBD} onChange={handleChange} className="w-3.5 h-3.5 rounded accent-[#E5997B] border-[#030035]/30" />
+                          <span className="font-sans text-xs md:text-sm text-[#030035]/70 group-hover:text-[#030035] transition-colors">Por definir / TBD</span>
                         </label>
                       </div>
                     </div>
                   </div>
 
-                  <div className="form-reveal pt-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-t border-[#030035]/15">
-                    <p className="font-sans text-sm md:text-base text-[#030035]/70 max-w-sm leading-relaxed">Al continuar, acepta que nuestro equipo se ponga en contacto con usted.</p>
-                    <button type="submit" disabled={!isFormValid} className={`w-full md:w-auto inline-flex items-center justify-center gap-3 px-12 py-5 font-sans font-semibold text-base md:text-lg transition-all duration-300 shrink-0 rounded-full ${isFormValid ? 'bg-[#E5997B] text-[#030035] hover:bg-white hover:shadow-[0_0_30px_rgba(229,153,123,0.5)] cursor-pointer transform hover:-translate-y-0.5' : 'bg-[#030035]/10 text-[#030035]/40 cursor-not-allowed'}`}>
+                  <div className="form-reveal pt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 border-t border-[#030035]/15">
+                    <p className="font-sans text-xs md:text-sm text-[#030035]/70 max-w-xs leading-relaxed">Al continuar, acepta que nuestro equipo se ponga en contacto con usted.</p>
+                    <button type="submit" disabled={!isFormValid} className={`w-full md:w-auto inline-flex items-center justify-center gap-2 px-10 py-4 font-sans font-semibold text-sm md:text-base transition-all duration-300 shrink-0 rounded-full ${isFormValid ? 'bg-[#E5997B] text-[#030035] hover:bg-white hover:shadow-[0_0_30px_rgba(229,153,123,0.5)] cursor-pointer transform hover:-translate-y-0.5' : 'bg-[#030035]/10 text-[#030035]/40 cursor-not-allowed'}`}>
                       <span>Agendar Sesión</span>
-                      <svg className="w-5 h-5" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </button>
                   </div>
                 </form>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6">
                   {/* RESUME TEKS */}
-                  <div className="form-reveal border border-[#030035]/10 p-8 space-y-5 bg-white rounded-3xl shadow-xl">
-                    <div className="flex items-center justify-between mb-4 border-b border-[#030035]/10 pb-4">
-                      <span className="font-sans text-base md:text-lg font-bold text-[#030035]">Resumen de su solicitud</span>
-                      <button onClick={() => setShowCalendly(false)} className="font-sans text-sm font-medium text-[#E5997B] hover:text-[#030035] transition-colors flex items-center gap-1.5 py-1.5 px-4 rounded-full bg-[#E5997B]/10 hover:bg-[#E5997B]/20">
-                        <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none"><path d="M10 3l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <div className="form-reveal border border-[#030035]/10 p-6 space-y-4 bg-white rounded-3xl shadow-xl">
+                    <div className="flex items-center justify-between mb-3 border-b border-[#030035]/10 pb-3">
+                      <span className="font-sans text-sm md:text-base font-bold text-[#030035]">Resumen de su solicitud</span>
+                      <button onClick={() => setShowCalendly(false)} className="font-sans text-xs font-medium text-[#E5997B] hover:text-[#030035] transition-colors flex items-center gap-1.5 py-1 px-3 rounded-full bg-[#E5997B]/10 hover:bg-[#E5997B]/20">
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none"><path d="M10 3l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         Editar datos
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-3">
                       {[{ label: 'Contacto', value: formData.contactName },{ label: 'Sector', value: formData.sector },{ label: 'Cargo', value: formData.position },{ label: 'Email', value: formData.email },{ label: 'Teléfono', value: formData.phone },{ label: 'Producto', value: formData.productType },{ label: 'Monto', value: formData.loanTBD ? 'Por definir' : `${formData.loanAmount} ${formData.loanCurrency}` },{ label: 'Plazo', value: formData.termTBD ? 'Por definir' : `${formData.termMonths} meses` }].map((item) => (
-                        <div key={item.label} className="flex justify-between items-baseline border-b border-[#030035]/5 pb-2.5">
-                          <span className="font-sans text-sm text-[#030035]/60">{item.label}</span>
-                          <span className="font-sans text-base md:text-lg text-[#030035] font-semibold">{item.value}</span>
+                        <div key={item.label} className="flex justify-between items-baseline border-b border-[#030035]/5 pb-2">
+                          <span className="font-sans text-xs text-[#030035]/60">{item.label}</span>
+                          <span className="font-sans text-sm md:text-base text-[#030035] font-semibold">{item.value}</span>
                         </div>
                       ))}
                     </div>
@@ -240,11 +240,11 @@ export default function Contact() {
 
                   {/* CALENDLY */}
                   <div className="border border-[#030035]/10 overflow-hidden rounded-3xl bg-white shadow-xl">
-                    <div className="bg-[#E5E7EB] px-6 py-4 flex items-center gap-3 border-b border-[#030035]/10">
-                      <div className="w-3 h-3 rounded-full bg-[#E5997B] animate-pulse" />
-                      <span className="font-sans text-sm font-medium text-[#030035]/80">Seleccione fecha y hora — 30 min</span>
+                    <div className="bg-[#E5E7EB] px-5 py-3 flex items-center gap-2.5 border-b border-[#030035]/10">
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#E5997B] animate-pulse" />
+                      <span className="font-sans text-xs font-medium text-[#030035]/80">Seleccione fecha y hora — 30 min</span>
                     </div>
-                    <div className="calendly-inline-widget" style={{ minWidth: '320px', height: '700px' }} />
+                    <div className="calendly-inline-widget" style={{ minWidth: '320px', height: '650px' }} />
                   </div>
                 </div>
               )}
@@ -255,7 +255,7 @@ export default function Contact() {
         {/* ═══════════════════════════════════════
             CONTACT CARDS - MENGGUNAKAN RIPPLE GRID
             ═══════════════════════════════════════ */}
-        <section ref={contactRef} className="relative py-28 md:py-40 pb-32 md:pb-48 bg-[#030035] overflow-hidden">
+        <section ref={contactRef} className="relative py-20 md:py-32 pb-24 md:pb-40 bg-[#030035] overflow-hidden">
 
           
           {/* Layer Ripple Grid di Section Bawah (Opacity diturunkan agar lebih redup) */}
@@ -267,38 +267,38 @@ export default function Contact() {
           </div>
 
           {/* Layer Transisi Halus (Gradient Fade dari atas ke bawah) agar mulus menyatu dengan section atas */}
-          <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#030035] via-[#030035]/80 to-transparent pointer-events-none" style={{ zIndex: 1 }} />
+          <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#030035] via-[#030035]/80 to-transparent pointer-events-none" style={{ zIndex: 1 }} />
             
-          <div className="relative z-10 max-w-[1600px] w-[92%] mx-auto px-6">
-            <div className="text-center mb-16">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <div className="w-6 h-px bg-[#F4F4F5]/10" />
-                <span className="font-mono text-[#E5997B] text-[10px] tracking-[0.4em] uppercase font-medium">Contacto Directo</span>
-                <div className="w-6 h-px bg-[#F4F4F5]/10" />
+          <div className="relative z-10 max-w-[1400px] w-[92%] mx-auto px-5">
+            <div className="text-center mb-12">
+              <div className="flex items-center justify-center gap-2 mb-5">
+                <div className="w-5 h-px bg-[#F4F4F5]/10" />
+                <span className="font-mono text-[#E5997B] text-[9px] tracking-[0.3em] uppercase font-medium">Contacto Directo</span>
+                <div className="w-5 h-px bg-[#F4F4F5]/10" />
               </div>
-              <h2 className="font-display text-[clamp(3.5rem,6.5vw,6rem)] text-[#F4F4F5] leading-[1.1] mb-4 font-normal">
+              <h2 className="font-display text-[clamp(2.8rem,5.5vw,5rem)] text-[#F4F4F5] leading-[1.1] mb-3 font-normal">
                 Hablemos de su <span className="text-[#E5997B]">próximo paso.</span>
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {[
                 { icon: <path d="M2 7l10 6 10-6M2 4h20v16H2z" stroke="currentColor" strokeWidth="1.2"/>, label: 'Email', value: 'corporativo@dimafinance.com.mx', href: 'mailto:corporativo@dimafinance.com.mx' },
                 { icon: <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" stroke="currentColor" strokeWidth="1.2"/>, label: 'WhatsApp', value: '+52 1 33 1971 7871', href: 'https://wa.me/5213319717871' },
                 { icon: <><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.2"/><path d="M3 10h18" stroke="currentColor" strokeWidth="1.2"/></>, label: 'Videollamada', value: 'Agendar Sesión', href: '#' },
               ].map((item, idx) => (
-                <a key={idx} href={item.href} className="group relative p-10 bg-[#F4F4F5]/3 backdrop-blur-sm border border-[#F4F4F5]/10 hover:border-[#E5997B]/50 transition-all duration-500 flex flex-col items-center text-center rounded-3xl hover:bg-[#F4F4F5]/5 shadow-lg">
-                  <div className="w-12 h-12 mb-5 flex items-center justify-center rounded-full bg-[#F4F4F5]/5 text-[#F4F4F5]/70 group-hover:text-[#E5997B] group-hover:scale-110 transition-all duration-500">
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">{item.icon}</svg>
+                <a key={idx} href={item.href} className="group relative p-8 bg-[#F4F4F5]/3 backdrop-blur-sm border border-[#F4F4F5]/10 hover:border-[#E5997B]/50 transition-all duration-500 flex flex-col items-center text-center rounded-3xl hover:bg-[#F4F4F5]/5 shadow-lg">
+                  <div className="w-10 h-10 mb-4 flex items-center justify-center rounded-full bg-[#F4F4F5]/5 text-[#F4F4F5]/70 group-hover:text-[#E5997B] group-hover:scale-110 transition-all duration-500">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">{item.icon}</svg>
                   </div>
-                  <p className="font-sans text-xs text-[#F4F4F5]/50 mb-1">{item.label}</p>
-                  <p className="font-body text-[#F4F4F5] text-base md:text-lg font-medium">{item.value}</p>
+                  <p className="font-sans text-[10px] text-[#F4F4F5]/50 mb-1">{item.label}</p>
+                  <p className="font-body text-[#F4F4F5] text-sm md:text-base font-medium">{item.value}</p>
                 </a>
               ))}
             </div>
-            <div className="mt-16 flex items-center justify-center gap-3">
-              <div className="h-px bg-[#F4F4F5]/10 flex-1 max-w-[80px]" />
-              <span className="font-sans text-xs text-[#F4F4F5]/40">Sin compromiso · 30 min</span>
-              <div className="h-px bg-[#F4F4F5]/10 flex-1 max-w-[80px]" />
+            <div className="mt-12 flex items-center justify-center gap-2.5">
+              <div className="h-px bg-[#F4F4F5]/10 flex-1 max-w-[60px]" />
+              <span className="font-sans text-[10px] text-[#F4F4F5]/40">Sin compromiso · 30 min</span>
+              <div className="h-px bg-[#F4F4F5]/10 flex-1 max-w-[60px]" />
             </div>
           </div>
         </section>
