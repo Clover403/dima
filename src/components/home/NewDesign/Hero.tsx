@@ -5,8 +5,8 @@ import ScrollSequence from '../../ScrollSequence';
 import HybridRevealText from '../../HybridRevealText';
 
 const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-const hero1Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero1/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const hero2Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero2/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+const hero1Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero1_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+const hero2Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero2_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
 const heroSequenceFrames = [...hero1Frames, ...hero2Frames];
 const chapters = [
   "La economía no es caos.",

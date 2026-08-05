@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/layout/PageTransition'
 import ModeloHero from '../components/modelo/ModeloHero'
@@ -8,7 +8,7 @@ import CTA from "../components/layout/CTA";
 
 
 export default function CreditModel() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0)
     
     const timeout = setTimeout(() => {

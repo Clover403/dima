@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/layout/PageTransition'
 import SharedHeroSection from '../components/layout/SharedHeroSection'
@@ -10,7 +10,7 @@ import CTA from '../components/layout/CTA'
 import { productsData } from '../data/productos'
 
 export default function Products() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0)
     const timeout = setTimeout(() => ScrollTrigger.refresh(), 100)
     return () => clearTimeout(timeout)

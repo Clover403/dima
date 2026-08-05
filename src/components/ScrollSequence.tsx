@@ -84,7 +84,12 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
 
     const bootSequence = async () => {
       // 1. Dapatkan index pertama berdasarkan posisi scroll user SAT INI (jangan selalu 0)
-      const currentTargetIndex = Math.floor(progress.get() * (frameCount - 1)) || 0;
+      let currentTargetIndex = Math.floor(progress.get() * (frameCount - 1)) || 0;
+
+      // Fix for stale progress.get() right after navigation when window.scrollTo(0,0) has just run
+      if (window.scrollY === 0) {
+        currentTargetIndex = 0;
+      }
 
       // Render frame pertama dengan prioritas sangat tinggi
       const firstImg = new Image();

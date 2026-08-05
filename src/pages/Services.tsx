@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PageTransition from '../components/layout/PageTransition'
 import SharedHeroSection from '../components/layout/SharedHeroSection'
@@ -159,7 +159,7 @@ const services = [
 ]
 
 export default function Services() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0)
     const timeout = setTimeout(() => ScrollTrigger.refresh(), 100)
     return () => clearTimeout(timeout)

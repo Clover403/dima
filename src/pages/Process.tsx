@@ -2,7 +2,7 @@
 // Updated to use ProcesoIntro + ProcesodiagramaInteractivo
 // ModeloProceso removed — it belongs to the Modelo page, not here.
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PageTransition from '../components/layout/PageTransition';
@@ -18,7 +18,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Process() {
   const pageRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
     const timeout = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => clearTimeout(timeout);

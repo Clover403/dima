@@ -160,70 +160,130 @@ export default function Loader() {
       { x: 0, opacity: 1, duration: 1.2, ease: "power3.out", delay: 0.2 }
     );
 
-    // Progress buatan
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 95) return p;
-        return p + Math.random() * 8;
-      });
-    }, 150);
+
 
     let isLoadTriggered = false;
     const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
     
     // The frames we absolutely must wait for
-    const essentialFrames = [
-      `${R2_BASE_URL}/hero1/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/models1/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/models3/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/nosotros1/ezgif-frame-001.webp`
+    const priority1 = [
+      "/logo/white.svg",
+      "/logo/Imagen 1.png"
+    ];
+    
+    const priority2 = R2_BASE_URL ? [`${R2_BASE_URL}/hero1_re/ezgif-frame-001.webp`] : [];
+    
+    const priority3 = [
+      "/illustration-compressed/home/temple6.webp",
+      "/illustration-compressed/home/temple9.webp",
+      "/illustration-compressed/home/jembatan3.webp",
+      "/illustration-compressed/home/timbangan1.webp",
+      "/illustration-compressed/serviceHome/crene.webp",
+      "/illustration-compressed/serviceHome/armilarry.webp",
+      "/illustration-compressed/serviceHome/jam-air.webp",
+      "/illustration-compressed/serviceHome/berlian.webp",
+      "/illustration-compressed/serviceHome/buku.webp",
+      "/illustration-compressed/products/menara.webp",
+      "/illustration-compressed/products/bridge.webp",
+      "/illustration-compressed/products/tabung.webp",
+      "/illustration-compressed/products/cycle.webp",
+      "/illustration-compressed/products/gear-machine.webp",
+      "/illustration-compressed/products/invoice.webp"
     ];
 
-    let framesLoadedCount = 0;
+    const essentialItems = [...priority1, ...priority2, ...priority3];
+    let loadedItemsCount = 0;
 
     const checkReadyToFinish = () => {
       if (isLoadTriggered) return;
-      // Hanya menunggu ke 4 frame awal ini selesai. Tidak perlu menunggu semua gambar!
-      if (framesLoadedCount >= essentialFrames.length) {
+      if (loadedItemsCount >= essentialItems.length) {
         isLoadTriggered = true;
         setProgress(100);
-        clearInterval(interval);
         setTimeout(startExitAnimation, 600);
       }
     };
 
-    // Preload the essential frames
-    if (R2_BASE_URL) {
-      essentialFrames.forEach(src => {
+    const preloadImage = (src: string): Promise<void> => {
+      return new Promise((resolve) => {
         const img = new Image();
-        // @ts-ignore
         img.fetchPriority = 'high';
         img.onload = () => {
-          framesLoadedCount++;
-          checkReadyToFinish();
+          loadedItemsCount++;
+          setProgress((loadedItemsCount / essentialItems.length) * 100);
+          resolve();
         };
         img.onerror = () => {
-          framesLoadedCount++;
-          checkReadyToFinish();
+          loadedItemsCount++;
+          setProgress((loadedItemsCount / essentialItems.length) * 100);
+          resolve();
         };
         img.src = src;
       });
-    } else {
-      framesLoadedCount = essentialFrames.length;
-    }
+    };
 
-    checkReadyToFinish();
+    const loadSequentially = async () => {
+      // 1. Logo di loading
+      await Promise.all(priority1.map(preloadImage));
+      
+      // 2. Frame awal hero home
+      await Promise.all(priority2.map(preloadImage));
+      
+      // 3. Semua gambar di halaman home
+      await Promise.all(priority3.map(preloadImage));
+      
+      checkReadyToFinish();
+
+      // Background loading for other priorities (Phase 2)
+      // 4. Frame awal sequences
+      const priority4 = R2_BASE_URL ? [
+        `${R2_BASE_URL}/hero2_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/models1_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/models2_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/models3_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/nosotros1_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/nosotros2_re/ezgif-frame-001.webp`,
+        `${R2_BASE_URL}/nosotros3_re/ezgif-frame-001.webp`
+      ] : [];
+
+      // 5. Di modelo harus gambar biasa nya dulu sebelum sequences di load
+      const priority5 = [
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
+        "/illustration-compressed/home/3rodaekonomi.webp",
+        "/foto/brand-corporate.jpg",
+        "/illustration-compressed/models/penggiling.webp",
+        "/illustration-compressed/models/balon2.webp"
+      ];
+
+      // Load background assets sequentially to avoid killing the network
+      const backgroundPreload = (src: string) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.fetchPriority = 'low';
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = src;
+        });
+      };
+      
+      // Load Priority 4 (First frames of other sequences)
+      await Promise.all(priority4.map(backgroundPreload));
+      // Load Priority 5 (Modelo images)
+      await Promise.all(priority5.map(backgroundPreload));
+    };
+
+    loadSequentially();
 
     // Failsafe timeout (dipercepat jadi 8 detik max)
     const timeout = setTimeout(() => {
       if (!isLoadTriggered) {
-        framesLoadedCount = essentialFrames.length;
+        loadedItemsCount = essentialItems.length;
         checkReadyToFinish();
       }
     }, 8000);
 
     return () => {
-      clearInterval(interval);
       clearTimeout(timeout);
     };
   }, []);

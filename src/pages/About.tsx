@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import NosotrosHeroScroll from '../components/about/NosotrosHeroScroll';
 import CTA from '../components/layout/CTA';
 import PageTransition from '../components/layout/PageTransition';
 
 export default function About() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 

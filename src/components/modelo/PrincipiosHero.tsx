@@ -6,7 +6,7 @@ import ScrollSequence from '../ScrollSequence'
 import HybridRevealText from '../HybridRevealText'
 
 const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-const models3Frames = Array.from({ length: 240 }, (_, i) => `${R2_BASE_URL}/models3/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+const models3Frames = Array.from({ length: 240 }, (_, i) => `${R2_BASE_URL}/models3_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
 
 const chapters = [
   {
