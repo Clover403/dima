@@ -108,10 +108,9 @@ export default function ProductosHero() {
         <InteractiveConstellationText
           lines={[
             { text: 'Soluciones que', y: 150, color: '#FFFFFF' },
-            { text: 'construyen', y: 285, fontStyle: 'italic', color: '#E5997B' },
+            { text: 'construyen', y: 285, fontStyle: 'italic', color: '#E5997B' }
           ]}
-          viewBox="0 0 1100 335"
-          defaultFontSize={160}
+          defaultFontSize={120}
           fontFamily="'Playfair Display', serif"
           containerClassName="pointer-events-auto mb-10"
         />
