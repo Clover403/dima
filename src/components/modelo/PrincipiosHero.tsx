@@ -1,11 +1,12 @@
-import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
-const backgroundImages = [
-  "/illustration-compressed/models/lilin1.webp",
-  "/illustration-compressed/models/lilin2.webp"
-];
+import ScrollSequence from '../ScrollSequence'
+import HybridRevealText from '../HybridRevealText'
+
+const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
+const models3Frames = Array.from({ length: 240 }, (_, i) => `${R2_BASE_URL}/models3/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
 
 const chapters = [
   {
@@ -13,7 +14,7 @@ const chapters = [
     quote: "\"Que la deuda nunca supere al ingreso.\"",
     explanation: "El crédito se considera legítimo únicamente cuando la productividad futura generada es suficiente para amortizar el pasivo de forma independiente.",
     isClimax: false,
-    position: "top-16 left-6 md:left-12 w-[85vw] md:w-[50vw] lg:w-[38vw] text-left items-start",
+    position: "bottom-16 left-6 md:left-12 w-[85vw] md:w-[50vw] lg:w-[38vw] text-left items-start", 
     direction: "left"
   },
   {
@@ -42,61 +43,6 @@ const chapters = [
   }
 ];
 
-function HybridRevealText({
-  text,
-  progress,
-  className,
-  style,
-  isLast = false,
-  startOffset = 0,
-  totalLength,
-}: {
-  text: string;
-  progress: MotionValue<number>;
-  className?: string;
-  style?: React.CSSProperties;
-  isLast?: boolean;
-  startOffset?: number;
-  totalLength?: number;
-}) {
-  const letters = text.split('');
-  const tLength = totalLength || letters.length;
-  return (
-    <span className={`whitespace-pre-wrap ${className || ''}`} style={style}>
-      {letters.map((char, i) => {
-        const start = (startOffset + i) / tLength;
-        const end = (startOffset + i + 1) / tLength;
-        return <HybridLetter key={i} char={char} progress={progress} start={start} end={end} isLast={isLast} />;
-      })}
-    </span>
-  );
-}
-
-function HybridLetter({
-  char,
-  progress,
-  start,
-  end,
-  isLast,
-}: {
-  char: string;
-  progress: MotionValue<number>;
-  start: number;
-  end: number;
-  isLast?: boolean;
-}) {
-  const revealStart = start * 0.6;
-  const revealEnd = end * 0.6;
-
-  const opacity = useTransform(
-    progress,
-    isLast ? [start * 0.7, end * 0.7] : [revealStart, revealEnd],
-    [0, 1]
-  );
-
-  return <motion.span style={{ opacity }}>{char}</motion.span>;
-}
-
 export default function PrincipiosHero() {
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -107,11 +53,8 @@ export default function PrincipiosHero() {
 
   const slot = 1 / chapters.length;
 
-  // Ubah bagian ini
-const image1Opacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [1, 0, 0]);
-const image2Opacity = useTransform(scrollYProgress, [0.7, 0.8, 1], [0, 1, 1]);
-
-const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55]);
+  // 1. Overlay mulai memudar dari 0.55 ke 0 pada jarak 95% sampai 100% scroll
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.1, 0.95, 1], [0, 0.55, 0.55, 0]);
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
   const activeChapterRef = useRef(0);
@@ -148,17 +91,13 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
     <div ref={containerRef} className="relative h-[550vh] w-full bg-[#F4F4F5]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         
-        {/* Background Images Crossfading */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <motion.img 
-            src={backgroundImages[0]}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            style={{ opacity: image1Opacity }}
-          />
-          <motion.img 
-            src={backgroundImages[1]}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            style={{ opacity: image2Opacity }}
+        {/* Scroll Sequence Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none bg-navy cursor-none">
+          <ScrollSequence 
+            progress={scrollYProgress} 
+            frameCount={models3Frames.length} 
+            imagePaths={models3Frames} 
+            className="contrast-105"
           />
         </div>
 
@@ -178,15 +117,14 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
             const chapterProgress = useTransform(scrollYProgress, [start, end], [0, 1]);
             const buttonOpacity = useTransform(chapterProgress, [0.5, 0.7], [0, 1]);
             
+            // 2. blockOpacity sekarang akan selalu berakhir di 0 pada akhir scroll untuk isLast
             const blockOpacity = useTransform(
-  scrollYProgress,
-  isLast 
-    ? [start, start + slot * 0.15, 1] // Tambahkan 1 di akhir
-    : [start, start + slot * 0.1, end - slot * 0.15, end],
-  isLast 
-    ? [0, 1, 1] // Tambahkan 1 di akhir
-    : [0, 1, 1, 0]
-);
+              scrollYProgress,
+              isLast 
+                ? [start, start + slot * 0.15, 0.95, 1] 
+                : [start, start + slot * 0.1, end - slot * 0.15, end],
+              [0, 1, 1, 0] // Karena elemen terakhir butuh memudar, array akhirnya disamakan ke 0
+            );
 
             const xTransform = useTransform(
               scrollYProgress,
@@ -219,14 +157,13 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
                   className={`absolute ${ch.position}`}
                   style={{ opacity: blockOpacity, y: yTransform }}
                 >
-                  {/* Karena logonya ada di dalam blockOpacity climax ini, logonya bakal 100% transparan dan baru muncul barengan teks */}
                   <img 
                     src="/logo/Imagen 1.png" 
                     alt="Logo" 
                     className="w-56 md:w-72 lg:w-96 h-auto mb-8 md:mb-12" 
                   />
                   
-                  <h1 className="leading-[1.05] tracking-tight w-full max-w-[90vw] lg:max-w-[75vw] mx-auto font-display font-medium text-[4.5rem] sm:text-[6rem] md:text-[7.5rem] lg:text-[9rem] inline-block break-words">
+                  <h1 className="leading-[1.05] tracking-tight w-full max-w-[90vw] lg:max-w-[75vw] mx-auto font-display font-medium text-[2.25rem] sm:text-[3.5rem] md:text-[4.5rem] lg:text-[5.5rem] inline-block break-words">
                     <HybridRevealText 
                       text={ch.quote} 
                       progress={chapterProgress} 
@@ -246,7 +183,7 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
                 style={{ opacity: blockOpacity, x: xTransform }}
               >
                 
-                <h2 className="leading-[1.05] tracking-tight w-full font-display font-medium text-[4.2rem] sm:text-[5.5rem] md:text-[6.5rem] lg:text-[7.5rem] break-words block">
+                <h2 className="leading-[1.05] tracking-tight w-full font-display font-medium text-[3.2rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.5rem] break-words block">
                   <HybridRevealText
                     text={ch.quote}
                     progress={chapterProgress}
@@ -264,7 +201,7 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
                     aria-label="Toggle explanation"
                   >
                     <ChevronDown 
-                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" 
+                      className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10" 
                       strokeWidth={3} 
                     />
                   </motion.button>
@@ -280,7 +217,7 @@ const overlayOpacity = useTransform(scrollYProgress, [0, 0.4, 1], [0, 0.55, 0.55
                       className="w-full pointer-events-auto overflow-hidden mt-1"
                     >
                       <p 
-                        className="font-body text-[1.5rem] sm:text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] font-medium leading-tight w-full break-words pb-2"
+                        className="font-body text-[1.25rem] sm:text-[1.5rem] md:text-[1.75rem] lg:text-[2rem] font-medium leading-tight w-full break-words pb-2"
                         style={{ color: 'white' }}
                       >
                         <HybridRevealText
