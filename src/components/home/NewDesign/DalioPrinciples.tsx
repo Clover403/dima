@@ -168,12 +168,12 @@ export default function DalioPrinciplesSection() {
 
   return (
     <div
-      ref={wrapperRef}
-      className="relative"
-      style={{
-        height: '500vh',
-        zIndex: 25,
-      }}
+    ref={wrapperRef}
+    className="relative"
+    style={{
+      height: '500vh',
+      zIndex: 25,
+    }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         
