@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -177,7 +178,7 @@ export default function AboutManifestoSection() {
       />
 
       {/* Background Images Layer */}
-      <div className="absolute inset-0 w-full h-full z-[1]">
+      <div className="absolute inset-0 w-full h-full z-[1] cursor-none">
         {MANIFESTOS.map((manifesto, index) => (
           <div
             key={`bg-container-${index}`}
@@ -191,6 +192,7 @@ export default function AboutManifestoSection() {
             <div className="absolute inset-0 bg-[#030035]/70" />
           </div>
         ))}
+        <HoverTrailOverlay theme="navy" className="absolute inset-0 z-10 w-full h-full pointer-events-auto" />
       </div>
 
       {/* Content Layer */}
