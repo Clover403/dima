@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import GeometryParticles from "../GeometryParticles";
+import HoverTrailOverlay from "../HoverTrailOverlay";
 import {
   motion,
   AnimatePresence,
@@ -107,6 +108,8 @@ function ScrollTextItem({
   );
 }
 
+
+
 function ScrollImageItem({
   image,
   index,
@@ -136,7 +139,7 @@ function ScrollImageItem({
   return (
     <motion.div
       style={{ opacity }}
-      className="absolute inset-0 w-full h-full overflow-hidden bg-navy rounded-2xl md:rounded-3xl"
+      className="absolute inset-0 w-full h-full overflow-hidden bg-navy rounded-2xl md:rounded-3xl cursor-none"
     >
       <motion.img
         style={{ scale }}
@@ -144,6 +147,7 @@ function ScrollImageItem({
         alt="Visual Ekonomi"
         className="w-full h-full object-cover object-center contrast-105"
       />
+      <HoverTrailOverlay theme="navy" className="absolute inset-0 z-20 w-full h-full" />
     </motion.div>
   );
 }
@@ -158,6 +162,7 @@ export default function ModeloProtitas() {
     target: sectionRef,
     offset: ["start start", "end end"],
   });
+
 
   const textTrackY = useTransform(
     scrollYProgress,
@@ -244,7 +249,7 @@ export default function ModeloProtitas() {
         {/* ========== MOBILE LAYOUT ========== */}
         <div className="relative z-10 w-full h-full flex flex-col lg:hidden">
           {/* GAMBAR FULL WIDTH DI ATAS */}
-          <div className="relative w-full h-[68vh] shrink-0 overflow-hidden">
+          <div className="relative w-full h-[68vh] shrink-0 overflow-hidden cursor-none">
             <AnimatePresence mode="wait">
               <motion.img
                 key={mobileImageIndex}
@@ -257,6 +262,9 @@ export default function ModeloProtitas() {
                 className="absolute inset-0 w-full h-full object-cover contrast-105"
               />
             </AnimatePresence>
+
+            {/* Hover Trail Overlay */}
+            <HoverTrailOverlay theme="navy" className="absolute inset-0 z-20 w-full h-full" />
 
             {/* NAVIGASI PANAH */}
             <div className="absolute bottom-4 right-4 flex gap-2 z-20">
