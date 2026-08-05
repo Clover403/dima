@@ -89,10 +89,9 @@ export default function ServiciosHero() {
         <InteractiveConstellationText
           lines={[
             { text: 'Acompañamiento', y: 110, color: '#FFFFFF' },
-            { text: 'estratégico', y: 225, fontStyle: 'italic', color: '#E5997B' },
+            { text: 'estratégico', y: 225, fontStyle: 'italic', color: '#E5997B' }
           ]}
-          viewBox="0 0 1400 335"
-          defaultFontSize={110}
+          defaultFontSize={120}
           fontFamily="'Playfair Display', serif"
           containerClassName="pointer-events-auto mb-10"
         />
