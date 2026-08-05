@@ -1,12 +1,19 @@
 import { useEffect } from 'react';
 import NosotrosHeroScroll from '../components/about/NosotrosHeroScroll';
+import CTA from '../components/layout/CTA';
+import PageTransition from '../components/layout/PageTransition';
 
 export default function About() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  return <NosotrosHeroScroll />;
+  return (
+    <PageTransition>
+      <NosotrosHeroScroll />
+      <CTA theme="light" />
+    </PageTransition>
+  );
 }
 
 /* ==============================================================================
