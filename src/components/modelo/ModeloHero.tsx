@@ -1,12 +1,14 @@
-import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import HoverTrailOverlay from '../HoverTrailOverlay' 
+import ScrollSequence from '../ScrollSequence'
+import HybridRevealText from '../HybridRevealText'
 
-const backgroundImages = [
-  "/illustration-compressed/models/modelo1.webp",
-  "/illustration-compressed/models/modelo2.webp",
-  "/illustration-compressed/models/modelo4.webp"
-];
+const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
+const models1Frames = Array.from({ length: 136 }, (_, i) => `${R2_BASE_URL}/models1/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+const models2Frames = Array.from({ length: 136 }, (_, i) => `${R2_BASE_URL}/models2/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+const heroSequenceFrames = [...models1Frames, ...models2Frames];
 
 const chapters = [
   {
@@ -35,107 +37,6 @@ const chapters = [
   }
 ];
 
-function HybridRevealText({
-  text,
-  progress,
-  className,
-  style,
-  isLast = false,
-  startOffset = 0,
-  totalLength,
-}: {
-  text: string;
-  progress: MotionValue<number>;
-  className?: string;
-  style?: React.CSSProperties;
-  isLast?: boolean;
-  startOffset?: number;
-  totalLength?: number;
-}) {
-  const letters = text.split('');
-  const tLength = totalLength || letters.length;
-  
-  return (
-    <span className={`whitespace-pre-wrap ${className || ''}`} style={style}>
-      {letters.map((char, i) => {
-        const start = (startOffset + i) / tLength;
-        const end = (startOffset + i + 1) / tLength;
-        return <HybridLetter key={i} char={char} progress={progress} start={start} end={end} isLast={isLast} />;
-      })}
-    </span>
-  );
-}
-
-function HybridLetter({
-  char,
-  progress,
-  start,
-  end,
-  isLast,
-}: {
-  char: string;
-  progress: MotionValue<number>;
-  start: number;
-  end: number;
-  isLast?: boolean;
-}) {
-  const revealStart = start * 0.6;
-  const revealEnd = end * 0.6;
-
-  const opacity = useTransform(
-    progress,
-    isLast ? [start * 0.7, end * 0.7] : [revealStart, revealEnd],
-    [0, 1]
-  );
-
-  return <motion.span style={{ opacity }}>{char}</motion.span>;
-}
-
-function CrossfadeImage({
-  src,
-  index,
-  scrollYProgress,
-  slot,
-  total,
-  flip = false
-}: {
-  src: string;
-  index: number;
-  scrollYProgress: MotionValue<number>;
-  slot: number;
-  total: number;
-  flip?: boolean;
-}) {
-  const windowHalf = slot * 0.15; 
-  
-  const startFadeIn = index * slot - windowHalf;
-  const endFadeIn = index * slot + windowHalf;
-  
-  const startFadeOut = (index + 1) * slot - windowHalf;
-  const endFadeOut = (index + 1) * slot + windowHalf;
-
-  let rangeMap = [startFadeIn, endFadeIn, startFadeOut, endFadeOut];
-  let opacityMap = [0, 1, 1, 0];
-
-  if (index === 0) {
-    rangeMap = [0, 0, startFadeOut, endFadeOut];
-    opacityMap = [1, 1, 1, 0];
-  } else if (index === total - 1) {
-    rangeMap = [startFadeIn, endFadeIn, 1, 1];
-    opacityMap = [0, 1, 1, 1];
-  }
-
-  const opacity = useTransform(scrollYProgress, rangeMap, opacityMap);
-
-  return (
-    <motion.img 
-      src={src}
-      className={`absolute inset-0 w-full h-full object-cover object-center ${flip ? '-scale-x-100' : ''}`}
-      style={{ opacity }}
-    />
-  );
-}
-
 export default function ModeloHero() {
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -145,7 +46,6 @@ export default function ModeloHero() {
   });
 
   const slot = 1 / chapters.length;
-  const imageSlot = 1 / backgroundImages.length;
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
   const activeChapterRef = useRef(0);
@@ -179,25 +79,21 @@ export default function ModeloHero() {
   };
 
   const logoOpacity = useTransform(scrollYProgress, [0, 0.015, 1], [1, 0, 0]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [0.6, 0.7, 0]);
+  
+  // Overlay diturunkan ke 0.5 - 0.6
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [0.5, 0.6, 0]);
 
   return (
     <div ref={containerRef} className="relative h-[650vh] w-full bg-[#F4F4F5]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full overflow-hidden cursor-none">
         
-        {/* Background Images Crossfading */}
+        {/* Scroll Sequence Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {backgroundImages.map((src, i) => (
-            <CrossfadeImage 
-              key={i} 
-              src={src} 
-              index={i} 
-              scrollYProgress={scrollYProgress} 
-              slot={imageSlot}
-              total={backgroundImages.length}
-              flip={i === 2}
-            />
-          ))}
+          <ScrollSequence 
+            progress={scrollYProgress} 
+            frameCount={heroSequenceFrames.length} 
+            imagePaths={heroSequenceFrames} 
+          />
         </div>
 
         {/* Overlay Gelap Transparan */}
@@ -206,26 +102,35 @@ export default function ModeloHero() {
           style={{ opacity: overlayOpacity }}
         />
 
-      {/* Logo & Teks DIMA FINANCE (z-20) */}
-<motion.div 
-  className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex flex-col items-center"
-  style={{ opacity: logoOpacity }}
->
-  {/* Logo (diatur ke skala sedang: w-52 / w-68 / w-80) */}
-  <img src="/logo/Imagen 1.png" alt="Logo" className="w-52 md:w-68 lg:w-80 h-auto mb-7 md:mb-8" />          
-  
-  {/* Teks persis seperti gambar */}
-  <div className="flex flex-col items-start text-white font-sans">
-    {/* DIMA (menggunakan font-medium) */}
-    <span className="text-7xl md:text-8xl lg:text-[9rem] font-normal leading-[0.85] tracking-tight">
-      DIMA
-    </span>
-    {/* FINANCE (diatur seimbang di bawah DIMA) */}
-    <span className="text-4xl md:text-6xl lg:text-[4.4rem] font-semibold leading-none tracking-widest mt-1.5 ml-1.5 md:ml-2.5">
-      FINANCE
-    </span>
-  </div>
-</motion.div>
+        {/* Hover Trail Overlay - Diubah temanya agar lebih pop-up */}
+        <HoverTrailOverlay 
+          theme="white" 
+          className="absolute inset-0 z-15 w-full h-full" 
+        />
+
+        {/* Logo & Teks DIMA FINANCE (z-20) */}
+        <motion.div 
+          className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex flex-col items-center"
+          style={{ opacity: logoOpacity }}
+        >
+          <img src="/logo/Imagen 1.png" alt="Logo" className="w-52 md:w-68 lg:w-80 h-auto mb-7 md:mb-8" />          
+          
+          <div className="flex flex-col items-center mt-4">
+            <h1
+              className="relative -left-1 lg:-left-2 leading-[0.85] tracking-tighter font-normal text-[5.5rem] md:text-[4.5rem] lg:text-[7rem]"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.02em' }}
+            >
+              DIMA
+            </h1>
+            
+            <h1
+              className="leading-[0.85] tracking-normal font-medium text-[3.2rem] md:text-[3.8rem] lg:text-[4rem]"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.05em' }}
+            >
+              FINANCE
+            </h1>
+          </div>
+        </motion.div>
 
         {/* Text Layer */}
         <div className="absolute inset-0 z-10 pointer-events-none">
@@ -237,16 +142,15 @@ export default function ModeloHero() {
             const chapterProgress = useTransform(scrollYProgress, [start, end], [0, 1]);
             const buttonOpacity = useTransform(chapterProgress, [0.5, 0.7], [0, 1]);
             
-            // Ubah bagian blockOpacity menjadi ini:
-const blockOpacity = useTransform(
-  scrollYProgress,
-  isLast 
-    ? [start, start + slot * 0.05, 1] // Tambahkan 1 di sini
-    : [start, start + slot * 0.05, end - slot * 0.05, end],
-  isLast 
-    ? [0, 1, 1] // Tambahkan 1 di sini
-    : [0, 1, 1, 0]
-);
+            const blockOpacity = useTransform(
+              scrollYProgress,
+              isLast 
+                ? [start, start + slot * 0.05, 1] 
+                : [start, start + slot * 0.05, end - slot * 0.05, end],
+              isLast 
+                ? [0, 1, 1] 
+                : [0, 1, 1, 0]
+            );
 
             const eyebrowOpacity = useTransform(
               chapterProgress,
@@ -272,21 +176,20 @@ const blockOpacity = useTransform(
               >
                 {ch.eyebrow && (
                   <motion.p 
-                    className="font-body text-[#E5997B] text-base md:text-lg tracking-[0.3em] uppercase font-semibold relative z-10"
+                    className="font-body text-[#E5997B] text-xs md:text-sm tracking-[0.3em] uppercase font-semibold relative z-10"
                     style={{ opacity: eyebrowOpacity }}
                   >
                     {ch.eyebrow}
                   </motion.p>
                 )}
                 
-                {/* Judul + Toggle Button */}
                 <h1 className="leading-[1.05] tracking-tight w-full block break-words relative z-10">
                   <HybridRevealText
                     text={ch.headline}
                     progress={chapterProgress}
                     isLast={isLast}
-                    className="font-display font-medium text-[4.2rem] sm:text-[5.5rem] md:text-[6.5rem] lg:text-[7.5rem] inline break-words"
-                    style={{ color: isLast ? "#030035" : "white" }}
+                    className="font-display font-medium text-[3.2rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.5rem] inline break-words"
+                    targetColor={isLast ? "#030035" : "#E5E5E5"} 
                   />
                   
                   <motion.button
@@ -297,14 +200,10 @@ const blockOpacity = useTransform(
                     transition={{ duration: 0.35, ease: "easeInOut" }}
                     aria-label="Toggle explanation"
                   >
-                    <ChevronDown 
-                      className="w-10 h-10 sm:w-14 sm:h-14 md:w-[4.5rem] md:h-[4.5rem]" 
-                      strokeWidth={3} 
-                    />
+                    <ChevronDown className="w-8 h-8 sm:w-10 sm:h-10 md:w-[3rem] md:h-[3rem]" strokeWidth={3} />
                   </motion.button>
                 </h1>
                 
-                {/* Animasi Body Text Dropdown */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
@@ -314,13 +213,12 @@ const blockOpacity = useTransform(
                       transition={{ duration: 0.4, ease: "easeInOut" }}
                       className="w-full pointer-events-auto overflow-hidden relative z-10"
                     >
-                      <p 
-                        className={`font-body text-[1.5rem] sm:text-[1.75rem] md:text-[2rem] lg:text-[2.5rem] font-medium leading-tight w-full break-words mt-4 pb-2 ${isLast ? 'text-[#030035]' : 'text-white'}`}
-                      >
+                      <p className="font-body text-[1.25rem] sm:text-[1.5rem] md:text-[1.75rem] lg:text-[2rem] font-medium leading-tight w-full break-words mt-4 pb-2">
                         <HybridRevealText
                           text={ch.body}
                           progress={chapterProgress}
                           isLast={isLast}
+                          targetColor={isLast ? "#030035" : "#E5E5E5"}
                         />
                       </p>
                     </motion.div>
