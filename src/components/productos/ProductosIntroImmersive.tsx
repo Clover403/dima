@@ -4,225 +4,100 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ─── Helper: dynamic script loader ───
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve()
-    const s = document.createElement('script')
-    s.src = src
-    s.onload = () => resolve()
-    s.onerror = reject
-    document.head.appendChild(s)
-  })
+// ─── SVG Pattern RippleGrid Component (SEKARANG STATIS & RINGAN) ───
+interface RippleGridProps {
+  baseColor?: string;
+  gridSpacing?: number;
+  gap?: number;
 }
 
-// ─── SVG Stroke Reveal — HEADLINES ONLY ──────────────────────────────────
-// pathLength="1000" → path length dipaksa jadi 1000 unit, jadi strokeDash 
-// ga perlu tebak-tebakan panjang path. Konsisten & smooth.
-function HeadlineSVG({ svgRef }: { svgRef: React.RefObject<SVGSVGElement | null> }) {
+function RippleGrid({
+  baseColor = "rgba(3, 0, 53, 0.12)", // Navy (#030035) transparan halus
+  gridSpacing = 66,
+  gap = 16,
+}: RippleGridProps) {
+  
+  const generateSvgPattern = (color: string) => {
+    const halfSpacing = gridSpacing / 2;
+    const strokeWidth = 0.6; 
+    const dotRadius = 1.1;   
+    const gapSize = gap; 
+
+    const svgContent = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${gridSpacing}" height="${gridSpacing}">
+        <line x1="0" y1="${halfSpacing}" x2="${halfSpacing - gapSize}" y2="${halfSpacing}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"/>
+        <line x1="${halfSpacing + gapSize}" y1="${halfSpacing}" x2="${gridSpacing}" y2="${halfSpacing}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"/>
+        <line x1="${halfSpacing}" y1="0" x2="${halfSpacing}" y2="${halfSpacing - gapSize}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"/>
+        <line x1="${halfSpacing}" y1="${halfSpacing + gapSize}" x2="${halfSpacing}" y2="${gridSpacing}" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"/>
+        <circle cx="${halfSpacing}" cy="${halfSpacing}" r="${dotRadius}" fill="${color}"/>
+      </svg>
+    `;
+
+    return `url("data:image/svg+xml,${encodeURIComponent(svgContent.trim())}")`;
+  };
+
+  const baseSvgPattern = generateSvgPattern(baseColor);
+
   return (
-    <svg
-      ref={svgRef}
-      viewBox="0 0 1800 700"
-      preserveAspectRatio="xMidYMid meet"
-      className="w-full mx-auto"
-      style={{ overflow: 'visible', maxWidth: '1200px' }}
-    >
-      {/* Line 1: No vendemos créditos. */}
-      <g>
-        <text
-          x="900" y="220"
-          textAnchor="middle"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontSize="200"
-          fontWeight="400"
-          letterSpacing="-2"
-          fill="none"
-          stroke="#1a1a4e"
-          strokeWidth="3"
-          pathLength="1000"
-          strokeDasharray="1000"
-          strokeDashoffset="1000"
-          data-stroke-line="0"
-        >
-          No vendemos créditos.
-        </text>
-        <text
-          x="900" y="220"
-          textAnchor="middle"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontSize="200"
-          fontWeight="400"
-          letterSpacing="-2"
-          fill="#1a1a4e"
-          stroke="none"
-          fillOpacity={0}
-          data-fill-line="0"
-        >
-          No vendemos créditos.
-        </text>
-      </g>
-
-      {/* Line 2: Estructuramos crecimiento. */}
-      <g>
-        <text
-          x="900" y="480"
-          textAnchor="middle"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontStyle="italic"
-          fontSize="200"
-          fontWeight="400"
-          letterSpacing="-2"
-          fill="none"
-          stroke="#E5997B"
-          strokeWidth="3"
-          pathLength="1000"
-          strokeDasharray="1000"
-          strokeDashoffset="1000"
-          data-stroke-line="1"
-        >
-          Estructuramos crecimiento.
-        </text>
-        <text
-          x="900" y="480"
-          textAnchor="middle"
-          fontFamily="'Playfair Display', Georgia, serif"
-          fontStyle="italic"
-          fontSize="200"
-          fontWeight="400"
-          letterSpacing="-2"
-          fill="#E5997B"
-          stroke="none"
-          fillOpacity={0}
-          data-fill-line="1"
-        >
-          Estructuramos crecimiento.
-        </text>
-      </g>
-    </svg>
-  )
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: baseSvgPattern,
+          backgroundSize: `${gridSpacing}px ${gridSpacing}px`,
+          backgroundRepeat: "repeat",
+        }}
+      />
+    </div>
+  );
 }
 
+// ─── Main Immersive Section Component ─────────────────────────────────────
 export default function ProductosIntroImmersive() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const vantaRef = useRef<any>(null)
-  const svgRef = useRef<SVGSVGElement>(null)
+  
+  // Memecah teks per kata dulu, supaya "crecimiento." gak kepisah hurufnya
+  const words1 = "No vendemos créditos.".split(" ")
+  const words2 = "Estructuramos crecimiento.".split(" ")
 
-  // ── Vanta BIRDS init ──────────────────────────────────────
   useEffect(() => {
-    let destroyed = false
-
-    async function initVanta() {
-      try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
-
-        if (destroyed || !sectionRef.current) return
-        if (!(window as any).VANTA?.BIRDS) return
-
-        vantaRef.current = (window as any).VANTA.BIRDS({
-          el: sectionRef.current,
-          THREE: (window as any).THREE,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 600.0,
-          minWidth: 600.0,
-          scale: 1.0,
-          scaleMobile: 1.0,
-          backgroundColor: 0xFAFAFA,
-          color1: 0x1a1a4e,
-          color2: 0xE5997B,
-          colorMode: 'lerp',
-          birdSize: 0.9,
-          wingSpan: 14,
-          speedLimit: 3,
-          separation: 35,
-          alignment: 40,
-          cohesion: 50,
-          quantity: 3,
-        })
-      } catch (err) {
-        console.error('Vanta BIRDS init failed:', err)
-      }
-    }
-
-    initVanta()
-
-    return () => {
-      destroyed = true
-      vantaRef.current?.destroy()
-    }
-  }, [])
-
-  // ── GSAP SVG Stroke Reveal ────────────────────────────────
-  useEffect(() => {
-    if (!sectionRef.current || !svgRef.current) return
+    if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
-      const svg = svgRef.current!
-      const strokeLines = Array.from(svg.querySelectorAll<SVGTextElement>('[data-stroke-line]'))
-      const fillLines   = Array.from(svg.querySelectorAll<SVGTextElement>('[data-fill-line]'))
+      const chars1 = sectionRef.current!.querySelectorAll('.char-line-1')
+      const chars2 = sectionRef.current!.querySelectorAll('.char-line-2')
 
-      // pathLength="1000" → dasharray & offset cukup 1000, konsisten
-      const PATH_LEN = 1000
-
-      // Reset ke hidden state
-      gsap.set(strokeLines, { strokeDashoffset: PATH_LEN, opacity: 1 })
-      gsap.set(fillLines, { fillOpacity: 0 })
-
-      const STROKE_DUR  = 8.0   // sangat lambat
-      const STROKE_GAP  = 2.5
-      const FILL_OFFSET = 2.0
+      // Set warna awal (transparan) agar yang terlihat hanya efek strokenya
+      gsap.set(chars1, { color: 'transparent' })
+      gsap.set(chars2, { color: 'transparent' })
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=500%',     // scroll lebih panjang = lebih lambat
+          start: 'center center', 
+          end: '+=150%',          
           pin: true,
-          scrub: 1,          // scrub lebih responsif
+          scrub: 1,
         },
       })
 
-      strokeLines.forEach((strokeEl, li) => {
-        const fillEl = fillLines[li]
-        const tStart = li * (STROKE_DUR + STROKE_GAP)
-        const fStart = tStart + STROKE_DUR + FILL_OFFSET
-
-        // 1. Stroke draws in — smooth power2.inOut
-        tl.fromTo(
-          strokeEl,
-          { strokeDashoffset: PATH_LEN },
-          { strokeDashoffset: 0, duration: STROKE_DUR, ease: 'power2.inOut' },
-          tStart
-        )
-
-        // 2. Fill fades in
-        tl.to(
-          fillEl,
-          { fillOpacity: 1, duration: 2.0, ease: 'power2.out' },
-          fStart
-        )
-
-        // 3. Stroke fades out — biar bersih, ga overlap
-        tl.to(
-          strokeEl,
-          { opacity: 0, duration: 1.5, ease: 'power2.in' },
-          fStart + 0.5
-        )
+      // Animasikan perubahan warna dari transparan ke warna solid secara berurutan
+      tl.to(chars1, { 
+        color: '#030035', 
+        duration: 1, 
+        stagger: 0.1, 
+        ease: 'none' 
       })
+      tl.to(chars2, { 
+        color: '#E5997B', 
+        duration: 1, 
+        stagger: 0.1, 
+        ease: 'none' 
+      }, "+=0.2") 
 
-      // Accent line
       const accentLine = sectionRef.current!.querySelector('.accent-line')
       if (accentLine) {
-        const lastEnd = strokeLines.length * (STROKE_DUR + STROKE_GAP) + 1.0
-        tl.fromTo(
-          accentLine,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 2.0, ease: 'expo.out' },
-          lastEnd
-        )
+        tl.fromTo(accentLine, { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: 'expo.out' }, "-=0.5")
       }
 
     }, sectionRef)
@@ -233,24 +108,83 @@ export default function ProductosIntroImmersive() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: '#FAFAFA' }}
+      className="relative min-h-screen w-full flex items-center justify-center bg-[#E5E5E5] z-20 overflow-hidden"
     >
-      {/* Konten di atas Vanta */}
-      <div className="relative z-10 max-w-4xl mx-auto text-center px-8">
-        <p className="font-body text-bronze text-sm tracking-[0.4em] uppercase mb-12">
+      {/* ── Layer RippleGrid Background (Statis & Ringan) ── */}
+      <RippleGrid />
+
+      {/* ── Cekungan Atas (Statis Permanen) ── */}
+      <div className="absolute top-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
+        <div className="relative w-full h-[250px] md:h-[400px]">
+          <svg viewBox="0 0 1440 400" fill="none" preserveAspectRatio="none" className="w-full h-full">
+            <path
+              d="M0,0 L0,400 C320,400 480,180 720,180 C960,180 1120,400 1440,400 L1440,0 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Cekungan Bawah (Statis Permanen) ── */}
+      <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
+        <div className="relative w-full h-[250px] md:h-[400px]">
+          <svg
+            viewBox="0 0 1440 400"
+            fill="none"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+            style={{ transform: 'scaleY(-1)' }}
+          >
+            <path
+              d="M0,0 L0,400 C320,400 480,180 720,180 C960,180 1120,400 1440,400 L1440,0 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Konten Teks ── */}
+      <div className="relative z-10 max-w-6xl mx-auto text-center px-8 py-20 flex flex-col items-center">
+        <p className="font-body text-[#E5997B] text-sm tracking-[0.4em] uppercase mb-12 font-bold">
           Nuestros Productos
         </p>
 
-        <HeadlineSVG svgRef={svgRef} />
+        {/* ── Baris Teks 1 ── */}
+        <h2 
+          className="font-display font-normal leading-tight tracking-tight mb-4 flex flex-wrap justify-center text-5xl md:text-7xl lg:text-8xl"
+          style={{ WebkitTextStroke: '2px #030035' }}
+        >
+          {words1.map((word, wIndex) => (
+            // Bungkus per kata pakai inline-block supaya gak putus di tengah jalan
+            <span key={wIndex} className="inline-block whitespace-nowrap mr-[0.25em]">
+              {word.split("").map((char, cIndex) => (
+                <span key={cIndex} className="char-line-1">{char}</span>
+              ))}
+            </span>
+          ))}
+        </h2>
 
-        <p className="font-body text-navy/50 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mt-12">
-          Cada producto está diseñado como una pieza de ingeniería financiera.
+        {/* ── Baris Teks 2 ── */}
+        <h2 
+          className="font-display font-normal leading-tight tracking-tight flex flex-wrap justify-center text-5xl md:text-7xl lg:text-8xl"
+          style={{ WebkitTextStroke: '2px #E5997B' }}
+        >
+          {words2.map((word, wIndex) => (
+            <span key={wIndex} className="inline-block whitespace-nowrap mr-[0.25em]">
+              {word.split("").map((char, cIndex) => (
+                <span key={cIndex} className="char-line-2">{char}</span>
+              ))}
+            </span>
+          ))}
+        </h2>
+
+        <p className="font-body text-[#030035]/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mt-12 font-medium">
+          Cada producto está diseñado como una pieza di ingeniería financiera.
           La mayoría de los créditos pueden adaptarse a las circunstancias y
-          necesidades de cada cliente.
+          necesidades di cada cliente.
         </p>
 
-        <div className="accent-line w-24 h-px bg-bronze/50 mx-auto mt-12 origin-center" />
+        <div className="accent-line w-24 h-px bg-[#E5997B] mx-auto mt-12 origin-center" />
       </div>
     </section>
   )

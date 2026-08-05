@@ -1,7 +1,29 @@
+import { useLayoutEffect } from 'react';
+import NosotrosHeroScroll from '../components/about/NosotrosHeroScroll';
+import CTA from '../components/layout/CTA';
+import PageTransition from '../components/layout/PageTransition';
+
+export default function About() {
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <PageTransition>
+      <NosotrosHeroScroll />
+      <CTA theme="light" />
+    </PageTransition>
+  );
+}
+
+/* ==============================================================================
+   OLD ABOUT PAGE CODE (Commented out upon request)
+   ==============================================================================
+
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import PageTransition from '../components/PageTransition';
+import PageTransition from '../components/layout/PageTransition';
 import GridDissolve from '../components/GridDissolve';
 
 import AboutHeroSection from '../components/about/AboutHeroSection';
@@ -22,28 +44,7 @@ export default function About() {
     window.scrollTo(0, 0);
 
     const ctx = gsap.context(() => {
-
-      // ==========================================
-      // 1. HERO ANIMATIONS
-      // ==========================================
-
-      gsap.fromTo(".hero-marquee-text",
-        { xPercent: 0 },
-        { xPercent: -50, repeat: -1, duration: 40, ease: "none" }
-      );
-      gsap.fromTo(".hero-word",
-        { y: 100, opacity: 0, filter: "blur(15px)" },
-        { y: 0, opacity: 1, filter: "blur(0px)", stagger: 0.1, duration: 1.5, ease: "power4.out", delay: 0.2 }
-      );
-      gsap.fromTo(".hero-subtext",
-        { y: 24, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.2, ease: "power3.out", delay: 0.6 }
-      );
-
-      // ==========================================
       // 2. PINNED NARRATIVE + SVG STROKE DRAW
-      // ==========================================
-
       gsap.set(".p-text-2, .p-text-3, .p-text-4", { autoAlpha: 0, y: 80 });
 
       const pinnedTl = gsap.timeline({
@@ -91,18 +92,6 @@ export default function About() {
         .to(".svg-d-ring2", { strokeDashoffset: 692, duration: 2, ease: "none" }, 12.5)
         .to(".svg-d-ring1", { strokeDashoffset: 880, duration: 2, ease: "none" }, 13);
 
-      // ==========================================
-      // 3. ABOUT ORIGIN
-      // ── Animasi origin section dihandle sepenuhnya
-      //    di dalam AboutOriginSection.tsx sendiri
-      //    untuk menghindari konflik GSAP context.
-      //    JANGAN tambahkan originTl di sini.
-      // ==========================================
-
-      // ==========================================
-      // 4. PILLARS REVEAL
-      // ==========================================
-
       gsap.fromTo('.pillar-panel-reveal',
         { y: 100, opacity: 0 },
         {
@@ -128,13 +117,11 @@ export default function About() {
           <AboutHeroSection heroRef={heroRef} />
           <AboutPinnedNarrativeSection pinnedRef={pinnedRef} />
         </GridDissolve>
-        {/* <AboutOriginSection /> */}
-        {/* <AboutPillarsSection pillarsRef={pillarsRef} /> */}
         <AboutDissolveSection />
-        <AboutManifestoSection />
         <AboutStatsSection />
-        {/* <AboutCTASection /> */}
+        <AboutManifestoSection />
       </div>
     </PageTransition>
   );
 }
+*/

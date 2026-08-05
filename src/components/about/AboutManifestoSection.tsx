@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,21 +31,78 @@ const MANIFESTOS = [
 
 export default function AboutManifestoSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useLayoutEffect(() => {
+    // ── BACKGROUND CANVAS ──
+    const bgCanvas = bgCanvasRef.current;
+    let drawBackground: (() => void) | null = null;
+
+    if (bgCanvas) {
+      drawBackground = () => {
+  bgCanvas.width = window.innerWidth;   // ← bukan offsetWidth
+  bgCanvas.height = window.innerHeight;
+        const ctx2d = bgCanvas.getContext('2d');
+        if (!ctx2d) return;
+        const cols = 28, rows = 18;
+        const cX = bgCanvas.width / cols, cY = bgCanvas.height / rows;
+        let seed = 42;
+        const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+        const pts: [number, number][][] = [];
+        for (let r = 0; r <= rows; r++) {
+          pts[r] = [];
+          for (let c = 0; c <= cols; c++) {
+            pts[r][c] = [
+              c * cX + ((c === 0 || c === cols) ? 0 : (rand() - 0.5) * cX * 0.40),
+              r * cY + ((r === 0 || r === rows) ? 0 : (rand() - 0.5) * cY * 0.40),
+            ];
+          }
+        }
+        const triangles: [number, number][][] = [];
+        for (let r = 0; r < rows; r++)
+          for (let c = 0; c < cols; c++) {
+            triangles.push([pts[r][c], pts[r][c + 1], pts[r + 1][c]]);
+            triangles.push([pts[r][c + 1], pts[r + 1][c + 1], pts[r + 1][c]]);
+          }
+        ctx2d.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+        ctx2d.fillStyle = '#060030';
+        ctx2d.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        triangles.forEach((tri) => {
+          const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3;
+          const cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+          const shade = 0.92 + Math.random() * 0.08;
+          ctx2d.save();
+          ctx2d.translate(cx, cy); ctx2d.scale(0.97, 0.97); ctx2d.translate(-cx, -cy);
+          ctx2d.beginPath();
+          ctx2d.moveTo(tri[0][0], tri[0][1]);
+          ctx2d.lineTo(tri[1][0], tri[1][1]);
+          ctx2d.lineTo(tri[2][0], tri[2][1]);
+          ctx2d.closePath();
+          ctx2d.fillStyle = `rgb(${Math.round(3 * shade)},0,${Math.round(53 * shade)})`;
+          ctx2d.fill();
+          ctx2d.strokeStyle = 'rgba(0,0,10,0.65)';
+          ctx2d.lineWidth = 0.7;
+          ctx2d.stroke();
+          ctx2d.restore();
+        });
+      };
+      drawBackground();
+      window.addEventListener('resize', drawBackground);
+    }
+
+    // ── GSAP ──
     const ctx = gsap.context(() => {
       const blocks = gsap.utils.toArray<HTMLDivElement>('.manifesto-item');
       const bgContainers = gsap.utils.toArray<HTMLDivElement>('.manifesto-bg-img');
 
-      // 1. Initial State Setup
       gsap.set(blocks, { opacity: 0, y: 80, filter: 'blur(10px)', pointerEvents: 'none' });
       gsap.set(bgContainers, { opacity: 0 });
-      
-      // Tampilkan pilar pertama
+
       gsap.set(blocks[0], { opacity: 1, y: 0, filter: 'blur(0px)', pointerEvents: 'all' });
       gsap.set(bgContainers[0], { opacity: 1 });
       gsap.set(bgContainers.map(c => c.querySelector('img')), { scale: 1.15 });
       gsap.set(bgContainers[0].querySelector('img'), { scale: 1 });
+
       const dissolveContainer = sectionRef.current?.closest('[data-dissolve-container="true"]') ?? undefined;
 
       const tl = gsap.timeline({
@@ -56,17 +114,14 @@ export default function AboutManifestoSection() {
           pin: true,
           scrub: 1,
           anticipatePin: 1,
-          // PENTING: Supaya tidak menabrak section pilar di atasnya
-          refreshPriority: 0, 
+          refreshPriority: 0,
         },
       });
 
-      // 2. Animation Loop
       blocks.forEach((_, i) => {
         if (i < blocks.length - 1) {
-          const startTime = i; // Menggunakan index sebagai timestamp timeline
+          const startTime = i;
 
-          // Keluar (Current)
           tl.to(blocks[i], {
             opacity: 0,
             y: -80,
@@ -82,15 +137,13 @@ export default function AboutManifestoSection() {
             scale: 1.15,
             duration: 1,
           }, startTime)
-
-          // Masuk (Next)
           .to(blocks[i + 1], {
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
             pointerEvents: 'all',
             duration: 1,
-            immediateRender: false, // Mencegah bug menumpuk di awal
+            immediateRender: false,
           }, startTime)
           .to(bgContainers[i + 1], {
             opacity: 1,
@@ -106,7 +159,10 @@ export default function AboutManifestoSection() {
       });
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      if (drawBackground) window.removeEventListener('resize', drawBackground);
+    };
   }, []);
 
   return (
@@ -114,8 +170,15 @@ export default function AboutManifestoSection() {
       ref={sectionRef}
       className="relative w-full h-screen bg-[#030035] overflow-hidden"
     >
+      {/* Canvas background */}
+      <canvas
+        ref={bgCanvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
+        style={{ opacity: 0.9 }}
+      />
+
       {/* Background Images Layer */}
-      <div className="absolute inset-0 w-full h-full z-0">
+      <div className="absolute inset-0 w-full h-full z-[1] cursor-none">
         {MANIFESTOS.map((manifesto, index) => (
           <div
             key={`bg-container-${index}`}
@@ -126,10 +189,10 @@ export default function AboutManifestoSection() {
               alt=""
               className="w-full h-full object-cover transition-transform duration-700"
             />
-            {/* Navy Overlay per image */}
             <div className="absolute inset-0 bg-[#030035]/70" />
           </div>
         ))}
+        <HoverTrailOverlay theme="navy" className="absolute inset-0 z-10 w-full h-full pointer-events-auto" />
       </div>
 
       {/* Content Layer */}

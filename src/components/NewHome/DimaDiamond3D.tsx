@@ -25,19 +25,24 @@ interface Props {
 }
 
 const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D(
-  { variant = 'idle', color: _color = '#030035', className = '' }, // color default diubah ke warna tinta gelap
+  { variant = 'idle', color: _color = '#030035', className = '' },
   ref
 ) {
-  const containerRef  = useRef<HTMLDivElement>(null)
-  const svgRef        = useRef<SVGSVGElement>(null)
-  const gemGroupRef   = useRef<SVGGElement>(null)
-  const glowRef       = useRef<SVGGElement>(null)
-  const ringsRef      = useRef<SVGGElement>(null)
-  const kawungRef     = useRef<SVGGElement>(null)
-  const tlRef         = useRef<gsap.core.Timeline | null>(null)
-  const variantRef    = useRef<DiamondVariant>('idle')
+  const wrapperRef   = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const svgRef       = useRef<SVGSVGElement>(null)
+  const gemGroupRef  = useRef<SVGGElement>(null)
+  const glowRef      = useRef<SVGGElement>(null)
+  const ringsRef     = useRef<SVGGElement>(null)
+  const kawungRef    = useRef<SVGGElement>(null)
+  const tlRef        = useRef<gsap.core.Timeline | null>(null)
+  const variantRef   = useRef<DiamondVariant>('idle')
 
-  // ── Expose imperative API ─────────────────────────────────────────────────
+  // Refs untuk menganimasi warna gradient
+  const stop1Ref = useRef<SVGStopElement>(null)
+  const stop2Ref = useRef<SVGStopElement>(null)
+  const stop3Ref = useRef<SVGStopElement>(null)
+
   useImperativeHandle(ref, () => ({
     morphTo: (newVariant: DiamondVariant) => {
       if (variantRef.current === newVariant) return
@@ -49,7 +54,6 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
     },
   }))
 
-  // ── Variant animations ────────────────────────────────────────────────────
   void _color
   const playVariant = (v: DiamondVariant) => {
     const container = containerRef.current
@@ -61,10 +65,12 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
 
     tlRef.current?.kill()
 
-    // Smooth reset
-    gsap.to([gem, glow, rings, kawung], {
+    gsap.to([gem, glow], {
       x: 0, y: 0, scale: 1, rotation: 0, scaleX: 1, scaleY: 1,
       opacity: 1, duration: 0.5, ease: 'power2.inOut', overwrite: true,
+    })
+    gsap.to(kawung, {
+      scale: 1, opacity: 1, duration: 0.5, ease: 'power2.inOut', overwrite: false,
     })
 
     const tl = gsap.timeline()
@@ -72,7 +78,6 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
     switch (v) {
       case 'idle':
       case 'rotate':
-        // Cukup animasi bernapas (naik turun & glow), HAPUS SEMUA ROTASI.
         tl.to(gem, { y: -10, scale: 1.03, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: -1 })
         tl.to(glow, { opacity: 0.5, scale: 1.1, duration: 2.8, ease: 'sine.inOut', yoyo: true, repeat: -1 }, '<')
         break
@@ -129,7 +134,6 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
     tlRef.current = tl
   }
 
-  // ── Mount ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     const container = containerRef.current
     const gem       = gemGroupRef.current
@@ -137,7 +141,24 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
 
     gsap.set(container, { transformPerspective: 1400 })
     gsap.set(gem, { transformOrigin: 'center center' })
+    
     playVariant(variant)
+
+    gsap.to(kawungRef.current, {
+      rotation: 360,
+      svgOrigin: '400 400',
+      duration: 40,
+      ease: 'none',
+      repeat: -1,
+    })
+
+    gsap.to(ringsRef.current, {
+      rotation: -360,
+      svgOrigin: '400 400',
+      duration: 25,
+      ease: 'none',
+      repeat: -1,
+    })
 
     return () => { tlRef.current?.kill() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,133 +169,131 @@ const DimaDiamond3D = forwardRef<DimaDiamond3DRef, Props>(function DimaDiamond3D
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variant])
 
+  const handleMouseEnter = () => {
+    gsap.to(stop1Ref.current, { stopColor: '#ffffff', stopOpacity: 0.5, duration: 0.3 })
+    gsap.to(stop2Ref.current, { stopColor: '#ffffff', stopOpacity: 0.15, duration: 0.3 })
+    gsap.to(stop3Ref.current, { stopColor: '#ffffff', stopOpacity: 0, duration: 0.3 })
+  }
+
+  const handleMouseLeave = () => {
+    gsap.to(stop1Ref.current, { stopColor: '#ffffff', stopOpacity: 0.12, duration: 0.3 })
+    gsap.to(stop2Ref.current, { stopColor: '#ffffff', stopOpacity: 0.04, duration: 0.3 })
+    gsap.to(stop3Ref.current, { stopColor: '#ffffff', stopOpacity: 0, duration: 0.3 })
+  }
+
   return (
     <div
-      ref={containerRef}
-      className={`relative aspect-square w-[min(80vw,34rem)] max-w-full ${className}`}
-      style={{ transformStyle: 'preserve-3d' }}
+      ref={wrapperRef}
+      className={`relative aspect-square w-[min(80vw,34rem)] max-w-full cursor-pointer ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <svg
-        ref={svgRef}
-        viewBox="0 0 800 800"
-        className="relative z-10 h-full w-full drop-shadow-[0_20px_40px_rgba(3,0,53,0.15)]"
-        style={{ overflow: 'visible' }}
+      <div
+        ref={containerRef}
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ transformStyle: 'preserve-3d' }}
       >
-        <defs>
-          {/* ── ENGRAVING PATTERNS (Arsiran Silang ala Uang Kertas) ── */}
-          <pattern id="hatch-light" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="8" stroke="#030035" strokeWidth="0.6" opacity="0.4" />
-          </pattern>
-          <pattern id="hatch-med" width="6" height="6" patternTransform="rotate(-45 0 0)" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="6" stroke="#030035" strokeWidth="0.8" opacity="0.6" />
-            <line x1="0" y1="0" x2="6" y2="0" stroke="#030035" strokeWidth="0.4" opacity="0.3" />
-          </pattern>
-          <pattern id="hatch-heavy" width="5" height="5" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="5" stroke="#030035" strokeWidth="1" opacity="0.8" />
-            <line x1="0" y1="0" x2="5" y2="0" stroke="#030035" strokeWidth="1" opacity="0.8" />
-          </pattern>
+        <svg
+          ref={svgRef}
+          viewBox="0 0 800 800"
+          className="relative z-10 h-full w-full drop-shadow-[0_20px_40px_rgba(3,0,53,0.15)]"
+          style={{ overflow: 'visible' }}
+        >
+          <defs>
+            <pattern id="hatch-light" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="#ffffff" strokeWidth="0.6" opacity="0.4" />
+            </pattern>
+            <pattern id="hatch-med" width="6" height="6" patternTransform="rotate(-45 0 0)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="6" stroke="#ffffff" strokeWidth="0.8" opacity="0.6" />
+              <line x1="0" y1="0" x2="6" y2="0" stroke="#ffffff" strokeWidth="0.4" opacity="0.3" />
+            </pattern>
+            <pattern id="hatch-heavy" width="5" height="5" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="5" stroke="#ffffff" strokeWidth="1" opacity="0.8" />
+              <line x1="0" y1="0" x2="5" y2="0" stroke="#ffffff" strokeWidth="1" opacity="0.8" />
+            </pattern>
 
-          {/* ── Ink Wash Glow (Background bayangan tinta) ── */}
-          <radialGradient id="inkGlow" cx="400" cy="400" r="300" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stopColor="#030035" stopOpacity="0.12" />
-            <stop offset="40%"  stopColor="#030035" stopOpacity="0.04" />
-            <stop offset="100%" stopColor="#030035" stopOpacity="0" />
-          </radialGradient>
-        </defs>
+            <radialGradient id="inkGlow" cx="400" cy="400" r="300" gradientUnits="userSpaceOnUse">
+              <stop ref={stop1Ref} offset="0%"   stopColor="#ffffff" stopOpacity="0.12" />
+              <stop ref={stop2Ref} offset="40%"  stopColor="#ffffff" stopOpacity="0.04" />
+              <stop ref={stop3Ref} offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-        {/* ── Background Ink Glow ── */}
-        <g ref={glowRef}>
-          <circle cx="400" cy="420" r="350" fill="url(#inkGlow)" />
-        </g>
+          <rect width="800" height="800" fill="transparent" />
 
-        {/* ── Kawung rings (outermost, slowest) - Diubah jadi garis putus-putus tinta ── */}
-        <g ref={kawungRef} opacity="0.4">
-          <circle cx="400" cy="400" r="320" fill="none" stroke="#030035" strokeWidth="1" strokeDasharray="4 8" />
-          <ellipse cx="400" cy="90"  rx="28" ry="52" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="400" cy="710" rx="28" ry="52" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="90"  cy="400" rx="52" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="710" cy="400" rx="52" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <line x1="400" y1="80"  x2="400" y2="145" stroke="#030035" strokeWidth="0.8" />
-          <line x1="400" y1="655" x2="400" y2="720" stroke="#030035" strokeWidth="0.8" />
-          <line x1="80"  y1="400" x2="145" y2="400" stroke="#030035" strokeWidth="0.8" />
-          <line x1="655" y1="400" x2="720" y2="400" stroke="#030035" strokeWidth="0.8" />
-        </g>
+          <g ref={glowRef}>
+            <circle cx="400" cy="420" r="350" fill="url(#inkGlow)" />
+          </g>
 
-        {/* ── Decorative rings (rotate on orbit) ── */}
-        <g ref={ringsRef} opacity="0.5">
-          <circle cx="400" cy="400" r="220" fill="none" stroke="#030035" strokeWidth="1" strokeDasharray="2 6" />
-          <circle cx="400" cy="400" r="258" fill="none" stroke="#030035" strokeWidth="0.5" />
-          <ellipse cx="400" cy="183" rx="15" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="400" cy="617" rx="15" ry="28" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="183" cy="400" rx="28" ry="15" fill="none" stroke="#030035" strokeWidth="0.8" />
-          <ellipse cx="617" cy="400" rx="28" ry="15" fill="none" stroke="#030035" strokeWidth="0.8" />
-        </g>
+          <g ref={kawungRef} opacity="0.4">
+            <circle cx="400" cy="400" r="320" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="4 8" />
+            <ellipse cx="400" cy="90"  rx="28" ry="52" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="400" cy="710" rx="28" ry="52" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="90"  cy="400" rx="52" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="710" cy="400" rx="52" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="400" y1="80"  x2="400" y2="145" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="400" y1="655" x2="400" y2="720" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="80"  y1="400" x2="145" y2="400" stroke="#ffffff" strokeWidth="0.8" />
+            <line x1="655" y1="400" x2="720" y2="400" stroke="#ffffff" strokeWidth="0.8" />
+          </g>
 
-        {/* ── Main Diamond (Brilliant Cut - Engraving Style) ── */}
-        {/* Titik Berlian: Top(260,200 ke 540,200), Girdle(100,340 ke 700,340), Culet/Bawah(400,700) */}
-        <g ref={gemGroupRef}>
-          
-          {/* Base Background (Warna Kertas) agar tidak transparan ke rings */}
-          <polygon
-            points="260,200 540,200 700,340 400,700 100,340"
-            fill="#FDFBF9" 
-            stroke="#030035" 
-            strokeWidth="3"
-            strokeLinejoin="round"
-          />
+          <g ref={ringsRef} opacity="0.5">
+            <circle cx="400" cy="400" r="220" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="2 6" />
+            <circle cx="400" cy="400" r="258" fill="none" stroke="#ffffff" strokeWidth="0.5" />
+            <ellipse cx="400" cy="183" rx="15" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="400" cy="617" rx="15" ry="28" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="183" cy="400" rx="28" ry="15" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+            <ellipse cx="617" cy="400" rx="28" ry="15" fill="none" stroke="#ffffff" strokeWidth="0.8" />
+          </g>
 
-          {/* Facet 1: Crown Kiri (Medium Hatch) */}
-          <polygon 
-            points="260,200 320,340 100,340" 
-            fill="url(#hatch-med)" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-          
-          {/* Facet 2: Crown Kanan (Light Hatch - Kena Cahaya) */}
-          <polygon 
-            points="540,200 700,340 480,340" 
-            fill="none" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-
-          {/* Facet 3: Table (Tengah Atas - Light Hatch) */}
-          <polygon 
-            points="260,200 540,200 480,340 320,340" 
-            fill="url(#hatch-light)" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-
-          {/* Facet 4: Pavilion Kiri (Shadow - Heavy Hatch) */}
-          <polygon 
-            points="100,340 320,340 400,700" 
-            fill="url(#hatch-heavy)" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-
-          {/* Facet 5: Pavilion Kanan (Refleksi - Light Hatch) */}
-          <polygon 
-            points="700,340 400,700 480,340" 
-            fill="url(#hatch-light)" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-
-          {/* Facet 6: Pavilion Tengah (Medium Hatch) */}
-          <polygon 
-            points="320,340 480,340 400,700" 
-            fill="url(#hatch-med)" 
-            stroke="#030035" 
-            strokeWidth="1.5" strokeLinejoin="round" 
-          />
-
-          {/* Garis Ekstra untuk detail Engraving Girdle */}
-          <line x1="100" y1="340" x2="700" y2="340" stroke="#030035" strokeWidth="2" />
-        </g>
-      </svg>
+          <g ref={gemGroupRef}>
+            <polygon
+              points="260,200 540,200 700,340 400,700 100,340"
+              fill="#E5997B" 
+              stroke="#ffffff" 
+              strokeWidth="3"
+              strokeLinejoin="round"
+            />
+            <polygon 
+              points="260,200 320,340 100,340" 
+              fill="url(#hatch-med)" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <polygon 
+              points="540,200 700,340 480,340" 
+              fill="none" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <polygon 
+              points="260,200 540,200 480,340 320,340" 
+              fill="url(#hatch-light)" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <polygon 
+              points="100,340 320,340 400,700" 
+              fill="url(#hatch-heavy)" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <polygon 
+              points="700,340 400,700 480,340" 
+              fill="url(#hatch-light)" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <polygon 
+              points="320,340 480,340 400,700" 
+              fill="url(#hatch-med)" 
+              stroke="#ffffff" 
+              strokeWidth="1.5" strokeLinejoin="round" 
+            />
+            <line x1="100" y1="340" x2="700" y2="340" stroke="#ffffff" strokeWidth="2" />
+          </g>
+        </svg>
+      </div>
     </div>
   )
 })

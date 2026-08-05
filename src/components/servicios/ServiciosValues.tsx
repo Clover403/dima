@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { motion } from 'framer-motion'
+// Sesuaikan path import ini dengan lokasi file RippleGrid Anda
+import RippleGrid from '../RippleGrid' 
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,39 +32,6 @@ const statements = [
 
 export default function ServiciosValues() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const vantaRef = useRef<any>(null)
-
-  // ── Vanta Birds init ──────────────────────────────────────
-  useEffect(() => {
-    if (!sectionRef.current || !(window as any).VANTA) return
-
-    vantaRef.current = (window as any).VANTA.BIRDS({
-      el: sectionRef.current,
-      THREE: (window as any).THREE,
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 600.0,
-      minWidth: 600.0,
-      scale: 1.0,
-      scaleMobile: 1.0,
-      backgroundColor: 0xF5F5F5,   // lightgray (sama dengan bg section)
-      color1: 0x1a1a4e,              // navy soft
-      color2: 0xE5997B,              // bronze
-      colorMode: 'lerp',
-      birdSize: 1.5,
-      wingSpan: 20,
-      speedLimit: 2.5,
-      separation: 8,
-      alignment: 80,
-      cohesion: 80,
-      quantity: 4,                   // 2^3 = 8 burung
-    })
-
-    return () => {
-      vantaRef.current?.destroy()
-    }
-  }, [])
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -84,46 +53,24 @@ export default function ServiciosValues() {
         },
       })
 
-      /* First statement is visible by default */
       statementsEls.forEach((statement, i) => {
         if (i === 0) return
 
-        /* Fade out current */
-        tl.to(statementsEls[i - 1], {
-          opacity: 0,
-          y: -40,
-          duration: 0.4,
-        })
+        tl.to(statementsEls[i - 1], { opacity: 0, y: -40, duration: 0.4 })
 
-        /* Activate dot */
         if (dots[i]) {
           tl.to(dots[i], { scale: 1.5, backgroundColor: '#E5997B', duration: 0.1 }, '<')
           tl.to(dots[i - 1], { scale: 1, backgroundColor: 'rgba(229,153,123,0.3)', duration: 0.1 }, '<')
         }
 
-        /* Animate bronze line between */
         if (lines[i - 1]) {
-          tl.fromTo(
-            lines[i - 1],
-            { scaleX: 0 },
-            { scaleX: 1, duration: 0.2, ease: 'power2.out' },
-            '<'
-          )
+          tl.fromTo(lines[i - 1], { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: 'power2.out' }, '<')
         }
 
-        /* Fade in next */
-        tl.fromTo(
-          statement,
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 0.4 },
-          '-=0.15'
-        )
-
-        /* Hold */
+        tl.fromTo(statement, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4 }, '-=0.15')
         tl.to({}, { duration: 0.3 })
       })
 
-      /* Section heading reveal */
       const heading = el.querySelector('.section-heading')
       if (heading) {
         gsap.fromTo(
@@ -134,10 +81,7 @@ export default function ServiciosValues() {
             y: 0,
             duration: 0.8,
             ease: 'power3.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 80%',
-            },
+            scrollTrigger: { trigger: el, start: 'top 80%' },
           }
         )
       }
@@ -149,12 +93,14 @@ export default function ServiciosValues() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-lightgray min-h-screen flex items-center overflow-hidden"
-      style={{ zIndex: 1 }}
+      className="relative bg-navy min-h-screen flex items-center overflow-hidden"
     >
-      {/* Vanta Birds canvas akan render di background */}
-      
-      {/* Content di atas canvas */}
+      {/* Background RippleGrid - Warna lightgray dengan opacity sangat rendah */}
+      <RippleGrid 
+        baseColor="rgba(211, 211, 211, 0.25)" 
+        accentColor="rgba(211, 211, 211, 0.17)" 
+      />
+
       <div className="relative z-10 section-padding w-full">
         <div className="max-w-5xl mx-auto">
           {/* Section label */}
@@ -174,10 +120,10 @@ export default function ServiciosValues() {
                   i === 0 ? 'opacity-100' : 'opacity-0'
                 }`}
               >
-                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-navy leading-tight mb-8 max-w-4xl">
+                <h3 className="font-display text-3xl md:text-5xl lg:text-6xl text-[#F4F4F5] leading-tight mb-8 max-w-4xl">
                   &ldquo;{s.quote}&rdquo;
                 </h3>
-                <p className="font-body text-navy text-base md:text-lg max-w-2xl leading-relaxed">
+                <p className="font-body text-[#F4F4F5]/80 text-base md:text-lg max-w-2xl leading-relaxed">
                   {s.subtext}
                 </p>
               </div>

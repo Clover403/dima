@@ -1,45 +1,13 @@
 import { useEffect, useRef } from 'react'
+import HoverTrailOverlay from '../HoverTrailOverlay'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import GeometryParticles from '../GeometryParticles'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export default function ModeloFuerzas() {
   const sectionRef = useRef<HTMLDivElement>(null)
-  const waveRef = useRef<SVGPathElement>(null)
-  const vantaRef = useRef<any>(null)
-
-  // ── Vanta Birds init ──────────────────────────────────────
-  useEffect(() => {
-    if (!sectionRef.current || !(window as any).VANTA) return
-
-    vantaRef.current = (window as any).VANTA.BIRDS({
-      el: sectionRef.current,
-      THREE: (window as any).THREE,
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 600.0,
-      minWidth: 600.0,
-      scale: 1.0,
-      scaleMobile: 1.0,
-      backgroundColor: 0xF5F5F5,   // lightgray
-      color1: 0x1a1a4e,             // navy soft
-      color2: 0xE5997B,             // bronze
-      colorMode: 'lerp',
-      birdSize: 1.2,
-      wingSpan: 18,
-      speedLimit: 3,
-      separation: 35,
-      alignment: 40,
-      cohesion: 50,
-      quantity: 4,
-    })
-
-    return () => {
-      vantaRef.current?.destroy()
-    }
-  }, [])
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -59,7 +27,7 @@ export default function ModeloFuerzas() {
         }
       )
 
-      /* Block A — text slide up + growth visual */
+      /* Block A — text slide up */
       const blockA = el.querySelector('.block-a')
       if (blockA) {
         gsap.fromTo(
@@ -74,26 +42,9 @@ export default function ModeloFuerzas() {
             scrollTrigger: { trigger: blockA, start: 'top 75%' },
           }
         )
-
-        /* Ascending line SVG stroke animation */
-        const growthPath = blockA.querySelector('.growth-path') as SVGPathElement | null
-        if (growthPath) {
-          const length = growthPath.getTotalLength()
-          gsap.set(growthPath, { strokeDasharray: length, strokeDashoffset: length })
-          gsap.to(growthPath, {
-            strokeDashoffset: 0,
-            ease: 'power2.inOut',
-            scrollTrigger: {
-              trigger: blockA,
-              start: 'top 65%',
-              end: 'bottom 50%',
-              scrub: 1,
-            },
-          })
-        }
       }
 
-      /* Block B — text + wave animation */
+      /* Block B — text slide up */
       const blockB = el.querySelector('.block-b')
       if (blockB) {
         gsap.fromTo(
@@ -108,22 +59,6 @@ export default function ModeloFuerzas() {
             scrollTrigger: { trigger: blockB, start: 'top 75%' },
           }
         )
-
-        /* Wave path stroke animation */
-        if (waveRef.current) {
-          const length = waveRef.current.getTotalLength()
-          gsap.set(waveRef.current, { strokeDasharray: length, strokeDashoffset: length })
-          gsap.to(waveRef.current, {
-            strokeDashoffset: 0,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: blockB,
-              start: 'top 65%',
-              end: 'bottom 40%',
-              scrub: 1,
-            },
-          })
-        }
       }
 
       /* Callout — clip-path reveal from left */
@@ -146,19 +81,22 @@ export default function ModeloFuerzas() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative w-full bg-lightgray py-32 md:py-48 section-padding overflow-hidden" style={{ zIndex: 1 }}>
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <p className="section-label text-bronze font-body text-sm tracking-[0.3em] uppercase mb-16">
+    <section ref={sectionRef} className="relative w-full bg-[#F4F1F5] py-24 md:py-36 section-padding overflow-hidden" style={{ zIndex: 1 }}>
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <GeometryParticles particleCount={140} opacity={0.05} />
+      </div>
+      <div className="relative z-10 max-w-[85rem] mx-auto w-full">
+        <p className="section-label text-bronze font-body text-sm md:text-base tracking-[0.3em] uppercase mb-12 md:mb-16 font-semibold">
           Las Fuerzas Económicas
         </p>
 
         {/* ─── Block A: Ingreso por Productividad ─── */}
-        <div className="block-a grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32 md:mb-48">
+        <div className="block-a grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-28 md:mb-40">
           <div>
-            <h3 className="reveal-el font-display text-3xl md:text-4xl lg:text-5xl text-navy leading-tight mb-6">
+            <h3 className="reveal-el font-display text-4xl md:text-5xl lg:text-[4.5rem] text-navy leading-[1.1] tracking-tight mb-6">
               Ingreso por Productividad
             </h3>
-            <p className="reveal-el font-body text-navy/60 text-lg leading-relaxed">
+            <p className="reveal-el font-body text-navy/75 text-xl md:text-2xl leading-relaxed">
               En una transacción, algo debe darse para recibir algo, y lo que se recibe
               depende de cuánto se produce a lo largo del tiempo. Quienes son ingeniosos
               y trabajadores producen más, por lo tanto ganan más, lo que les da la
@@ -167,70 +105,32 @@ export default function ModeloFuerzas() {
             </p>
           </div>
 
-          {/* Ascending growth line */}
-          <div className="reveal-el flex items-center justify-center">
-            <svg viewBox="0 0 400 300" fill="none" className="w-full max-w-sm">
-              {/* Grid lines */}
-              {[0, 1, 2, 3, 4].map((i) => (
-                <line
-                  key={i}
-                  x1="40"
-                  y1={60 + i * 50}
-                  x2="380"
-                  y2={60 + i * 50}
-                  stroke="#E5997B"
-                  strokeWidth="0.3"
-                  opacity="0.3"
-                />
-              ))}
-              {/* Growth path */}
-              <path
-                className="growth-path"
-                d="M40 260 Q100 240 140 220 T220 170 T300 100 T380 40"
-                stroke="#D97E5A"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* Axis labels */}
-              <text x="40" y="290" fill="#030035" fontSize="11" opacity="0.4" className="font-body">Tiempo</text>
-              <text x="10" y="50" fill="#030035" fontSize="11" opacity="0.4" className="font-body" transform="rotate(-90, 10, 50)">Productividad</text>
-              {/* Dot at end */}
-              <circle cx="380" cy="40" r="4" fill="#D97E5A" opacity="0.8" />
-            </svg>
+          <div className="reveal-el flex items-center justify-center relative cursor-none">
+            <img 
+              src="/illustration-compressed/models/penggiling.webp" 
+              alt="Ingreso por Productividad" 
+              className="w-full max-w-xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
+            />
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
           </div>
         </div>
 
         {/* ─── Block B: Los Ciclos de Deuda ─── */}
-        <div className="block-b grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24 md:mb-32">
-          {/* Wave visual — shown first on desktop for alternating layout */}
-          <div className="reveal-el flex items-center justify-center order-2 lg:order-1">
-            <svg viewBox="0 0 400 250" fill="none" className="w-full max-w-sm">
-              {/* Baseline */}
-              <line x1="20" y1="125" x2="380" y2="125" stroke="#E5997B" strokeWidth="0.5" opacity="0.3" />
-              {/* Cycle wave */}
-              <path
-                ref={waveRef}
-                d="M20 125 C60 125 70 60 110 60 S160 125 200 125 S250 190 290 190 S340 125 380 125"
-                stroke="#D97E5A"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-              />
-              {/* Labels */}
-              <text x="80" y="45" fill="#D97E5A" fontSize="10" className="font-body" opacity="0.7">Expansión</text>
-              <text x="250" y="215" fill="#D97E5A" fontSize="10" className="font-body" opacity="0.7">Contracción</text>
-              {/* Arrows */}
-              <path d="M95 50 L105 46" stroke="#D97E5A" strokeWidth="1" opacity="0.5" />
-              <path d="M275 200 L285 204" stroke="#D97E5A" strokeWidth="1" opacity="0.5" />
-            </svg>
+        <div className="block-b grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24 md:mb-36">
+          <div className="reveal-el flex items-center justify-center order-2 lg:order-1 relative cursor-none">
+            <img 
+              src="/illustration-compressed/models/balon2.webp" 
+              alt="Los Ciclos de Deuda" 
+              className="w-full max-w-xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
+            />
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
           </div>
 
           <div className="order-1 lg:order-2">
-            <h3 className="reveal-el font-display text-3xl md:text-4xl lg:text-5xl text-navy leading-tight mb-6">
+            <h3 className="reveal-el font-display text-4xl md:text-5xl lg:text-[4.5rem] text-navy leading-[1.1] tracking-tight mb-6">
               Los Ciclos de Deuda
             </h3>
-            <p className="reveal-el font-body text-navy/60 text-lg leading-relaxed">
+            <p className="reveal-el font-body text-navy/75 text-xl md:text-2xl leading-relaxed">
               Existen dos tipos: Ciclos de Deuda a Largo Plazo y Ciclos de Deuda a
               Corto Plazo. Cada vez que pedimos prestado, creamos un ciclo. Esto no
               se debe a ninguna ley o regulación, sino a la naturaleza humana y al
@@ -243,8 +143,8 @@ export default function ModeloFuerzas() {
         </div>
 
         {/* ─── Callout Box ─── */}
-        <div className="callout-box border-l-2 border-bronze bg-lightgray/80 backdrop-blur-sm px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto">
-          <p className="font-display text-xl md:text-2xl text-navy leading-relaxed italic">
+        <div className="callout-box relative border-l-[5px] border-bronze bg-white/50 backdrop-blur-md shadow-xl shadow-navy/5 px-6 md:px-10 py-6 md:py-8 max-w-3xl mx-auto rounded-xl">
+          <p className="font-display text-lg md:text-xl lg:text-2xl text-navy/90 leading-relaxed italic">
             &ldquo;El crédito no es necesariamente algo malo. Es malo cuando financia
             consumo que no puede ser pagado. Cuando los recursos se asignan de manera
             eficiente y estratégica, generando suficiente ingreso para cubrir la

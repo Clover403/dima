@@ -1,5 +1,5 @@
 import { motion, useTransform } from 'framer-motion'
-import { ProductPointIcon } from '../../constants/Engravingillustrations'
+import { ProductPointIcon } from '../../constants/homeProductPointIcons'
 
 export const ProductSequenceItem = ({ product, index, total, scrollYProgress }: any) => {
   const seqStart = 0.27

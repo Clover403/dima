@@ -2,6 +2,9 @@ import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+// AFTER
+import { ProductPointIcon } from '../../constants/EngravingillustrationsDark'
+
 gsap.registerPlugin(ScrollTrigger);
 
 const PILLARS = [
@@ -9,25 +12,29 @@ const PILLARS = [
     index: '01',
     title: 'Modelo Macroeconómico Aplicado',
     body: 'Adaptamos la ingeniería económica de Ray Dalio al nivel de la empresa. No operamos con intuición — operamos con ciclos verificables.',
-    detail: 'ANALYTICS SYSTEM v1.0'
+    detail: 'ANALYTICS SYSTEM v1.0',
+    illustIndex:2
   },
   {
     index: '02',
     title: 'Evaluación por Solvencia',
     body: 'La elegibilidad de crédito se determina por la capacidad de pago real de la entidad — no por su escala o antigüedad superficial.',
-    detail: 'SOLVENCY PROTOCOL'
+    detail: 'SOLVENCY PROTOCOL',
+    illustIndex:0
   },
   {
     index: '03',
     title: 'Reconfiguración Estratégica',
     body: 'Cuando una entidad no califica, se le interviene. DIMA reconfigura la estructura financiera hasta alcanzar solvencia.',
-    detail: 'STRATEGIC RECONFIG'
+    detail: 'STRATEGIC RECONFIG',
+    illustIndex:4
   },
   {
     index: '04',
     title: 'Enlace Institucional',
     body: 'DIMA opera como arquitecto técnico entre la empresa y los comités de crédito de SOFOMEs aliadas.',
-    detail: 'INSTITUTIONAL LINK'
+    detail: 'INSTITUTIONAL LINK',
+    illustIndex:3
   },
 ];
 
@@ -129,8 +136,8 @@ export default function AboutDissolveSection() {
       gsap.set('.origin-title-stroke', { opacity: 0 });
 
       // Pillars initial state
-      gsap.set('.pillar-card', { opacity: 0, yPercent: 50 });
-      gsap.set('.pillar-card-0', { opacity: 1, yPercent: 0 });
+      gsap.set('.pillar-card', { opacity: 0, yPercent: 0 });
+      gsap.set('.pillar-card-0', { opacity: 1 });
       gsap.set('.pillars-header', { opacity: 0, y: -30 });
       gsap.set('.pillars-footer', { opacity: 0, y: 30 });
       gsap.set('.progress-bar-inner', { yPercent: 100 });
@@ -339,12 +346,11 @@ export default function AboutDissolveSection() {
         const position = 12 + i * 4;
 
         if (i > 0) {
-          tl.to(card, {
-            opacity: 1,
-            yPercent: 0,
-            duration: 2,
-            ease: 'power2.out'
-          }, position);
+          tl.fromTo(card,
+            { opacity: 0, yPercent: 30 },       // ← FROM: datang dari bawah
+            { opacity: 1, yPercent: 0, duration: 2, ease: 'power2.out' },
+            position
+          );
 
           tl.to(cards[i - 1], {
             opacity: 0,
@@ -356,14 +362,9 @@ export default function AboutDissolveSection() {
         }
 
         if (bars[i]) {
-          tl.to(bars[i], {
-            yPercent: -100,
-            duration: 2,
-            ease: 'none'
-          }, position);
+          tl.to(bars[i], { yPercent: -100, duration: 2, ease: 'none' }, position);
         }
       });
-
     }, container);
 
     const refreshTimeout = window.setTimeout(() => ScrollTrigger.refresh(), 100);
@@ -375,14 +376,54 @@ export default function AboutDissolveSection() {
     };
   }, []);
 
+  // Set up mouse parallax using GSAP instead of framer-motion since this component already relies heavily on GSAP
+  useLayoutEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth - 0.5);
+      const y = (e.clientY / window.innerHeight - 0.5);
+      
+      // Menerapkan efek parallax dan tilt 3D ke elemen yang memiliki class tertentu
+      gsap.to('.parallax-bg', {
+        x: x * 40,
+        y: y * 40,
+        duration: 1,
+        ease: 'power2.out'
+      });
+      
+      gsap.to('.parallax-mid', {
+        x: x * -20,
+        y: y * -20,
+        duration: 1,
+        ease: 'power2.out'
+      });
+
+      gsap.to('.parallax-front', {
+        x: x * -50,
+        y: y * -50,
+        duration: 1,
+        ease: 'power2.out'
+      });
+
+      gsap.to('.tilt-3d', {
+        rotateX: -y * 20,
+        rotateY: x * 20,
+        duration: 1,
+        ease: 'power2.out'
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
     <div
       ref={containerRef}
       className="relative w-full overflow-hidden"
-      style={{ height: '100vh' }}
+      style={{ height: '100vh', perspective: 1200 }}
     >
-      {/* SHARED BACKGROUND */}
-      <div className="absolute inset-0 bg-[#030035] z-0">
+      {/* SHARED BACKGROUND - Ditambahkan class parallax-bg untuk efek layer paling belakang */}
+      <div className="absolute inset-[-5%] bg-[#030035] z-0 parallax-bg">
         <canvas
           ref={bgCanvasRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -399,29 +440,11 @@ export default function AboutDissolveSection() {
       >
         <div ref={originContentRef} className="relative w-full h-full">
 
-          {/* Glowing Corner Ornaments */}
-          <svg className="absolute top-8 left-8 w-20 h-20 pointer-events-none" viewBox="0 0 48 48" fill="none">
-            <path d="M0 24 L0 0 L24 0" stroke="#E5997B" strokeWidth="1.8" strokeOpacity="0.9"
-              style={{ filter: 'drop-shadow(0 0 6px rgba(229,153,123,0.8)) drop-shadow(0 0 12px rgba(229,153,123,0.4))' }} />
-          </svg>
-          <svg className="absolute top-8 right-8 w-20 h-20 pointer-events-none" viewBox="0 0 48 48" fill="none">
-            <path d="M48 24 L48 0 L24 0" stroke="#E5997B" strokeWidth="1.8" strokeOpacity="0.9"
-              style={{ filter: 'drop-shadow(0 0 6px rgba(229,153,123,0.8)) drop-shadow(0 0 12px rgba(229,153,123,0.4))' }} />
-          </svg>
-          <svg className="absolute bottom-8 left-8 w-20 h-20 pointer-events-none" viewBox="0 0 48 48" fill="none">
-            <path d="M0 24 L0 48 L24 48" stroke="#E5997B" strokeWidth="1.8" strokeOpacity="0.9"
-              style={{ filter: 'drop-shadow(0 0 6px rgba(229,153,123,0.8)) drop-shadow(0 0 12px rgba(229,153,123,0.4))' }} />
-          </svg>
-          <svg className="absolute bottom-8 right-8 w-20 h-20 pointer-events-none" viewBox="0 0 48 48" fill="none">
-            <path d="M48 24 L48 48 L24 48" stroke="#E5997B" strokeWidth="1.8" strokeOpacity="0.9"
-              style={{ filter: 'drop-shadow(0 0 6px rgba(229,153,123,0.8)) drop-shadow(0 0 12px rgba(229,153,123,0.4))' }} />
-          </svg>
-
           {/* Vertical accent line */}
           <div className="absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-[#E5997B]/10 to-transparent hidden md:block" />
 
           {/* Coordinates */}
-          <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-3">
+          <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-3 parallax-front">
             <div className="w-px h-16 bg-gradient-to-b from-transparent to-[#E5997B]/30" />
             <span
               className="text-[#E5997B]/25 font-mono text-[14px] tracking-[0.25em] whitespace-nowrap"
@@ -435,8 +458,8 @@ export default function AboutDissolveSection() {
           {/* Main Content Grid */}
           <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-24 py-24 h-full grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-8 items-center">
 
-            {/* Left: Content */}
-            <div className="flex flex-col gap-4">
+            {/* Left: Content - Ditambahkan parallax-mid */}
+            <div className="flex flex-col gap-4 parallax-mid">
               <div className="origin-reveal flex items-center gap-4">
                 <div className="w-8 h-px bg-[#E5997B]/50" />
                 <span className="text-[#E5997B] tracking-[0.6em] uppercase text-[14px] font-semibold font-mono">
@@ -445,7 +468,7 @@ export default function AboutDissolveSection() {
               </div>
 
               {/* TITLE — BIGGER, TIGHTER MARGIN */}
-              <div className="origin-title relative" style={{ minHeight: 'clamp(9rem, 16vw, 12rem)' }}>
+              <div className="origin-title relative parallax-front" style={{ minHeight: 'clamp(9rem, 16vw, 12rem)' }}>
                 <svg
                   ref={originTitleSvgRef}
                   viewBox="0 0 1200 400"
@@ -533,23 +556,10 @@ export default function AboutDissolveSection() {
                 </p>
                 <span className="text-[#E5997B]/40 text-[14px] font-mono tracking-[0.4em] uppercase mt-3 block">— Principio DIMA</span>
               </div>
-
-              <div className="origin-reveal grid grid-cols-3 gap-6 pt-4 border-t border-[#F4F4F5]/5">
-                {[
-                  { value: '6', label: 'Productos de crédito' },
-                  { value: '6', label: 'Servicios estratégicos' },
-                  { value: '∞', label: 'Sectores atendidos' },
-                ].map((stat) => (
-                  <div key={stat.label} className="flex flex-col gap-1">
-                    <span className="font-display text-5xl md:text-6xl text-[#E5997B] font-light">{stat.value}</span>
-                    <span className="text-[#F4F4F5]/25 text-[12px] leading-tight tracking-widest uppercase font-mono">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
             </div>
 
-            {/* Right: SVG Scale */}
-            <div className="flex items-center justify-center relative">
+            {/* Right: SVG Scale - Ditambahkan parallax-front dan tilt-3d untuk ilusi kedalaman */}
+            <div className="flex items-center justify-center relative parallax-front tilt-3d" style={{ transformStyle: 'preserve-3d' }}>
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
@@ -642,7 +652,7 @@ export default function AboutDissolveSection() {
           </div>
 
           {/* Footer */}
-          <div className="absolute bottom-0 left-0 right-0 border-t border-[#F4F4F5]/5 py-4 px-8 md:px-24 flex items-center justify-between">
+          <div className="absolute bottom-0 left-0 right-0 border-t border-[#F4F4F5]/5 py-4 px-8 md:px-24 flex items-center justify-between parallax-front">
             <span className="text-[#F4F4F5]/15 font-mono text-[14px] tracking-[0.3em] uppercase">
               Sociedad Financiera de Objeto Múltiple — México
             </span>
@@ -673,16 +683,11 @@ export default function AboutDissolveSection() {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* LAYER 2: PILLARS SECTION */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      <div
-        ref={pillarsLayerRef}
-        className="absolute inset-0 z-20"
-        style={{ visibility: 'hidden' }}
-      >
+      {/* pillarsection LAYER 2 */}
+
+      <div ref={pillarsLayerRef} className="absolute inset-0 z-20" style={{ visibility: 'hidden' }}>
         {/* Fixed Header Label */}
-        <div className="pillars-header absolute top-28 left-12 z-50">
+        <div className="pillars-header absolute top-28 left-12 z-50 parallax-front">
           <div className="flex items-center gap-4 text-[#E5997B]">
             <div className="w-12 h-px bg-current" />
             <span className="font-mono text-[10px] tracking-[0.8em] uppercase font-bold">Protocol Pillars</span>
@@ -690,7 +695,7 @@ export default function AboutDissolveSection() {
         </div>
 
         {/* Progress Bars */}
-        <div className="pillars-footer absolute bottom-16 right-16 flex gap-3 z-50">
+        <div className="pillars-footer absolute bottom-16 right-16 flex gap-3 z-50 parallax-front">
           {PILLARS.map((_, i) => (
             <div key={i} className="w-1 h-12 bg-white/10 relative overflow-hidden">
               <div className="progress-bar-inner absolute inset-0 bg-[#E5997B]" style={{ transform: 'translateY(100%)' }} />
@@ -699,50 +704,79 @@ export default function AboutDissolveSection() {
         </div>
 
         {/* Footer Info */}
-        <div className="pillars-footer absolute bottom-16 left-16 z-50">
+        <div className="pillars-footer absolute bottom-16 left-16 z-50 parallax-front">
           <div className="font-mono text-[9px] text-white/20 uppercase leading-loose tracking-[0.2em]">
-            Dima Finance<br/>System Architecture v2
+            Dima Finance<br />System Architecture v2
           </div>
         </div>
 
         <div ref={pillarsContentRef} className="relative w-full h-full">
-          {/* Cards Container */}
-          <div className="relative w-full max-w-5xl h-[50vh] mx-auto mt-[25vh]">
+          <div className="relative w-full max-w-5xl h-full mx-auto">
             {PILLARS.map((pillar, i) => (
               <div
                 key={pillar.index}
-                className={`pillar-card pillar-card-${i} absolute inset-0 flex flex-col items-center justify-center text-center px-6 will-change-transform`}
+                className={`pillar-card pillar-card-${i} absolute inset-0 will-change-transform parallax-mid`}
+                style={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingTop: '15vh',
+                  paddingBottom: '15vh', 
+                  gap: '2rem'
+                }}
               >
-                <span className="font-mono text-[12px] text-[#E5997B] tracking-[1.2em] mb-10 block uppercase opacity-40">
-                  Phase {pillar.index}
-                </span>
+                {/* Icon - Dilengkapi tilt-3d untuk efek kedalaman */}
+                <div 
+                  className="opacity-75 flex justify-center items-center tilt-3d"
+                  style={{
+                    width: '26rem',
+                    height: '26rem',
+                    flexShrink: 0,
+                    transformStyle: 'preserve-3d'
+                  }}
+                >
+                  <ProductPointIcon index={pillar.illustIndex} drawProgress={1} />
+                </div>
 
-                <h2 className="font-display text-[clamp(2rem,6vw,4.5rem)] text-white font-light leading-none tracking-tighter mb-8">
-                  {pillar.title.split(' ').map((word, idx) => (
-                    <span key={idx} className={idx % 2 !== 0 ? 'italic text-[#E5997B]' : ''}>
-                      {word}{' '}
+                {/* Text - Berada di layer berbeda dari Icon */}
+                <div 
+                  className="parallax-front"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1.25rem',
+                    width: '100%',
+                    paddingLeft: '1.5rem',
+                    paddingRight: '1.5rem'
+                  }}
+                >
+                  <h2 className="font-display text-[clamp(2rem,6vw,4.5rem)] text-white font-light leading-none tracking-tighter text-center">
+                    {pillar.title.split(' ').map((word, idx) => (
+                      <span key={idx} className={idx % 2 !== 0 ? 'italic text-[#E5997B]' : ''}>
+                        {word}{' '}
+                      </span>
+                    ))}
+                  </h2>
+
+                  <p className="text-white/40 text-xl md:text-3xl max-w-5xl font-light leading-relaxed text-center">
+                    {pillar.body}
+                  </p>
+
+                  <div className="flex items-center justify-center gap-6">
+                    <div className="h-[0.5px] w-12 bg-white/20" />
+                    <span className="font-mono text-[9px] tracking-[0.6em] text-white/30 uppercase">
+                      {pillar.detail}
                     </span>
-                  ))}
-                </h2>
-
-                <p className="text-white/40 text-lg md:text-xl max-w-2xl font-light leading-relaxed mx-auto">
-                  {pillar.body}
-                </p>
-
-                <div className="mt-12 flex items-center justify-center gap-6">
-                  <div className="h-[0.5px] w-12 bg-white/20" />
-                  <span className="font-mono text-[9px] tracking-[0.6em] text-white/30 uppercase">
-                    {pillar.detail}
-                  </span>
-                  <div className="h-[0.5px] w-12 bg-white/20" />
+                    <div className="h-[0.5px] w-12 bg-white/20" />
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-
         </div>
       </div>
-
     </div>
   );
 }

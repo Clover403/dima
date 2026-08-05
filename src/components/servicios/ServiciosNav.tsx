@@ -1,11 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// ─── Helper: dynamic script loader ───
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) return resolve()
@@ -18,105 +17,165 @@ function loadScript(src: string): Promise<void> {
 }
 
 /* ─── Service-specific SVG icons ─── */
-function Icon01() {
+function IconCore({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M18 32C18 22 26 14 36 14" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M46 32C46 42 38 50 28 50" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M32 9L36 14L32 19" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M32 55L28 50L32 45" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M32 27L37 32L32 37L27 32Z" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-10 h-10 md:w-12 md:h-12 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M32 2L62 32L32 62L2 32Z" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="32" cy="32" r="8" fill={isActive ? '#E5997B' : '#030035'} />
+      <path d="M20 32H44M32 20V44" stroke="currentColor" strokeWidth="1" opacity="0.5" />
     </svg>
   )
 }
 
-function Icon02() {
+function Icon01({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="8" y1="50" x2="56" y2="50" stroke="#E5997B" strokeWidth="0.6" opacity="0.4" />
-      <circle cx="56" cy="18" r="2.5" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M18 32C18 22 26 14 36 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M46 32C46 42 38 50 28 50" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M32 9L36 14L32 19" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 55L28 50L32 45" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M32 27L37 32L32 37L27 32Z" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon03() {
+function Icon02({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M32 10L54 32L32 54L10 32Z" stroke="#E5997B" strokeWidth="1.2" />
-      <path d="M22 32L42 32" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M36 26L42 32L36 38" stroke="#E5997B" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="32" cy="32" r="4" stroke="#E5997B" strokeWidth="0.8" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M8 32C14 32 16 18 22 18S30 46 36 46 44 18 50 18S56 32 56 32" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <line x1="8" y1="50" x2="56" y2="50" stroke="currentColor" strokeWidth="0.6" opacity="0.4" />
+      <circle cx="56" cy="18" r="2.5" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon04() {
+function Icon03({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <line x1="32" y1="12" x2="32" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="20" y1="52" x2="44" y2="52" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="32" y1="22" x2="14" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="32" y1="22" x2="50" y2="30" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <path d="M10 30L14 36H18L14 30Z" stroke="#E5997B" strokeWidth="1" />
-      <path d="M46 30L50 36H54L50 30Z" stroke="#E5997B" strokeWidth="1" />
-      <circle cx="32" cy="14" r="3" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <path d="M32 10L54 32L32 54L10 32Z" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M22 32L42 32" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M36 26L42 32L36 38" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="32" cy="32" r="4" stroke="currentColor" strokeWidth="0.8" />
     </svg>
   )
 }
 
-function Icon05() {
+function Icon04({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <rect x="10" y="36" width="44" height="16" rx="1" stroke="#E5997B" strokeWidth="1.2" />
-      <rect x="22" y="24" width="20" height="12" rx="1" stroke="#E5997B" strokeWidth="1.2" />
-      <line x1="32" y1="12" x2="32" y2="24" stroke="#E5997B" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="32" cy="10" r="3" stroke="#E5997B" strokeWidth="1" />
-      <line x1="18" y1="44" x2="18" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
-      <line x1="32" y1="44" x2="32" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
-      <line x1="46" y1="44" x2="46" y2="52" stroke="#E5997B" strokeWidth="1" strokeLinecap="round" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <line x1="32" y1="12" x2="32" y2="52" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="20" y1="52" x2="44" y2="52" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="14" y2="30" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="32" y1="22" x2="50" y2="30" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M10 30L14 36H18L14 30Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M46 30L50 36H54L50 30Z" stroke="currentColor" strokeWidth="1" />
+      <circle cx="32" cy="14" r="3" stroke="currentColor" strokeWidth="1" />
     </svg>
   )
 }
 
-function Icon06() {
+function Icon05({ isActive }: { isActive: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" fill="none" className="w-10 h-10">
-      <path d="M32 6L58 32L32 58L6 32Z" stroke="#E5997B" strokeWidth="1.2" />
-      <path d="M32 18L46 32L32 46L18 32Z" stroke="#E5997B" strokeWidth="1" opacity="0.6" />
-      <path d="M32 28L36 32L32 36L28 32Z" stroke="#E5997B" strokeWidth="1" />
+    <svg viewBox="0 0 64 64" fill="none" className={`w-8 h-8 md:w-10 md:h-10 transition-colors duration-700 ${isActive ? 'text-[#030035]' : 'text-[#F4F4F5]'}`}>
+      <rect x="10" y="36" width="44" height="16" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="22" y="24" width="20" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="32" y1="12" x2="32" y2="24" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="32" cy="10" r="3" stroke="currentColor" strokeWidth="1" />
+      <line x1="18" y1="44" x2="18" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <line x1="32" y1="44" x2="32" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <line x1="46" y1="44" x2="46" y2="52" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
     </svg>
   )
 }
 
-const serviceItems = [
-  { number: '01', name: 'Reingeniería de Deuda', descriptor: 'Estructura óptima de capital', Icon: Icon01 },
-  { number: '02', name: 'Estrategia Financiera Cíclica', descriptor: 'Anticipación de ciclos económicos', Icon: Icon02 },
-  { number: '03', name: 'Tesorería Avanzada', descriptor: 'Maximización de liquidez operativa', Icon: Icon03 },
-  { number: '04', name: 'Valuación Estratégica', descriptor: 'Determinación del valor real', Icon: Icon04 },
-  { number: '05', name: 'Auditoría de CapEx', descriptor: 'Rentabilidad de inversión productiva', Icon: Icon05 },
-  { number: '06', name: 'Gobernanza Financiera', descriptor: 'Institucionalización de decisiones', Icon: Icon06 },
+const allServices = [
+  {
+    id: 'core',
+    number: '00',
+    name: 'Correduría Financiera',
+    descriptor: 'Servicio Núcleo e Intermediación Estructural',
+    Icon: IconCore,
+    details: 'Ejecutamos operaciones de intermediación financiera con una ventaja estructural única: nuestro modelo macroeconómico — fundamentado en los principios de Ray Dalio — nos permite leer el ciclo económico antes de actuar. Todo nace de aquí.',
+  },
+  { 
+    id: 's1',
+    number: '01', 
+    name: 'Reingeniería de Deuda', 
+    descriptor: 'Estructura óptima de capital', 
+    Icon: Icon01,
+    details: 'Rediseñamos la arquitectura de deuda corporativa para sincronizarla con los ciclos macroeconómicos actuales. Posicionamos estratégicamente cada instrumento en el momento correcto del ciclo.',
+  },
+  { 
+    id: 's2',
+    number: '02', 
+    name: 'Estrategia Financiera Cíclica', 
+    descriptor: 'Anticipación de ciclos económicos', 
+    Icon: Icon02,
+    details: 'Diseñamos estrategias financieras que anticipan los movimientos del ciclo económico. Cada decisión se calibra contra el estado actual del ciclo para maximizar rentabilidad.',
+  },
+  { 
+    id: 's3',
+    number: '03', 
+    name: 'Tesorería Avanzada', 
+    descriptor: 'Maximización de liquidez operativa', 
+    Icon: Icon03,
+    details: 'Optimizamos la gestión de tesorería empresarial integrando visión macroeconómica con las necesidades operativas específicas. Liquidez inteligente, no solo disponible.',
+  },
+  { 
+    id: 's4',
+    number: '04', 
+    name: 'Valuación Estratégica', 
+    descriptor: 'Determinación del valor real', 
+    Icon: Icon04,
+    details: 'Determinamos el valor real de activos, empresas e instrumentos con metodologías que integran contexto macroeconómico. El valor no es estático — depende del ciclo.',
+  },
+  { 
+    id: 's5',
+    number: '05', 
+    name: 'Gobernanza Financiera', 
+    descriptor: 'Institucionalización de decisiones', 
+    Icon: Icon05,
+    details: 'Diseñamos estructuras que institucionalizan la toma de decisiones financieras. Instalamos mentalidad analítica como cultura dentro de la organización.',
+  },
 ]
+
+const sequencedLayoutTransition: any = {
+  layout: { type: "spring", bounce: 0, duration: 1, delay: 0.1 },
+  backgroundColor: { duration: 1, delay: 0.1 },
+  borderColor: { duration: 1, delay: 0.1 }
+}
+
+const engraveVariants = {
+  hidden: { opacity: 0, filter: 'blur(8px)', scale: 1.05, y: 15 },
+  visible: { 
+    opacity: 1, 
+    filter: 'blur(0px)', 
+    scale: 1, 
+    y: 0, 
+    transition: { duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] as const } 
+  },
+  exit: { 
+    opacity: 0, 
+    transition: { duration: 0 } 
+  }
+}
 
 export default function ServiciosNav() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const vantaRef = useRef<any>(null)
-  const pathRef = useRef<SVGPathElement>(null)
+  
+  // 1. Ubah initial state menjadi null agar semua tertutup di awal
+  const [activeIndex, setActiveIndex] = useState<number | null>(null) 
 
-  // ── Vanta BIRDS init ──────────────────────────────────────
   useEffect(() => {
     let destroyed = false
-
     async function initVanta() {
       try {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
         await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js')
         
         if (destroyed || !sectionRef.current) return
-        if (!(window as any).VANTA?.BIRDS) {
-          console.error('Vanta BIRDS not available after load')
-          return
-        }
+        if (!(window as any).VANTA?.BIRDS) return
 
         vantaRef.current = (window as any).VANTA.BIRDS({
           el: sectionRef.current,
@@ -128,41 +187,35 @@ export default function ServiciosNav() {
           minWidth: 600.0,
           scale: 1.0,
           scaleMobile: 1.0,
-          backgroundColor: 0xF5F5F5,
-          color1: 0x1a1a4e,
+          backgroundColor: 0x030035,
+          color1: 0xF4F4F5,
           color2: 0xE5997B,
           colorMode: 'lerp',
-          birdSize: 1.2,
-          wingSpan: 18,
-          speedLimit: 3,
-          separation: 35,
+          birdSize: 1.1,
+          wingSpan: 16,
+          speedLimit: 2.5,
+          separation: 40,
           alignment: 40,
-          cohesion: 50,
-          quantity: 4,
+          cohesion: 45,
+          quantity: 3,
         })
       } catch (err) {
         console.error('Vanta BIRDS init failed:', err)
       }
     }
-
     initVanta()
-
     return () => {
       destroyed = true
       vantaRef.current?.destroy()
     }
   }, [])
 
-  // ── GSAP animations ─────────────────────────────────────
   useEffect(() => {
     if (!sectionRef.current) return
-
     const ctx = gsap.context(() => {
       const el = sectionRef.current!
-
-      /* ── Heading reveal ── */
       gsap.fromTo(
-        el.querySelector('.section-heading'),
+        el.querySelector('.section-header'),
         { opacity: 0, y: 30 },
         {
           opacity: 1, y: 0,
@@ -170,356 +223,150 @@ export default function ServiciosNav() {
           scrollTrigger: { trigger: el, start: 'top 80%' },
         }
       )
-
-      /* ── Cards clip-path reveal (stagger from bottom) ── */
-      const cards = el.querySelectorAll('.service-card')
       gsap.fromTo(
-        cards,
-        { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+        el.querySelector('.accordion-container'),
+        { opacity: 0, y: 50 },
         {
-          clipPath: 'inset(0 0 0% 0)',
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power3.out',
-          stagger: 0.1,
-          scrollTrigger: { trigger: el, start: 'top 72%' },
+          opacity: 1, y: 0,
+          duration: 1, ease: 'power4.out', delay: 0.2,
+          scrollTrigger: { trigger: el, start: 'top 75%' },
         }
       )
-
-      /* ── Background number parallax ── */
-      const bgNums = el.querySelectorAll('.card-bg-num')
-      bgNums.forEach((num) => {
-        gsap.fromTo(
-          num,
-          { y: 20 },
-          {
-            y: -20,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: num.closest('.service-card'),
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          }
-        )
-      })
-
-      /* ── Connection path draw-in ── */
-      if (pathRef.current) {
-        const len = pathRef.current.getTotalLength()
-        gsap.set(pathRef.current, { strokeDasharray: len, strokeDashoffset: len })
-        gsap.to(pathRef.current, {
-          strokeDashoffset: 0,
-          duration: 2,
-          ease: 'power2.inOut',
-          scrollTrigger: { trigger: el, start: 'top 60%' },
-        })
-      }
-
-      /* ── Floating ornament gentle scroll drift ── */
-      const floats = el.querySelectorAll('.ornament-drift')
-      floats.forEach((f, i) => {
-        gsap.to(f, {
-          y: i % 2 === 0 ? -50 : 40,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: el,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 2,
-          },
-        })
-      })
     }, sectionRef)
-
     return () => ctx.revert()
   }, [])
 
-  const handleClick = () => {
-    const target = document.getElementById('servicios')
-    if (target) target.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 section-padding"
-      style={{ background: 'transparent' }}>
-
-      {/* ══════════════════════════════════
-          BACKGROUND DECORATIONS (TETAP)
-      ══════════════════════════════════ */}
-
-      {/* Large faded diamond — center background */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
-        <svg viewBox="0 0 900 900" fill="none" className="w-[900px] h-[900px] opacity-[0.035]">
-          <path d="M450 40L860 450L450 860L40 450Z" stroke="#1A2540" strokeWidth="0.6" />
-          <path d="M450 160L740 450L450 740L160 450Z" stroke="#1A2540" strokeWidth="0.4" />
-          <line x1="450" y1="40" x2="450" y2="860" stroke="#1A2540" strokeWidth="0.2" />
-          <line x1="40" y1="450" x2="860" y2="450" stroke="#1A2540" strokeWidth="0.2" />
-        </svg>
-      </div>
-
-      {/* Subtle dot grid */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.06]">
-        <svg className="w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
-          {Array.from({ length: 10 }).map((_, row) =>
-            Array.from({ length: 14 }).map((_, col) => (
-              <circle key={`${row}-${col}`} cx={col * 64 + 32} cy={row * 64 + 32} r="1.5" fill="#1A2540" />
-            ))
-          )}
-        </svg>
-      </div>
-
-      {/* Bronze connection path between cards (decorative) */}
-      <div className="absolute inset-0 pointer-events-none hidden lg:block overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" fill="none">
-          <path
-            ref={pathRef}
-            d="M200 220 L600 220 L1000 220 M200 500 L600 500 L1000 500 M200 220 L200 500 M600 220 L600 500 M1000 220 L1000 500"
-            stroke="#E5997B"
-            strokeWidth="0.5"
-            opacity="0.2"
-          />
-        </svg>
-      </div>
-
-      {/* Floating diamond ornaments */}
-      <motion.div
-        animate={{ y: [-12, 12, -12], rotate: [0, 8, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        className="ornament-drift absolute top-12 right-[8%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 70 70" fill="none" className="w-14 h-14 opacity-[0.07]">
-          <path d="M35 4L66 35L35 66L4 35Z" stroke="#1A2540" strokeWidth="0.7" />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [10, -10, 10], rotate: [0, -5, 0] }}
-        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        className="ornament-drift absolute bottom-16 left-[6%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 50 50" fill="none" className="w-10 h-10 opacity-[0.06]">
-          <path d="M25 3L47 25L25 47L3 25Z" stroke="#1A2540" strokeWidth="0.6" />
-          <path d="M25 11L39 25L25 39L11 25Z" stroke="#1A2540" strokeWidth="0.4" />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [-8, 8, -8] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
-        className="ornament-drift absolute top-1/2 right-[4%] pointer-events-none hidden lg:block"
-      >
-        <svg viewBox="0 0 40 40" fill="none" className="w-8 h-8 opacity-[0.05]">
-          <path d="M20 2L38 20L20 38L2 20Z" stroke="#E5997B" strokeWidth="0.6" />
-        </svg>
-      </motion.div>
-
-      {/* ══════════════════════════════════
-          SECTION HEADER
-      ══════════════════════════════════ */}
-      <div className="section-heading relative z-10 text-center mb-20 md:mb-24 max-w-7xl mx-auto">
-        <p className="text-bronze font-body text-xs tracking-[0.35em] uppercase mb-5">
-          Ecosistema de Servicios
+    <section ref={sectionRef} className="relative overflow-hidden py-24 md:py-32 bg-[#030035] min-h-screen flex flex-col justify-center">
+      
+      <div className="section-header relative z-10 max-w-[1600px] mx-auto w-full px-6 lg:px-12 mb-12 text-center">
+        <p className="text-[#E5997B] font-body text-xs tracking-[0.4em] uppercase mb-4 font-bold">
+          Arquitectura del Valor
         </p>
-
-        {/* Bronze line + diamond ornament */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
-          <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4 opacity-30">
-            <path d="M10 1L19 10L10 19L1 10Z" stroke="#1A2540" strokeWidth="0.8" />
-          </svg>
-          <div className="flex-1 max-w-[120px] h-px bg-navy/10" />
-        </div>
-
-        <h2 className="font-display text-navy text-4xl md:text-5xl lg:text-6xl leading-tight">
-          Seis pilares de la
-          <br />
-          <em className="text-bronze italic">ingeniería financiera</em>
+        <h2 className="font-display text-[#F4F4F5] text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight">
+          Ecosistema de <em className="text-[#E5997B] italic">Servicios</em>
         </h2>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════
-          MESH GRADIENT — INI KUNCI AGAR BLUR TERLIHAT
-          Blob warna di belakang grid card yang akan 
-          "terblur" & "terdistorsi" melalui card kaca
-      ═══════════════════════════════════════════════════════ */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Blob navy besar kiri */}
-        <div 
-          className="absolute top-[10%] -left-[5%] w-[600px] h-[600px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(26,26,78,0.35) 0%, transparent 70%)',
-            filter: 'blur(80px)'
-          }}
-        />
-        {/* Blob bronze besar kanan bawah */}
-        <div 
-          className="absolute -bottom-[5%] right-[0%] w-[700px] h-[700px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(229,153,123,0.3) 0%, transparent 70%)',
-            filter: 'blur(100px)'
-          }}
-        />
-        {/* Blob soft purple tengah */}
-        <div 
-          className="absolute top-[45%] left-[30%] w-[500px] h-[500px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(74,95,140,0.25) 0%, transparent 70%)',
-            filter: 'blur(90px)'
-          }}
-        />
-        {/* Blob kecil accent kanan atas */}
-        <div 
-          className="absolute top-[5%] right-[20%] w-[300px] h-[300px] rounded-full"
-          style={{ 
-            background: 'radial-gradient(circle, rgba(229,153,123,0.2) 0%, transparent 70%)',
-            filter: 'blur(60px)'
-          }}
-        />
-      </div>
+      <div className="accordion-container relative z-10 max-w-[1600px] mx-auto w-full px-6 lg:px-12">
+        <div className="flex flex-col lg:flex-row h-auto lg:h-[650px] w-full gap-4 lg:gap-2">
+          
+          {allServices.map((svc, index) => {
+            const isActive = activeIndex === index
+            const isCore = index === 0 // Variabel untuk mengecek card pertama
+            const SvcIcon = svc.Icon
 
-      {/* ══════════════════════════════════
-          SERVICE CARDS GRID — GLASSMORPHISM NYATA
-      ══════════════════════════════════ */}
-      <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
-        {serviceItems.map(({ number, name, descriptor, Icon }) => (
-          <motion.div 
-            key={number} 
-            className="group perspective-1000"
-            whileHover={{ y: -5 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <button
-              onClick={handleClick}
-              className="service-card relative w-full text-left 
-                         rounded-2xl overflow-hidden transition-all duration-300 ease-out
-                         hover:shadow-[0_25px_50px_-12px_rgba(26,37,64,0.25)]"
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 100%)',
-                backdropFilter: 'blur(24px) saturate(1.6)',
-                WebkitBackdropFilter: 'blur(24px) saturate(1.6)',
-                border: '1.5px solid rgba(255, 255, 255, 0.6)',
-                borderTop: '2px solid rgba(255, 255, 255, 0.85)',
-                boxShadow: `
-                  0 8px 32px rgba(26, 37, 64, 0.12),
-                  inset 0 1px 1px rgba(255, 255, 255, 0.7),
-                  inset 0 0 60px rgba(255, 255, 255, 0.1)
-                `,
-                transformStyle: 'preserve-3d',
-              }}
-              onMouseMove={(e) => {
-                const card = e.currentTarget
-                const rect = card.getBoundingClientRect()
-                const x = e.clientX - rect.left
-                const y = e.clientY - rect.top
-                const centerX = rect.width / 2
-                const centerY = rect.height / 2
-                const rotateX = ((y - centerY) / centerY) * -4
-                const rotateY = ((x - centerX) / centerX) * 4
-                
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(20px)`
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
-              }}
-            >
-              {/* HIGHLIGHT ATAS — garis cahaya kaca */}
-              <div 
-                className="absolute inset-x-4 top-[1px] h-[1px] bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-70 pointer-events-none z-20 rounded-full"
-              />
-
-              {/* GLOSS OVERLAY RADIAL — pantulan cahaya dari atas */}
-              <div className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden z-10">
-                <div 
-                  className="absolute -top-[40%] left-[10%] w-[80%] h-[80%] opacity-40 group-hover:opacity-60 transition-opacity duration-700"
-                  style={{
-                    background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.9) 0%, transparent 55%)'
-                  }}
-                />
-              </div>
-
-              {/* Konten dengan TranslateZ agar terasa berlapis */}
-              <div 
-                className="relative p-8 md:p-10 h-full min-h-[260px] flex flex-col gap-5 z-10"
-                style={{ transform: 'translateZ(40px)' }}
+            return (
+              <motion.div
+                key={svc.id}
+                layout
+                // 2. Logika Toggle: Kalau sudah aktif, jadikan null (tutup). Kalau tidak, buka index-nya.
+                onClick={() => setActiveIndex(isActive ? null : index)}
+                animate={{
+                  backgroundColor: isActive ? 'rgba(244, 244, 245, 0.85)' : 'rgba(229, 153, 123, 0.85)',
+                  borderColor: isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)',
+                }}
+                transition={sequencedLayoutTransition}
+                style={{ 
+                  minHeight: isActive ? '500px' : '150px',
+                  clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 2.5rem), 50% 100%, 0 calc(100% - 2.5rem))'
+                }}
+                className={`relative rounded-t-2xl border cursor-pointer flex flex-col overflow-hidden backdrop-blur-md
+                  ${isActive ? 'lg:flex-[2.5]' : 'lg:flex-[1]'}`}
               >
                 
-                {/* Background Number (Paling Dalam) */}
-                <span
-                  className="card-bg-num absolute -bottom-4 -right-2 font-display leading-none select-none pointer-events-none 
-                             text-navy/[0.04] group-hover:text-navy/[0.09] transition-all duration-700"
-                  style={{ 
-                      fontSize: 'clamp(5rem, 10vw, 9rem)',
-                      transform: 'translateZ(-20px)' 
-                  }}
-                >
-                  {number}
-                </span>
+                {/* 3. Hiasan Elegan Khusus untuk Card Pertama (Core) */}
+                {isCore && (
+                  <>
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-t-2xl z-0">
+                       {/* Subtle gradient glow di pojok kiri atas */}
+                       <div className="absolute -top-16 -left-16 w-40 h-40 bg-[#030035] opacity-20 blur-3xl rounded-full mix-blend-overlay"></div>
+                       {/* Border emas tipis di dalam card */}
+                       <div className="absolute inset-0 border-[1.5px] border-[#030035]/10 rounded-t-2xl"></div>
+                    </div>
+                  </>
+                )}
 
-                {/* Top row: icon + number (Paling Depan) */}
-                <div className="flex items-start justify-between" style={{ transform: 'translateZ(20px)' }}>
-                  <div className="p-3 rounded-xl transition-all duration-500 
-                                  group-hover:scale-110 group-hover:rotate-6"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2))',
-                      border: '1.5px solid rgba(255, 255, 255, 0.7)',
-                      boxShadow: '0 4px 16px rgba(26, 37, 64, 0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
-                      backdropFilter: 'blur(8px)',
-                    }}>
-                    <Icon />
+                <div className="relative z-10 w-full h-full p-6 lg:p-10 pb-20 flex flex-col items-center text-center mt-2">
+                  
+                  <div className="flex flex-col items-center w-full z-20">
+                    <motion.div 
+                      layout
+                      transition={sequencedLayoutTransition}
+                      // Berikan sedikit sentuhan warna border berbeda jika dia core tapi tidak aktif
+                      className={`rounded-xl border shadow-sm backdrop-blur-sm p-2 transition-colors duration-700
+                        ${isActive ? 'bg-[#030035]/10 border-[#030035]/20' : isCore ? 'bg-white/30 border-white/40' : 'bg-white/20 border-white/30'}`}
+                    >
+                      <SvcIcon isActive={isActive} />
+                    </motion.div>
+                    
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.span 
+                          initial={{ opacity: 0, scale: 0.5, filter: 'blur(4px)' }} 
+                          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, delay: 1.2, ease: [0.22, 1, 0.36, 1] as const } }}
+                          exit={{ opacity: 0, transition: { duration: 0 } }}
+                          className={`mt-4 font-body text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full text-[#F4F4F5] bg-[#030035] shadow-md`}>
+                          {svc.number}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <span className="font-display text-xs tracking-[0.4em] text-bronze/60 group-hover:text-bronze transition-colors">
-                    {number}
-                  </span>
+
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div 
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        variants={engraveVariants}
+                        className="flex flex-col items-center mt-10 w-full z-10 absolute top-32 px-8 md:px-16"
+                      >
+                        <h3 
+                          className="font-display text-center text-[#030035] font-bold leading-tight mb-2 text-2xl md:text-4xl"
+                          style={{ textShadow: '0px -1px 1px rgba(0,0,0,0.15), 0px 1px 1px rgba(255,255,255,1)' }}
+                        >
+                          {svc.name}
+                        </h3>
+                        
+                        <p className={`font-body mb-6 max-w-lg font-bold uppercase tracking-widest text-[#E5997B] drop-shadow-sm text-sm md:text-base`}>
+                          {svc.descriptor}
+                        </p>
+
+                        <p className="font-body text-[#030035]/90 text-base md:text-lg leading-relaxed max-w-2xl font-medium">
+                          {svc.details}
+                        </p>
+                        
+                        <button className="mt-8 px-6 py-3 bg-[#030035] text-[#F4F4F5] font-body text-xs font-bold uppercase tracking-widest rounded-md hover:bg-[#E5997B] hover:text-[#030035] transition-colors duration-300 shadow-lg">
+                          Explorar Detalle
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <AnimatePresence>
+                    {!isActive && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.9, transition: { duration: 0.8, delay: 1.2 } }}
+                        exit={{ opacity: 0, transition: { duration: 0 } }}
+                        className="hidden lg:flex absolute inset-0 items-center justify-center pointer-events-none mt-20"
+                      >
+                        <span className={`font-display whitespace-nowrap text-2xl font-bold -rotate-90 tracking-widest drop-shadow-sm ${isCore ? 'text-[#030035]/70' : 'text-[#F4F4F5]'}`}>
+                          {svc.name}
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                 </div>
+              </motion.div>
+            )
+          })}
 
-                {/* Name + descriptor */}
-                <div className="relative z-10" style={{ transform: 'translateZ(10px)' }}>
-                  <h3 className="font-display text-navy text-xl md:text-2xl leading-snug mb-2 transition-transform duration-300">
-                    {name}
-                  </h3>
-                  <p className="font-body text-navy/60 text-md leading-relaxed group-hover:text-navy/80 transition-colors">
-                    {descriptor}
-                  </p>
-                </div>
-
-                {/* Bottom row: arrow reveal */}
-                <div className="flex items-center gap-3 mt-auto" style={{ transform: 'translateZ(15px)' }}>
-                  <span className="font-body text-bronze text-[10px] font-bold tracking-[0.2em] uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                    Ver servicio
-                  </span>
-                  <div className="w-8 h-px bg-bronze/40 group-hover:w-12 transition-all duration-500" />
-                </div>
-
-                {/* Sweep Light Reflection */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/25 to-white/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-1000 pointer-events-none" />
-              </div>
-
-              {/* Inner shadow saat ditekan */}
-              <div className="absolute inset-0 opacity-0 active:opacity-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.1)] rounded-2xl pointer-events-none transition-opacity z-30" />
-              
-              {/* Bottom Accent Line */}
-              <div className="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-transparent via-bronze/60 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 z-20" />
-            </button>
-          </motion.div>
-        ))}
+        </div>
       </div>
 
-      {/* ── Subtle bottom divider ── */}
-      <div className="relative z-10 flex items-center justify-center gap-6 mt-20">
-        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
-        <motion.svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="w-5 h-5 opacity-20"
-          animate={{ rotate: [0, 180, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        >
-          <path d="M12 1L23 12L12 23L1 12Z" stroke="#1A2540" strokeWidth="0.7" />
-        </motion.svg>
-        <div className="flex-1 max-w-[200px] h-px bg-navy/10" />
-      </div>
     </section>
   )
 }

@@ -13,7 +13,7 @@
   }
 
   body {
-    @apply bg-lightgray text-navy font-body antialiased;
+    @apply bg-navy text-lightgray font-body antialiased;
     overflow-x: hidden;
   }
 

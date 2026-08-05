@@ -1,11 +1,13 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import Layout from './components/Layout'
-import HomeLegacy from './pages/HomeLegacy'
+import Layout from './components/layout/Layout'
+import Loader from './components/Loader'
 import Home from './pages/Home'
 import CreditModel from './pages/CreditModel'
 import Products from './pages/Products'
+import ProductoDetalle from './pages/ProductoDetalle'
 import Services from './pages/Services'
+import ServicioDetalle from './pages/ServicioDetalle'
 import Contact from './pages/Contact'
 import About from './pages/About'
 import Process from './pages/Process'
@@ -14,20 +16,25 @@ export default function App() {
   const location = useLocation()
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname}>
+    <>
+      <Loader />
+      <AnimatePresence mode="wait" initial={false}>
+        <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
-          <Route path="/" element={<HomeLegacy />} />
-          <Route path="/home-baru" element={<Home />} />
-          <Route path="/home-lama" element={<HomeLegacy />} />
+          {/* <Route path="/" element={<HomeLegacy />} /> */}
+          <Route path="/" element={<Home />} />
+          {/* <Route path="/home-lama" element={<HomeLegacy />} /> */}
           <Route path="/modelo-crediticio" element={<CreditModel />} />
           <Route path="/productos" element={<Products />} />
+          <Route path="/productos/:slug" element={<ProductoDetalle />} />
           <Route path="/servicios" element={<Services />} />
+          <Route path="/servicios/:slug" element={<ServicioDetalle />} />
           <Route path="/contacto" element={<Contact />} />
           <Route path="/nosotros" element={<About />} />
           <Route path="/proceso" element={<Process />} />
         </Route>
       </Routes>
     </AnimatePresence>
+    </>
   )
 }

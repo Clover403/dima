@@ -11,11 +11,17 @@ export function useLenis() {
   useEffect(() => {
     if (lenisInstance) return
 
+   // Deteksi Firefox
+    const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('firefox');
+
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    })
+  duration: 1.3,
+  easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  smoothWheel: true,
+  
+  wheelMultiplier: isFirefox ? 1.6 : 0.45,
+  touchMultiplier: isFirefox ? 1.6 : 0.45,
+})
 
     lenisInstance = lenis
 

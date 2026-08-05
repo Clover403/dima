@@ -1,157 +1,54 @@
-import { useEffect, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import ProductVisual from './ProductVisual'
+import { PRODUCTOS_CTA_LINK, type ProductData } from '../../data/productos'
+import HoverTrailOverlay from '../HoverTrailOverlay'
 
-gsap.registerPlugin(ScrollTrigger)
-
-/* ─────────────── CDN SCRIPT LOADER ─────────────── */
-function loadScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve()
-    const s = document.createElement('script')
-    s.src = src
-    s.async = true
-    s.onload = () => resolve()
-    s.onerror = () => reject(new Error(`Failed to load ${src}`))
-    document.head.appendChild(s)
-  })
-}
-
-interface Product {
-  number: string
-  label: string
-  tagline: string
-  heading: string
-  description: string[]
-  features: string[]
-  image: string
-  ctaLink: string
-}
-
+/* ─────────────────────────────────────────────
+   TYPES & CONSTANTS
+───────────────────────────────────────────── */
 interface Props {
-  products: Product[]
+  products: ProductData[]
 }
 
-/* ─────────────── PRODUCT VISUALS (planet nav icons) ─────────────── */
+export type LayerKey = 'solution' | 'instrument' | 'structure'
 
-function ProductVisual({ index, isActive = false }: { index: number; isActive?: boolean }) {
-  const stroke = '#E5997B'
-  const dim = 'rgba(229,153,123,0.3)'
-  const dim2 = 'rgba(244,244,245,0.2)'
-  const activeFill = isActive ? 'rgba(229,153,123,0.25)' : 'rgba(229,153,123,0.08)'
-  const activeStroke = isActive ? 0.9 : 0.5
-  const activeDim = isActive ? 0.5 : 0.2
+export const LAYERS: { key: LayerKey; label: string; sublabel: string; connector: string }[] = [
+  { key: 'solution',   label: 'Solution',   sublabel: 'Objetivo de negocio',  connector: 'solved via'       },
+  { key: 'instrument', label: 'Instrument', sublabel: 'El contrato financiero', connector: 'designed through' },
+  { key: 'structure',  label: 'Structure',  sublabel: 'Ingeniería financiera', connector: ''                 },
+]
 
-  const visuals = [
-    <svg key="s" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <rect x="15" y="70" width="16" height="55" rx="2" stroke={stroke} strokeOpacity={activeStroke} strokeWidth="1.5" />
-      <rect x="15" y="85" width="16" height="40" rx="2" fill={activeFill} />
-      <rect x="43" y="45" width="16" height="80" rx="2" stroke={stroke} strokeOpacity={activeStroke} strokeWidth="1.5" />
-      <rect x="43" y="60" width="16" height="65" rx="2" fill={activeFill} />
-      <rect x="71" y="25" width="16" height="100" rx="2" stroke={stroke} strokeOpacity={activeStroke} strokeWidth="1.5" />
-      <rect x="71" y="40" width="16" height="85" rx="2" fill={activeFill} />
-      <rect x="99" y="55" width="16" height="70" rx="2" stroke={stroke} strokeOpacity={activeStroke} strokeWidth="1.5" />
-      <rect x="99" y="70" width="16" height="55" rx="2" fill={activeFill} />
-      <path d="M23 65 L51 40 L79 20 L107 50" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="107" cy="50" r="4" fill={stroke} />
-    </svg>,
-
-    <svg key="b" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <rect x="18" y="75" width="22" height="55" rx="1" stroke={stroke} strokeOpacity={activeStroke} strokeWidth="1.5" />
-      <rect x="18" y="95" width="22" height="35" fill={activeFill} />
-      <rect x="100" y="55" width="22" height="75" rx="1" stroke={dim2} strokeOpacity={activeDim} strokeWidth="1.5" />
-      <path d="M40 75 Q70 15 100 55" stroke={stroke} strokeWidth="3" fill="none" strokeLinecap="round" />
-      <line x1="40" y1="75" x2="40" y2="130" stroke={stroke} strokeOpacity={activeDim} strokeDasharray="3 4" />
-      <line x1="100" y1="55" x2="100" y2="130" stroke={dim2} strokeOpacity={activeDim} strokeDasharray="3 4" />
-      <text x="29" y="68" fill={stroke} fontSize="7" textAnchor="middle" fontFamily="monospace" opacity={activeStroke}>COST</text>
-      <text x="111" y="48" fill="#F4F4F5" fontSize="7" textAnchor="middle" fontFamily="monospace" opacity={activeDim}>REV</text>
-    </svg>,
-
-    <svg key="c" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <rect x="35" y="20" width="70" height="100" rx="2" stroke={stroke} strokeWidth="2" strokeOpacity={activeStroke} />
-      <rect x="35" y="65" width="70" height="55" fill={activeFill} />
-      <path d="M35 65 Q52 58 70 65 T105 65" stroke={stroke} strokeWidth="2" fill="none" />
-      <line x1="112" y1="35" x2="125" y2="35" stroke={stroke} strokeOpacity={activeStroke} />
-      <polygon points="122,30 130,35 122,40" fill={stroke} fillOpacity={activeStroke} />
-      <text x="28" y="90" fill={stroke} fontSize="7" textAnchor="end" fontFamily="monospace">LIQ</text>
-      <text x="28" y="40" fill="#F4F4F5" fontSize="7" textAnchor="end" fontFamily="monospace" opacity={activeDim}>USE</text>
-    </svg>,
-
-    <svg key="a" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <circle cx="105" cy="30" r="14" fill={activeFill} stroke={stroke} strokeWidth="1.5" strokeOpacity={activeStroke} />
-      <line x1="70" y1="125" x2="70" y2="55" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-      <path d="M70 85 Q50 72 42 50" stroke={stroke} strokeWidth="2" fill="none" />
-      <path d="M70 75 Q90 62 98 40" stroke={stroke} strokeWidth="2" fill="none" />
-      <ellipse cx="42" cy="45" rx="7" ry="14" fill={activeFill} stroke={stroke} strokeWidth="1" strokeOpacity={activeStroke} />
-      <ellipse cx="98" cy="35" rx="7" ry="14" fill={activeFill} stroke={stroke} strokeWidth="1" strokeOpacity={activeStroke} />
-      <circle cx="35" cy="125" r="3" fill={stroke} fillOpacity={activeStroke} />
-      <circle cx="70" cy="125" r="3" fill={stroke} fillOpacity={activeStroke} />
-      <circle cx="105" cy="125" r="3" fill={stroke} fillOpacity={activeStroke} />
-    </svg>,
-
-    <svg key="f" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <rect x="12" y="42" width="34" height="48" rx="3" stroke={dim2} strokeWidth="1.5" strokeOpacity={activeDim} />
-      <line x1="20" y1="58" x2="38" y2="58" stroke={dim2} strokeWidth="2" strokeOpacity={activeDim} />
-      <line x1="20" y1="68" x2="34" y2="68" stroke={dim2} strokeWidth="2" strokeOpacity={activeDim} />
-      <line x1="20" y1="78" x2="30" y2="78" stroke={dim2} strokeWidth="2" strokeOpacity={activeDim} />
-      <path d="M55 66 L85 66" stroke={stroke} strokeWidth="2.5" strokeDasharray="4 4" />
-      <polygon points="80,60 92,66 80,72" fill={stroke} />
-      <circle cx="115" cy="66" r="18" stroke={stroke} strokeWidth="2" fill={activeFill} />
-      <text x="115" y="70" fill={stroke} fontSize="14" textAnchor="middle" fontFamily="monospace" fontWeight="bold">$</text>
-      <text x="115" y="108" fill={stroke} fontSize="6" textAnchor="middle" fontFamily="monospace" opacity={activeStroke}>EFECTIVO</text>
-    </svg>,
-
-    <svg key="l" viewBox="0 0 140 140" className="w-full h-full" fill="none">
-      <rect x="40" y="22" width="60" height="42" rx="4" stroke={stroke} strokeWidth="1.5" fill={activeFill} strokeOpacity={activeStroke} />
-      <rect x="48" y="30" width="18" height="12" fill={dim} />
-      <rect x="74" y="30" width="18" height="12" fill={dim} />
-      <circle cx="55" cy="72" r="6" stroke={stroke} strokeWidth="1.5" strokeOpacity={activeStroke} />
-      <circle cx="85" cy="72" r="6" stroke={stroke} strokeWidth="1.5" strokeOpacity={activeStroke} />
-      <rect x="15" y="92" width="110" height="10" rx="5" fill={dim2} fillOpacity={0.12} stroke={dim2} strokeWidth="0.5" />
-      <rect x="15" y="92" width="78" height="10" rx="5" fill={stroke} fillOpacity={activeStroke} />
-      <text x="70" y="120" fill={stroke} fontSize="7" textAnchor="middle" fontFamily="monospace" opacity={activeStroke}>PROPIEDAD PROGRESIVA</text>
-    </svg>,
-  ]
-
-  return visuals[index] ?? null
-}
+const PRODUCT_IMAGES = [
+  '/illustration-compressed/products/bridge.webp', 
+  '/illustration-compressed/products/cycle.webp', 
+  '/illustration-compressed/products/gear-machine.webp', 
+  '/illustration-compressed/products/invoice.webp', 
+  '/illustration-compressed/products/menara.webp', 
+  '/illustration-compressed/products/tabung.webp'
+]
 
 /* ─────────────── HELPERS ─────────────── */
-
 function AccentHeading({ heading }: { heading: string }) {
   const words = heading.trim().split(/\s+/)
   return (
     <>
-      <span className="text-[#E5997B]">{words[0]}</span>
-      {words.length > 1 && <> {words.slice(1).join(' ')}</>}
+      <span style={{ color: '#F4F4F5' }}>{words[0]}</span>
+      {words.length > 1 && <span style={{ color: '#E5997B', fontStyle: 'normal' }}> {words.slice(1).join(' ')}</span>}
     </>
   )
 }
 
-function ScrollDots({
-  total,
-  active,
-  onSelect,
-}: {
-  total: number
-  active: number
-  onSelect: (i: number) => void
-}) {
+function ScrollDots({ total, active, onSelect }: { total: number; active: number; onSelect: (i: number) => void }) {
   return (
-    <div className="flex flex-col items-center gap-[10px]">
+    <div className="flex flex-col items-center gap-[8px]">
       {Array.from({ length: total }).map((_, i) => (
-        <button
-          key={i}
-          onClick={() => onSelect(i)}
-          className="focus:outline-none"
-          aria-label={`Product ${i + 1}`}
-        >
+        <button key={i} onClick={() => onSelect(i)} className="focus:outline-none" aria-label={`Product ${i + 1}`}>
           <motion.div
-            animate={{ height: active === i ? 22 : 6, opacity: active === i ? 1 : 0.28 }}
+            animate={{ height: active === i ? 20 : 6, opacity: active === i ? 1 : 0.3 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[2px] rounded-full bg-[#E5997B] hover:opacity-60"
+            className={`w-[3px] rounded-full transition-colors ${active === i ? 'bg-[#E5997B]' : 'bg-[#F4F4F5]/50 hover:bg-[#E5997B]'}`}
           />
         </button>
       ))}
@@ -159,289 +56,327 @@ function ScrollDots({
   )
 }
 
-/* ─────────────── MAIN COMPONENT ─────────────── */
+/* ─────────────────────────────────────────────
+   LAYER TABS COMPONENT
+───────────────────────────────────────────── */
+export function ProductLayerTabs({
+  product,
+  activeLayer,
+  onSelect,
+}: {
+  product: ProductData
+  activeLayer: LayerKey
+  onSelect: (k: LayerKey) => void
+}) {
+  const current = product[activeLayer]
 
+  return (
+    <div className="flex flex-col w-full h-full justify-center">
+      <div className="self-start inline-flex items-center p-1 rounded-full bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.2)] mb-6">
+        {LAYERS.map(({ key, label }) => {
+          const isActive = activeLayer === key
+          return (
+            <button
+              key={key}
+              onClick={() => onSelect(key)}
+              className={`
+                relative px-5 md:px-6 py-2 rounded-full font-mono text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 focus:outline-none select-none
+                ${isActive ? 'text-white' : 'text-[#F4F4F5]/70 hover:text-[#F4F4F5]'}
+              `}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeLayerNavbarPill"
+                  className="absolute inset-0 bg-[#E5997B] rounded-full shadow-[0_4px_15px_rgba(229,153,123,0.4)]"
+                  transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
+                />
+              )}
+              <span className="relative z-10">{label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`layer-${activeLayer}`}
+          initial={{ opacity: 0, y: 15, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
+          exit={{    opacity: 0, y: -10, filter: 'blur(3px)' }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full flex flex-col gap-5 lg:gap-6"
+        >
+          <div className="py-1 text-[#F4F4F5]/90">
+            <p className="font-body text-lg md:text-xl lg:text-2xl leading-relaxed font-light">
+              {current.content}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 mt-2">
+            {current.details.map((d, i) => (
+              <div 
+                key={i} 
+                className="group flex items-center gap-4 md:gap-5 transition-all duration-300 text-[#F4F4F5]/70 hover:text-[#F4F4F5]"
+              >
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E5997B] border border-[#E5997B] flex items-center justify-center shrink-0 shadow-sm">
+                  <span className="font-mono text-xs md:text-sm font-bold tracking-tighter text-white">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                </div>
+                <span className="font-body text-base md:text-lg lg:text-xl leading-snug font-light">
+                  {d}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────── */
 export default function ProductosShowcase({ products }: Props) {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const vantaRef   = useRef<any>(null)
   const [active, setActive] = useState(0)
-  const [prev,   setPrev]   = useState(0)
-  const [vantaReady, setVantaReady] = useState(false)
+  const [prev, setPrev] = useState(0)
+  const [activeLayer, setActiveLayer] = useState<LayerKey>('solution')
+  const [isDetailView, setIsDetailView] = useState(false)
+  const [autoIndex, setAutoIndex] = useState(0)
 
   const dir = active >= prev ? 1 : -1
 
-  /* ── GSAP ScrollTrigger pin ── */
   useEffect(() => {
-    if (!sectionRef.current) return
+    setActiveLayer('solution')
+  }, [active])
 
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        id: 'productScroll',
-        trigger: sectionRef.current!,
-        start: 'top top',
-        // ✅ 1000vh per produk — scroll terasa jauh lebih pelan & terkontrol
-        end: `+=${products.length * 1000}vh`,
-        pin: true,
-        scrub: 4, // ✅ lebih tinggi = transisi smooth, tidak langsung loncat antar produk
-        onUpdate: (self) => {
-          const idx = Math.min(
-            Math.floor(self.progress * products.length),
-            products.length - 1,
-          )
-          setActive(cur => {
-            if (cur !== idx) setPrev(cur)
-            return idx
-          })
-        },
-      })
-    }, sectionRef)
-
-    return () => ctx.revert()
-  }, [products.length])
-
-  /* ── Click nav → scroll to that product's position ── */
-  const scrollToProduct = (index: number) => {
-    const st = ScrollTrigger.getById('productScroll')
-    if (!st) return
-    const scrollRange = st.end - st.start
-    const target = st.start + (index / Math.max(products.length - 1, 1)) * scrollRange
-    window.scrollTo({ top: target, behavior: 'smooth' })
-  }
-
-  /* ── Vanta Globe ── */
   useEffect(() => {
-    let mounted = true
-    let attempts = 0
+    if (isDetailView) return
+    const interval = setInterval(() => {
+      setAutoIndex((current) => (current + 1) % products.length)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [isDetailView, products.length])
 
-    async function init() {
-      try {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
-        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js')
+  const scrollToProduct = useCallback((index: number) => {
+    setIsDetailView(true)
+    setActive(cur => {
+      if (cur !== index) setPrev(cur)
+      return index
+    })
+  }, [])
 
-        const check = () => {
-          if (!mounted) return
-          attempts++
-          if ((window as any).VANTA?.GLOBE && sectionRef.current) {
-            vantaRef.current?.destroy?.()
-            vantaRef.current = (window as any).VANTA.GLOBE({
-              el: sectionRef.current,
-              THREE: (window as any).THREE,
-              mouseControls: true,
-              touchControls: true,
-              gyroControls: false,
-              minHeight: 200,
-              minWidth: 200,
-              scale: 1,
-              scaleMobile: 1,
-              color: 0xE5997B,
-              color2: 0xE5997B,
-              backgroundColor: 0x030035,
-              size: 1.1,
-              points: 10,
-              maxDistance: 25,
-              spacing: 18,
-            })
-            setVantaReady(true)
-          } else if (attempts < 50) setTimeout(check, 100)
-        }
-        check()
-      } catch (e) { console.warn('Vanta failed:', e) }
-    }
-
-    init()
-    return () => { mounted = false; vantaRef.current?.destroy?.() }
+  const handleLayerSelect = useCallback((key: LayerKey) => {
+    setActiveLayer(key)
   }, [])
 
   const p = products[active]
-
-  const wordCount = p.heading.split(' ').length
-  const headingSize =
-    wordCount > 5 ? 'clamp(3rem, 5.5vw, 6rem)' :
-    wordCount > 3 ? 'clamp(3.5rem, 6.5vw, 7rem)' :
-                    'clamp(4rem, 8.5vw, 8.5rem)'
+  const displayIndex = isDetailView ? active : autoIndex
 
   return (
-    <div
-      ref={sectionRef}
-      className="relative w-full h-screen overflow-hidden bg-[#030035]"
-    >
-      {!vantaReady && <div className="absolute inset-0 bg-[#030035] z-0" />}
+    <div className="relative w-full h-screen overflow-hidden bg-[#030035]">
+      
+      {/* ── GRID & MESH BACKGROUND ── */}
+      {/* <SpotlightGridBackground isHighContrast={true} /> */}
 
-      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-[#030035]/92 via-[#030035]/45 to-[#030035]/10" />
-      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-[#030035]/80 via-transparent to-[#030035]/40" />
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-[#030035] via-[#030035]/60 to-[#030035]/20" />
 
-      {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 z-30 border-b border-[#F4F4F5]/[0.05] px-8 md:px-14 py-5 flex items-center justify-between">
-        <span className="font-mono text-[11px] tracking-[0.5em] uppercase text-[#F4F4F5]/20">
-          DIMA Finance — Portafolio
-        </span>
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#E5997B] animate-pulse" />
-          <span className="font-mono text-[11px] tracking-[0.4em] uppercase text-[#F4F4F5]/20">
-            {String(active + 1).padStart(2, '0')} / {String(products.length).padStart(2, '0')}
-          </span>
+      {isDetailView && (
+        <div className="absolute right-6 md:right-10 top-1/2 -translate-y-1/2 z-40 hidden lg:block">
+          <ScrollDots total={products.length} active={active} onSelect={scrollToProduct} />
         </div>
-      </div>
+      )}
 
-      {/* Right dot nav */}
-      <div className="absolute right-8 md:right-12 top-1/2 -translate-y-1/2 z-30">
-        <ScrollDots total={products.length} active={active} onSelect={scrollToProduct} />
-      </div>
-
-      {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 h-full flex items-center pt-12 pb-28">
-        <div className="pl-[5vw] md:pl-[8vw] lg:pl-[10vw] pr-16 md:pr-24 w-full max-w-[min(1200px,85vw)]">
-          <AnimatePresence mode="wait" custom={dir}>
-            <motion.div
-              key={`content-${active}`}
-              custom={dir}
-              variants={{
-                enter:  (d) => ({ opacity: 0, y: d * 24, filter: 'blur(6px)' }),
-                center:      ({ opacity: 1, y: 0,        filter: 'blur(0px)' }),
-                exit:   (d) => ({ opacity: 0, y: d * -16, filter: 'blur(3px)' }),
-              }}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col"
-            >
-              {/* Eyebrow */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="font-mono text-[13px] tracking-[0.5em] uppercase text-[#E5997B]/80">
-                  {p.number}
-                </span>
-                <div className="w-8 h-px bg-[#E5997B]/40" />
-                <span className="font-mono text-[13px] tracking-[0.4em] uppercase text-[#F4F4F5]/55">
-                  {p.tagline}
-                </span>
-              </div>
-
-              {/* Heading */}
-              <h2
-                className="font-display font-light text-[#F4F4F5] leading-[1.02] tracking-tight mb-7"
-                style={{ fontSize: headingSize }}
+      {/* ── MAIN SPLIT-SCREEN CONTENT ── */}
+      <div className="relative z-10 w-full h-full flex flex-col lg:flex-row items-center pt-14 lg:pt-12 pb-6 lg:pb-24">
+        
+        {/* KOLOM KIRI */}
+        <div className="w-full lg:w-[50%] h-full pl-[4vw] md:pl-[6vw] lg:pl-[8vw] pr-5 lg:pr-8 flex items-center">
+          <AnimatePresence mode="wait">
+            {!isDetailView ? (
+              // ── TAMPILAN CARDS ──
+              <motion.div
+                key="cards-view"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full h-[70vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-5"
               >
-                <AccentHeading heading={p.heading} />
-              </h2>
-
-              {/* Ornament */}
-              <div className="flex items-center gap-3 mb-7">
-                <div className="w-10 h-px bg-[#E5997B]/35" />
-                <svg width="7" height="7" viewBox="0 0 8 8" fill="none">
-                  <path d="M4 0L8 4L4 8L0 4Z" fill="#E5997B" opacity="0.5" />
-                </svg>
-                <div className="flex-1 h-px bg-[#F4F4F5]/[0.12] max-w-[100px]" />
-              </div>
-
-              {/* Description */}
-              <p className="font-body text-[#F4F4F5]/85 text-[20px] md:text-[22px] leading-[1.88] mb-3 border-l-2 border-[#E5997B]/50 pl-5 max-w-[min(720px,65vw)]">
-                {p.description[0]}
-              </p>
-              {p.description[1] && (
-                <p className="font-body text-[#F4F4F5]/60 text-[18px] md:text-[20px] leading-[1.82] mb-8 pl-5 max-w-[min(680px,61vw)]">
-                  {p.description[1]}
-                </p>
-              )}
-
-              {/* Features */}
-              <div className="mb-9 pl-1">
-                <p className="font-mono text-[11px] tracking-[0.5em] uppercase text-[#E5997B]/60 mb-4">
-                  Características
-                </p>
-                <div className="grid grid-cols-2 gap-x-10 gap-y-3 max-w-[min(680px,60vw)]">
-                  {p.features.map((f, fi) => (
-                    <div key={f} className="flex items-start gap-2.5">
-                      <span className="font-mono text-[#E5997B]/55 text-[12px] mt-0.5 shrink-0">
-                        {String(fi + 1).padStart(2, '0')}
-                      </span>
-                      <span className="font-body text-[#F4F4F5]/80 text-[16px] leading-relaxed">
-                        {f}
-                      </span>
+                {products.map((prod, i) => (
+                  <button
+                    key={prod.number}
+                    onClick={() => scrollToProduct(i)}
+                    className="group text-left p-4 md:p-5 flex flex-col justify-between w-full h-full bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(229,153,123,0.15)] rounded-2xl transition-all duration-500 transform hover:-translate-y-1 hover:border-[#E5997B]/30"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="font-mono text-[12px] md:text-sm font-extrabold text-[#E5997B] bg-[#E5997B]/10 px-2 py-1 rounded-md">{prod.number}</span>
+                      <div className="hidden md:block w-12 h-12 md:w-16 md:h-16 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 origin-top-right">
+                        <ProductVisual index={i} isActive={true} inverted={true} />
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    
+                    <div className="mt-auto">
+                      <h3 className="font-display font-semibold text-[#F4F4F5] text-xl md:text-2xl lg:text-[1.75rem] mb-2 leading-tight group-hover:text-[#E5997B] transition-colors">{prod.label}</h3>
+                      <p className="font-body text-[#F4F4F5]/70 text-base md:text-lg lg:text-xl line-clamp-3 leading-snug">{prod.tagline}</p>
+                    </div>
+                  </button>
+                ))}
+              </motion.div>
+            ) : (
+              // ── TAMPILAN DETAIL PRODUK ──
+              <motion.div
+                key={`content-${active}`}
+                custom={dir}
+                variants={{
+                  enter:  (d) => ({ opacity: 0, y: d * 20, filter: 'blur(6px)' }),
+                  center:       ({ opacity: 1, y: 0,        filter: 'blur(0px)' }),
+                  exit:   (d) => ({ opacity: 0, y: d * -14, filter: 'blur(3px)' }),
+                }}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full h-[70vh] flex flex-col justify-center"
+              >
+                <button 
+                  onClick={() => setIsDetailView(false)}
+                  className="mb-6 self-start flex items-center gap-2 font-mono font-bold text-[10px] tracking-[0.2em] uppercase text-[#F4F4F5]/70 hover:text-[#E5997B] transition-colors bg-[#F4F4F5]/5 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-[#F4F4F5]/10 hover:border-[#E5997B]/30"
+                >
+                  <span>←</span> Volver a tarjetas
+                </button>
 
-              {/* CTA */}
-              <Link to={p.ctaLink} className="group inline-flex items-center self-start">
-                <div className="relative overflow-hidden rounded-l-sm">
-                  <div className="absolute inset-0 bg-[#E5997B] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
-                  <div className="relative border border-[#E5997B]/50 group-hover:border-[#E5997B] px-9 py-4 flex items-center transition-colors duration-300">
-                    <span className="font-mono text-[12px] tracking-[0.4em] uppercase text-[#E5997B] group-hover:text-[#030035] transition-colors duration-300">
-                      Conocer más
+                {/* GAMBAR KHUSUS MOBILE DI ATAS */}
+                <div className="block lg:hidden w-full h-[30vh] rounded-2xl overflow-hidden mb-6 relative shrink-0 cursor-none">
+                  <img src={PRODUCT_IMAGES[displayIndex]} alt="Product" className="absolute inset-0 w-full h-full object-cover bg-white" />
+                  <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
+                  <div className="absolute bottom-3 left-3 bg-white/60 px-2 py-1 backdrop-blur-sm rounded-md">
+                    <span className="font-mono text-[10px] text-[#030035] font-bold tracking-widest uppercase">
+                      {p.number}
                     </span>
                   </div>
+                  <div className="absolute bottom-3 right-3">
+                    <Link
+                      to={PRODUCTOS_CTA_LINK}
+                      className="inline-flex items-center justify-center px-3 py-1.5 bg-[#E5997B] text-white font-body font-bold text-[9px] tracking-[0.2em] uppercase rounded-md shadow-[0_4px_15px_rgba(0,0,0,0.3)] backdrop-blur-md"
+                    >
+                      Conocer más
+                    </Link>
+                  </div>
                 </div>
-                <div className="border border-l-0 border-[#E5997B]/25 group-hover:border-[#E5997B]/60 px-4 py-4 flex items-center transition-colors duration-300 rounded-r-sm">
-                  <svg
-                    className="w-4 h-4 text-[#E5997B]/50 group-hover:text-[#E5997B] group-hover:translate-x-0.5 transition-all duration-300"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                  >
-                    <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="font-mono text-[14px] font-extrabold tracking-[0.3em] uppercase text-[#E5997B]">
+                    {p.number}
+                  </span>
+                  <div className="w-8 h-[2px] bg-[#E5997B]/40" />
                 </div>
-              </Link>
-            </motion.div>
+
+                <h2
+                  className="text-[2.2rem] sm:text-[3rem] md:text-[3.8vw] lg:text-[4vw] leading-[1.05] tracking-tight font-normal mb-6 break-words hyphens-auto"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  <AccentHeading heading={p.heading} />
+                </h2>
+                
+                <div className="w-full xl:w-[95%]">
+                  <ProductLayerTabs
+                    product={p}
+                    activeLayer={activeLayer}
+                    onSelect={handleLayerSelect}
+                  />
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
+        </div>
+
+        {/* KOLOM KANAN */}
+        <div className="hidden lg:flex w-[50%] h-full pr-[2vw] md:pr-[4vw] lg:pr-[5vw] items-center justify-end relative">
+          <div className="w-full max-w-xl xl:max-w-3xl h-[70vh] relative rounded-3xl overflow-hidden group shadow-2xl bg-white cursor-none">
+            
+            {PRODUCT_IMAGES.map((img, idx) => (
+              <motion.img
+                key={img}
+                src={img}
+                alt="Product Showcase"
+                initial={false}
+                animate={{
+                  opacity: displayIndex === idx ? 1 : 0,
+                  scale: displayIndex === idx ? 1.05 : 1,
+                }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full object-cover z-0"
+              />
+            ))}
+
+            {/* Hover Trail Overlay */}
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
+            
+            <div className="absolute bottom-8 left-6 z-20 bg-white/60 px-2.5 py-1 backdrop-blur-sm rounded-md">
+              <span className="font-mono text-[11px] text-[#030035] font-bold tracking-widest uppercase">
+                {products[displayIndex]?.number}
+              </span>
+            </div>
+
+            {isDetailView && (
+              <div className="absolute bottom-5 right-5 z-30">
+                <Link
+                  to={PRODUCTOS_CTA_LINK}
+                  className="group relative inline-flex items-center justify-center px-6 py-3 bg-[#E5997B] text-white font-body font-medium text-xs tracking-[0.2em] uppercase transition-all duration-500 hover:bg-[#F4F4F5] hover:text-[#030035] hover:pl-10 border border-[#E5997B] shadow-[0_10px_30px_rgba(0,0,0,0.4)] backdrop-blur-md pointer-events-auto"
+                >
+                  <span className="relative z-10">Conocer más</span>
+                  <svg
+                    className="absolute left-3 opacity-0 group-hover:opacity-100 transition-all duration-500 w-3.5 h-3.5 text-white group-hover:text-[#030035]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ── BOTTOM PLANET NAV ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 border-t border-[#F4F4F5]/[0.05]">
-        <div className="flex">
+      <div className="hidden lg:block absolute bottom-0 left-0 right-0 z-30 border-t border-[#F4F4F5]/10 bg-[#030035]/80 backdrop-blur-xl">
+        <div className="flex justify-center items-center gap-5 md:gap-10 mx-auto max-w-4xl px-4">
           {products.map((prod, i) => (
             <button
               key={prod.number}
               onClick={() => scrollToProduct(i)}
-              className="group relative flex-1 flex flex-col items-center gap-2 py-3.5 px-2 focus:outline-none hover:bg-[#F4F4F5]/[0.025] transition-colors duration-300"
+              className="group relative flex flex-col items-center gap-1.5 py-4 px-3 focus:outline-none hover:bg-[#E5997B]/10 rounded-xl transition-colors duration-300"
             >
-              <div
-                className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  active === i
-                    ? 'w-11 h-11 -translate-y-1.5'
-                    : 'w-7 h-7 opacity-40 group-hover:opacity-75'
-                }`}
-              >
-                <div className="relative w-full h-full drop-shadow-[0_0_8px_rgba(229,153,123,0.25)]">
+              <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] opacity-100 drop-shadow-md contrast-125 brightness-110 ${isDetailView && active === i ? 'w-14 h-14 -translate-y-2' : 'w-10 h-10'}`}>
+                <div className="relative w-full h-full">
                   <AnimatePresence>
-                    {active === i && (
+                    {isDetailView && active === i && (
                       <motion.div
                         key={`glow-${i}`}
                         initial={{ opacity: 0, scale: 0.6 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.6 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
-                        className="absolute inset-[-10px] bg-[#E5997B]/15 blur-xl rounded-full"
+                        className="absolute inset-[-12px] bg-[#E5997B]/60 blur-2xl rounded-full"
                       />
                     )}
                   </AnimatePresence>
-                  <ProductVisual index={i} isActive={active === i} />
+                  <ProductVisual index={i} isActive={isDetailView && active === i} inverted={true} />
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-0.5">
-                <span
-                  className="font-mono text-[8px] tracking-[0.4em] uppercase transition-colors duration-300"
-                  style={{ color: active === i ? '#E5997B' : 'rgba(244,244,245,0.2)' }}
-                >
-                  {prod.number}
-                </span>
-                <span
-                  className="font-display text-[10px] md:text-[12px] leading-tight truncate w-full text-center transition-colors duration-300"
-                  style={{ color: active === i ? 'rgba(244,244,245,0.88)' : 'rgba(244,244,245,0.2)' }}
-                >
+              <div className="flex flex-col items-center gap-1 mt-1">
+                <span className="font-display font-semibold text-[10px] md:text-[12px] leading-tight text-center transition-colors duration-300 whitespace-nowrap" style={{ color: isDetailView && active === i ? '#F4F4F5' : 'rgba(244,244,245,0.75)' }}>
                   {prod.label}
                 </span>
               </div>
 
-              {active === i && (
-                <motion.div
-                  layoutId="activePlanetDot"
-                  className="absolute bottom-1 w-1 h-1 bg-[#E5997B] rounded-full"
-                  transition={{ duration: 0.35 }}
-                />
+              {isDetailView && active === i && (
+                <motion.div layoutId="activePlanetDot" className="absolute bottom-1 w-1 h-1 bg-[#E5997B] rounded-full" transition={{ duration: 0.35 }} />
               )}
             </button>
           ))}
