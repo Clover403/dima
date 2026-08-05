@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import HoverTrailOverlay from '../HoverTrailOverlay'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import GeometryParticles from '../GeometryParticles'
@@ -80,22 +81,22 @@ export default function ModeloFuerzas() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative w-full bg-[#F4F1F5] py-32 md:py-48 section-padding overflow-hidden" style={{ zIndex: 1 }}>
+    <section ref={sectionRef} className="relative w-full bg-[#F4F1F5] py-24 md:py-36 section-padding overflow-hidden" style={{ zIndex: 1 }}>
       <div className="absolute inset-0 z-0 pointer-events-none">
         <GeometryParticles particleCount={140} opacity={0.05} />
       </div>
-      <div className="relative z-10 max-w-[95rem] mx-auto w-full">
-        <p className="section-label text-bronze font-body text-base md:text-lg tracking-[0.3em] uppercase mb-16 md:mb-24 font-semibold">
+      <div className="relative z-10 max-w-[85rem] mx-auto w-full">
+        <p className="section-label text-bronze font-body text-sm md:text-base tracking-[0.3em] uppercase mb-12 md:mb-16 font-semibold">
           Las Fuerzas Económicas
         </p>
 
         {/* ─── Block A: Ingreso por Productividad ─── */}
-        <div className="block-a grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-40 md:mb-56">
+        <div className="block-a grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-28 md:mb-40">
           <div>
-            <h3 className="reveal-el font-display text-5xl md:text-6xl lg:text-[5.5rem] text-navy leading-[1.1] tracking-tight mb-8">
+            <h3 className="reveal-el font-display text-4xl md:text-5xl lg:text-[4.5rem] text-navy leading-[1.1] tracking-tight mb-6">
               Ingreso por Productividad
             </h3>
-            <p className="reveal-el font-body text-navy/75 text-2xl md:text-3xl leading-relaxed">
+            <p className="reveal-el font-body text-navy/75 text-xl md:text-2xl leading-relaxed">
               En una transacción, algo debe darse para recibir algo, y lo que se recibe
               depende de cuánto se produce a lo largo del tiempo. Quienes son ingeniosos
               y trabajadores producen más, por lo tanto ganan más, lo que les da la
@@ -104,30 +105,32 @@ export default function ModeloFuerzas() {
             </p>
           </div>
 
-          <div className="reveal-el flex items-center justify-center">
+          <div className="reveal-el flex items-center justify-center relative cursor-none">
             <img 
               src="/illustration-compressed/models/penggiling.webp" 
               alt="Ingreso por Productividad" 
-              className="w-full max-w-2xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
+              className="w-full max-w-xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
             />
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
           </div>
         </div>
 
         {/* ─── Block B: Los Ciclos de Deuda ─── */}
-        <div className="block-b grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32 md:mb-48">
-          <div className="reveal-el flex items-center justify-center order-2 lg:order-1">
+        <div className="block-b grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-24 md:mb-36">
+          <div className="reveal-el flex items-center justify-center order-2 lg:order-1 relative cursor-none">
             <img 
               src="/illustration-compressed/models/balon2.webp" 
               alt="Los Ciclos de Deuda" 
-              className="w-full max-w-2xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
+              className="w-full max-w-xl aspect-square object-contain hover:scale-105 transition-transform duration-700 ease-out"
             />
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
           </div>
 
           <div className="order-1 lg:order-2">
-            <h3 className="reveal-el font-display text-5xl md:text-6xl lg:text-[5.5rem] text-navy leading-[1.1] tracking-tight mb-8">
+            <h3 className="reveal-el font-display text-4xl md:text-5xl lg:text-[4.5rem] text-navy leading-[1.1] tracking-tight mb-6">
               Los Ciclos de Deuda
             </h3>
-            <p className="reveal-el font-body text-navy/75 text-2xl md:text-3xl leading-relaxed">
+            <p className="reveal-el font-body text-navy/75 text-xl md:text-2xl leading-relaxed">
               Existen dos tipos: Ciclos de Deuda a Largo Plazo y Ciclos de Deuda a
               Corto Plazo. Cada vez que pedimos prestado, creamos un ciclo. Esto no
               se debe a ninguna ley o regulación, sino a la naturaleza humana y al
@@ -139,15 +142,15 @@ export default function ModeloFuerzas() {
           </div>
         </div>
 
-      {/* ─── Callout Box ─── */}
-<div className="callout-box relative border-l-[6px] border-bronze bg-white/50 backdrop-blur-md shadow-xl shadow-navy/5 px-8 md:px-12 py-8 md:py-10 max-w-4xl mx-auto rounded-2xl">
-  <p className="font-display text-xl md:text-2xl lg:text-3xl text-navy/90 leading-relaxed italic">
-    &ldquo;El crédito no es necesariamente algo malo. Es malo cuando financia
-    consumo que no puede ser pagado. Cuando los recursos se asignan de manera
-    eficiente y estratégica, generando suficiente ingreso para cubrir la
-    deuda — ahí es donde ocurre el verdadero crecimiento y desarrollo.&rdquo;
-  </p>
-</div>
+        {/* ─── Callout Box ─── */}
+        <div className="callout-box relative border-l-[5px] border-bronze bg-white/50 backdrop-blur-md shadow-xl shadow-navy/5 px-6 md:px-10 py-6 md:py-8 max-w-3xl mx-auto rounded-xl">
+          <p className="font-display text-lg md:text-xl lg:text-2xl text-navy/90 leading-relaxed italic">
+            &ldquo;El crédito no es necesariamente algo malo. Es malo cuando financia
+            consumo que no puede ser pagado. Cuando los recursos se asignan de manera
+            eficiente y estratégica, generando suficiente ingreso para cubrir la
+            deuda — ahí es donde ocurre el verdadero crecimiento y desarrollo.&rdquo;
+          </p>
+        </div>
       </div>
     </section>
   )
