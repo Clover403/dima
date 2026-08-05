@@ -1,6 +1,8 @@
 // src/components/proceso/ProcesoIntro.tsx
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion'
+// Pastikan path import ini sesuai dengan struktur foldermu
+import HoverTrailOverlay from '../HoverTrailOverlay'
 
 const BG_COLOR = '#030035'   // Navy
 const ACCENT = '#E5997B'     // Bronze
@@ -214,7 +216,8 @@ export default function ProcesoIntro() {
 
           {/* RIGHT — Area Immersive Full Layar Kesamping */}
           <div className="relative w-full lg:w-[50%] flex-1 py-6 lg:py-0 h-[75vh] lg:h-[85vh] flex flex-col justify-between">
-            <div className="relative w-full flex-1 overflow-hidden rounded-2xl shadow-2xl border border-white/5">
+            {/* Container Gambar yang diberi efek HoverTrailOverlay */}
+            <div className="relative w-full flex-1 overflow-hidden rounded-2xl shadow-2xl border border-white/5 cursor-none">
               {PHASES.map((phase, i) => (
                 <PhaseImage
                   key={phase.num}
@@ -224,6 +227,9 @@ export default function ProcesoIntro() {
                   count={PHASES.length}
                 />
               ))}
+              
+              {/* Efek Rasi Bintang ditambahkan di sini agar terisolasi di dalam gambar */}
+              <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
             </div>
 
             {/* Area teks kanan ditinggikan min-h nya menyesuaikan font deskripsi yang membesar */}
@@ -241,8 +247,6 @@ export default function ProcesoIntro() {
           </div>
           
         </div>
-
-        
       </div>
     </section>
   )
