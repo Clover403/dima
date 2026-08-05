@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { AnimatePresence, motion } from 'framer-motion'
+import HoverTrailOverlay from '../../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -133,7 +134,7 @@ export default function ServicesSection() {
       <div className="sticky top-0 w-full h-screen flex flex-col justify-between overflow-hidden bg-[#030035]">
 
         {/* === BAGIAN ATAS: GAMBAR (~80% HEIGHT) === */}
-        <div className="relative w-full h-[80vh] overflow-hidden bg-[#030035]">
+        <div className="relative w-full h-[80vh] overflow-hidden bg-[#030035] cursor-none">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={services[activeIdx].image}
@@ -151,6 +152,9 @@ export default function ServicesSection() {
               />
             </motion.div>
           </AnimatePresence>
+
+          {/* Hover Trail Overlay */}
+          <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
 
           {/* Vertical Progress Line */}
           <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-12 lg:left-16 flex flex-col items-center z-30">
