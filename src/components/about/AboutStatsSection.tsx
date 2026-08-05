@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 const STATS = [
   {
@@ -229,7 +230,8 @@ export default function AboutStatsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-[4fr_6fr] gap-20 lg:gap-56 xl:gap-64 items-center">
 
           {/* Polaroid Images Container */}
-          <div className="relative w-full h-[650px] md:h-[800px] flex justify-center items-center mt-10 lg:mt-0 perspective-1000">
+          <div className="relative w-full h-[650px] md:h-[800px] flex justify-center items-center mt-10 lg:mt-0 perspective-1000 cursor-none">
+            <HoverTrailOverlay theme="navy" className="absolute inset-0 z-30 pointer-events-auto w-full h-full" />
             {/* Wrapper Parallax untuk kedua polaroid, tanpa preserve-3d agar Z-Index tidak error */}
             <motion.div style={{ x: frontX, y: frontY, rotateX: tiltX, rotateY: tiltY }} className="relative w-full h-full flex justify-center items-center">
               
