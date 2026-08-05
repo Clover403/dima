@@ -5,6 +5,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import HoverTrailOverlay from "../../HoverTrailOverlay"; // Pastikan path ini sesuai
 
 const items = [
   {
@@ -92,7 +93,6 @@ function ScrollTextItem({ item, innerRef }: ScrollTextItemProps) {
       className="py-10 md:py-14 border-b border-[#F4F4F5]/10"
     >
       <div className="w-full flex items-start gap-6 md:gap-9 text-left">
-        {/* Diubah: Membungkus title dan desc di dalam div agar tersusun ke bawah */}
         <div className="flex-1 pr-6 md:pr-12">
           <h3 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[3.2rem] text-[#F4F4F5] font-normal leading-[1.2] tracking-tight mb-4">
             {item.title}
@@ -236,7 +236,8 @@ export default function ProductsToPhotoSection() {
               </div>
             </div>
 
-            <div className="relative w-full h-[85vh] rounded-2xl md:rounded-3xl overflow-hidden isolation-isolate -translate-y-6">
+            {/* Container Gambar Desktop */}
+            <div className="relative w-full h-[85vh] rounded-2xl md:rounded-3xl overflow-hidden isolation-isolate -translate-y-6 cursor-none">
               {items.map((item, index) => (
                 <ScrollImageItem
                   key={item.num}
@@ -244,6 +245,9 @@ export default function ProductsToPhotoSection() {
                   isActive={activeIndex === index}
                 />
               ))}
+
+              {/* Efek Rasi Bintang khusus di atas area gambar Desktop */}
+              <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
               
               <motion.div 
                 style={{ top: cutoutTop, y: cutoutY }} 
@@ -263,7 +267,8 @@ export default function ProductsToPhotoSection() {
           </div>
 
           <div className="relative z-10 w-full h-full flex flex-col lg:hidden pt-32">
-            <div className="relative w-full h-[68vh] shrink-0 overflow-hidden">
+            {/* Container Gambar Mobile */}
+            <div className="relative w-full h-[68vh] shrink-0 overflow-hidden cursor-none">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={mobileImageIndex}
@@ -277,11 +282,14 @@ export default function ProductsToPhotoSection() {
                 />
               </AnimatePresence>
 
+              {/* Efek Rasi Bintang khusus di atas area gambar Mobile */}
+              <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-10 w-full h-full" />
+
               <div className="absolute bottom-4 right-4 flex gap-2 z-20">
                 <button
                   type="button"
                   onClick={() => setMobileImageIndex((p) => (p === 0 ? items.length - 1 : p - 1))}
-                  className="w-10 h-10 rounded-full bg-[#030035]/70 backdrop-blur-sm border border-[#F4F4F5]/20 flex items-center justify-center text-[#F4F4F5]/70"
+                  className="w-10 h-10 rounded-full bg-[#030035]/70 backdrop-blur-sm border border-[#F4F4F5]/20 flex items-center justify-center text-[#F4F4F5]/70 pointer-events-auto"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -290,7 +298,7 @@ export default function ProductsToPhotoSection() {
                 <button
                   type="button"
                   onClick={() => setMobileImageIndex((p) => (p === items.length - 1 ? 0 : p + 1))}
-                  className="w-10 h-10 rounded-full bg-[#030035]/70 backdrop-blur-sm border border-[#F4F4F5]/20 flex items-center justify-center text-[#F4F4F5]/70"
+                  className="w-10 h-10 rounded-full bg-[#030035]/70 backdrop-blur-sm border border-[#F4F4F5]/20 flex items-center justify-center text-[#F4F4F5]/70 pointer-events-auto"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M5 2L10 7L5 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -304,7 +312,6 @@ export default function ProductsToPhotoSection() {
                 <span className="font-mono text-[1rem] text-[#F4F4F5]/50 font-semibold tracking-widest shrink-0 mt-1">
                   {items[mobileImageIndex].num}
                 </span>
-                {/* Diubah: Membungkus dan menampilkan judul dan deskripsi di tampilan mobile */}
                 <div className="flex-1 text-left">
                   <h3 className="font-display text-2xl text-[#F4F4F5] font-normal leading-[1.2] tracking-tight mb-2">
                     {items[mobileImageIndex].title}
