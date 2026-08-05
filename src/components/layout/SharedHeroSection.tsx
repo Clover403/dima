@@ -60,7 +60,7 @@ export default function SharedHeroSection({
       </div>
 
       <div className="hero-content relative text-center max-w-6xl px-8 pointer-events-none flex flex-col items-center z-[20]">
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex items-center justify-center gap-4 mb-20">
           <div className="w-8 h-px bg-[#E5997B]/50" />
           <p className="font-mono text-[#E5997B] text-[10px] tracking-[0.6em] uppercase">
             {eyebrowText}
@@ -68,23 +68,26 @@ export default function SharedHeroSection({
           <div className="w-8 h-px bg-[#E5997B]/50" />
         </div>
 
-        <InteractiveConstellationText
+      <InteractiveConstellationText
           lines={[
-            { text: titleTop, y: 155, color: '#F4F4F5' },
-            { text: titleBottom, y: 285, fontStyle: 'normal', color: '#E5997B' },
+            { text: titleTop, y: 50, color: '#F4F4F5' },
+            { text: titleBottom, y: 140, fontStyle: 'normal', color: '#E5997B' }, 
           ]}
-          viewBox="0 0 900 380"
-          defaultFontSize={170}
+          defaultFontSize={150} 
           fontFamily="'Playfair Display', serif"
-          className={`hero-word ${titleClassName}`.trim()}
-          containerClassName="pointer-events-auto mb-4 w-full"
+          className={`hero-word w-full ${titleClassName}`.trim()}
+          containerClassName="pointer-events-auto w-full h-[220px] shrink-0" 
         />
 
-        <p className="hero-subtext text-[#F4F4F5]/50 max-w-2xl text-xl md:text-2xl font-light leading-relaxed">
+        {/* --- BALOK SPACER ABSOLUT (Mengakali gap supaya fix di semua environment) --- */}
+        <div className="h-3 md:h-4 w-full shrink-0 pointer-events-none" />
+
+        {/* Pastikan margin-top di tag p dihapus (mt-0) agar murni mengandalkan spacer di atas */}
+        <p className="hero-subtext text-[#F4F4F5]/50 max-w-2xl text-xl md:text-2xl font-light leading-relaxed relative z-10 mt-0">
           {description}
         </p>
 
-        <div className="mt-8 flex flex-col items-center gap-2">
+        <div className="mt-12 flex flex-col items-center gap-2">
           <span className="text-[#F4F4F5]/20 text-[9px] tracking-[0.5em] uppercase font-mono">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />
         </div>
