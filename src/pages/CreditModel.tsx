@@ -4,6 +4,7 @@ import PageTransition from '../components/layout/PageTransition'
 import ModeloHero from '../components/modelo/ModeloHero'
 import ModeloFuerzas from '../components/modelo/ModeloFuerzas'
 import ModeloPrincipios from '../components/modelo/PrincipiosHero'
+import CTA from "../components/layout/CTA";
 
 
 export default function CreditModel() {
@@ -27,7 +28,7 @@ export default function CreditModel() {
       <ModeloFuerzas />
       <ModeloPrincipios />
 
-      {/* <ModeloCTA /> */}
+      <CTA theme="light" />
     </PageTransition>
   )
 }
