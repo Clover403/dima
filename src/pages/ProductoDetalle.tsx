@@ -1,3 +1,4 @@
+import HoverTrailOverlay from '../components/HoverTrailOverlay';
 import { useParams, Navigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -107,7 +108,7 @@ export default function ProductoDetalle() {
 
         {/* KOLOM KANAN */}
         <div className="hidden lg:flex w-[50%] h-full pr-[2vw] md:pr-[4vw] lg:pr-[5vw] items-center justify-end relative">
-          <div className="w-full max-w-2xl xl:max-w-4xl h-[75vh] relative rounded-3xl overflow-hidden group">
+          <div className="w-full max-w-2xl xl:max-w-4xl h-[75vh] relative rounded-3xl overflow-hidden group cursor-none">
 
             <AnimatePresence mode="wait">
               <motion.img
@@ -122,15 +123,18 @@ export default function ProductoDetalle() {
               />
             </AnimatePresence>
 
+            {/* Hover Trail Overlay */}
+            <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
+
             {/* Nomor Kiri Bawah (Di dalam gambar) */}
-            <div className="absolute bottom-10 left-8 z-20">
+            <div className="absolute bottom-10 left-8 z-20 pointer-events-none">
               <span className="font-mono text-xs text-[#E5997B] font-bold tracking-widest uppercase shadow-black drop-shadow-md">
                 {product.number} // Activating
               </span>
             </div>
 
             {/* BUTTON CTA Kanan Bawah (Di dalam gambar) */}
-            <div className="absolute bottom-6 right-6 z-30">
+            <div className="absolute bottom-6 right-6 z-30 pointer-events-auto">
               <Link
                 to={PRODUCTOS_CTA_LINK}
                 className="group relative inline-flex items-center justify-center px-8 py-4 bg-[#E5997B] text-white font-body font-medium text-sm tracking-[0.2em] uppercase transition-all duration-500 hover:bg-[#F4F4F5] hover:text-[#030035] hover:pl-12 border border-[#E5997B] shadow-[0_10px_30px_rgba(0,0,0,0.4)]"
