@@ -1,3 +1,4 @@
+import HoverTrailOverlay from '../components/HoverTrailOverlay';
 import { useEffect } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import PageTransition from '../components/layout/PageTransition'
@@ -89,13 +90,14 @@ export default function ServicioDetalle() {
                 </div>
                 
                 <div className="lg:col-span-5 flex items-start justify-center lg:-mt-12">
-                  <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl">
+                  <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl cursor-none">
                     <img 
                       src={service.image1} 
                       alt={service.name} 
                       className="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute inset-0 bg-[#030035]/10 mix-blend-multiply" />
+                    <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
                   </div>
                 </div>
               </div>
@@ -103,13 +105,14 @@ export default function ServicioDetalle() {
               {/* Bottom Section: Image Left, Text Right */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
                 <div className="lg:col-span-5 order-2 lg:order-1 flex items-center justify-center">
-                  <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl">
+                  <div className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl border border-[#F4F4F5]/10 shadow-2xl cursor-none">
                     <img 
                       src={service.image2} 
                       alt={service.name} 
                       className="absolute inset-0 w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700 ease-out"
                     />
                     <div className="absolute inset-0 bg-[#030035]/10 mix-blend-multiply" />
+                    <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
                   </div>
                 </div>
 
