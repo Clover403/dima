@@ -70,7 +70,6 @@ export default function DalioPrinciplesSection() {
     }
 
     const ctx = gsap.context(() => {
-      // Marquee animation
       gsap.to('.dalио-marquee', {
         xPercent: -100,
         repeat: -1,
@@ -78,7 +77,6 @@ export default function DalioPrinciplesSection() {
         ease: 'none',
       })
 
-      // Slides animation
       const slides = gsap.utils.toArray<HTMLElement>('.principle-slide')
 
       const tl = gsap.timeline({
@@ -115,12 +113,8 @@ export default function DalioPrinciplesSection() {
         }
       })
 
-      // ═══════════════════════════════════════════════════════════════════
-      // ANIMASI CEKUNGAN DINAMIS
-      // ═══════════════════════════════════════════════════════════════════
-      const maxCurve = 70 // Batas maksimal kedalaman kurva (agak turun supaya tidak over)
+      const maxCurve = 70 
 
-      // 1. Cekungan Atas: Mulai melurus saat section masuk layar dari bawah
       gsap.to({}, {
         scrollTrigger: {
           trigger: wrapperRef.current,
@@ -138,12 +132,11 @@ export default function DalioPrinciplesSection() {
         },
       })
 
-      // 2. Cekungan Bawah: Mencekung tepat saat mau ganti ke section berikutnya
       gsap.to({}, {
         scrollTrigger: {
           trigger: wrapperRef.current,
-          start: 'bottom 115%', // Mulai sebelum section habis persis
-          end: 'bottom 100%',   // Cekung sempurna saat menyentuh batas bawah section
+          start: 'bottom 115%', 
+          end: 'bottom 100%',   
           scrub: 1,
           onUpdate: (self) => {
             if (!bottomPathRef.current) return
@@ -168,139 +161,153 @@ export default function DalioPrinciplesSection() {
 
   return (
     <div
-    ref={wrapperRef}
-    className="relative"
-    style={{
-      height: '500vh',
-      zIndex: 25,
-    }}
+      ref={wrapperRef}
+      className="relative"
+      style={{
+        height: '500vh',
+        zIndex: 25,
+      }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-screen w-full">
         
-        <div ref={sectionRef} className="absolute inset-0 w-full h-full bg-transparent">
+        {/* CONTAINER KONTEN VANTA */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
           
-          <div className="absolute top-[15%] left-0 flex whitespace-nowrap opacity-[0.02] select-none pointer-events-none">
-            {[...Array(4)].map((_, i) => (
-              <span
-                key={i}
-                className="dalио-marquee font-display text-[15vw] leading-none uppercase pr-20 text-navy"
-              >
-                Dima Finance • Principles • Engineering • Balance •
-              </span>
-            ))}
-          </div>
+          <div ref={sectionRef} className="absolute inset-0 w-full h-full bg-transparent">
+            
+            <div className="absolute top-[15%] left-0 flex whitespace-nowrap opacity-[0.02] select-none pointer-events-none">
+              {[...Array(4)].map((_, i) => (
+                <span
+                  key={i}
+                  className="dalио-marquee font-display text-[15vw] leading-none uppercase pr-20 text-[#030035]"
+                >
+                  Dima Finance • Principles • Engineering • Balance •
+                </span>
+              ))}
+            </div>
 
-          <div
-            className="absolute inset-0 z-20 flex flex-col"
-            style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(16px) saturate(1.1)',
-              WebkitBackdropFilter: 'blur(16px) saturate(1.1)',
-            }}
-          >
-            <div className="relative w-full h-full flex flex-col">
-              
-              <div className="absolute left-10 bottom-10 z-30">
-                <div className="overflow-hidden h-[120px]">
-                  <div
-                    className="transition-transform duration-700 ease-out"
-                    style={{ transform: `translateY(-${activePrinciple * 120}px)` }}
-                  >
-                    {principles.map((_, i) => (
-                      <span key={i} className="block font-display text-9xl text-bronze leading-[120px]">
-                        0{i + 1}
-                      </span>
-                    ))}
+            <div
+              className="absolute inset-0 z-20 flex flex-col"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(16px) saturate(1.1)',
+                WebkitBackdropFilter: 'blur(16px) saturate(1.1)',
+              }}
+            >
+              <div className="relative w-full h-full flex flex-col">
+                
+                <div className="absolute left-6 bottom-6 md:left-10 md:bottom-10 z-30 origin-bottom-left scale-[0.70] md:scale-100">
+                  <div className="overflow-hidden h-[120px]">
+                    <div
+                      className="transition-transform duration-700 ease-out"
+                      style={{ transform: `translateY(-${activePrinciple * 120}px)` }}
+                    >
+                      {principles.map((_, i) => (
+                        <span key={i} className="block font-display text-9xl text-bronze leading-[120px]">
+                          0{i + 1}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                  <p className="text-[#030035]/60 font-body text-xs tracking-[0.5em] mt-4 uppercase">
+                    Principles of Wealth
+                  </p>
                 </div>
-                <p className="text-navy/40 font-body text-xs tracking-[0.5em] mt-4 uppercase">
-                  Principles of Wealth
-                </p>
-              </div>
 
-              <div ref={containerRef} className="relative w-full h-full flex-1">
-                {principles.map((p, i) => (
-                  <div
-                    key={i}
-                    className="principle-slide absolute inset-0 flex flex-col items-center justify-center px-8 md:px-24 lg:px-48"
-                  >
-                    <div className="max-w-6xl w-full">
-                      <div className="w-24 h-2 bg-bronze mb-12" />
-                      <h2 className="font-display text-4xl md:text-6xl lg:text-7xl text-navy leading-[1.1] mb-12">
-                        <span className="text-bronze italic">"</span>
-                        {p.quote}
-                        <span className="text-bronze italic">"</span>
-                      </h2>
-                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                        <div>
-                          <p className="text-navy font-body text-xl md:text-2xl font-bold">— Ray Dalio</p>
-                          <p className="text-navy/50 font-body text-sm tracking-widest uppercase mt-2">
-                            The Arc of Productivity
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-bronze font-body text-xs md:text-sm tracking-[0.6em] uppercase font-bold">
-                            {p.principle}
-                          </p>
+                <div ref={containerRef} className="relative w-full h-full flex-1">
+                  {principles.map((p, i) => (
+                    <div
+                      key={i}
+                      className="principle-slide absolute inset-0 flex flex-col items-center justify-center px-6 pt-10 pb-28 md:pt-0 md:pb-0 md:px-24 lg:px-48"
+                    >
+                      <div className="max-w-6xl w-full">
+                        <div className="w-16 md:w-24 h-1.5 md:h-2 bg-bronze mb-8 md:mb-12 mx-auto md:mx-0" />
+                        
+                        <h2 className="font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-[#030035] leading-[1.25] md:leading-[1.1] mb-8 md:mb-12 text-center md:text-left">
+                          <span className="text-bronze italic">"</span>
+                          {p.quote}
+                          <span className="text-bronze italic">"</span>
+                        </h2>
+                        
+                        <div className="flex flex-col items-center md:flex-row md:items-end justify-between gap-4 md:gap-8">
+                          <div className="text-center md:text-left">
+                            <p className="text-[#030035] font-body text-lg md:text-2xl font-bold">— Ray Dalio</p>
+                            <p className="text-[#030035]/50 font-body text-[10px] md:text-sm tracking-widest uppercase mt-1 md:mt-2">
+                              The Arc of Productivity
+                            </p>
+                          </div>
+                          <div className="text-center md:text-right mt-2 md:mt-0">
+                            <p className="text-bronze font-body text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.6em] uppercase font-bold">
+                              {p.principle}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="absolute right-12 top-0 h-full flex flex-col justify-center items-center gap-4 z-40">
-                <div className="h-[200px] w-[2px] bg-navy/10 relative">
-                  <div
-                    className="absolute top-0 left-0 w-full bg-bronze transition-all duration-500"
-                    style={{ height: `${((activePrinciple + 1) / principles.length) * 100}%` }}
-                  />
+                  ))}
                 </div>
-                <span className="text-navy font-body text-[10px] [writing-mode:vertical-lr] uppercase tracking-widest opacity-50">
-                  Scroll to explore
-                </span>
-              </div>
 
+                <div className="hidden md:flex absolute right-12 top-0 h-full flex-col justify-center items-center gap-4 z-40">
+                  <div className="h-[200px] w-[2px] bg-[#030035]/10 relative">
+                    <div
+                      className="absolute top-0 left-0 w-full bg-bronze transition-all duration-500"
+                      style={{ height: `${((activePrinciple + 1) / principles.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[#030035] font-body text-[10px] [writing-mode:vertical-lr] uppercase tracking-widest opacity-50">
+                    Scroll to explore
+                  </span>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* CEKUNGAN ATAS (Awalnya cekung di 90, melurus saat dimuat) */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="absolute top-0 left-0 w-full z-50 pointer-events-none text-navy">
+        {/* ========================================================================= */}
+        {/* CEKUNGAN ATAS (Patch Fix presisi tinggi tanpa memotong lengkungan) */}
+        {/* ========================================================================= */}
+        <div className="absolute top-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
+          {/* Balok penambal persis di ATAS SVG, turun 1px aja biar nyambung rapi */}
+          <div className="absolute left-0 right-0 bottom-full h-[20px] bg-[#030035] translate-y-[1px]"></div>
           <div className="relative w-full h-24 md:h-32">
             <svg
               viewBox="0 0 1440 120"
               fill="none"
               preserveAspectRatio="none"
-              className="w-full h-full"
+              className="w-full h-full block"
             >
               <path
                 ref={topPathRef}
                 d="M0,0 L1440,0 C1100,0 950,90 720,90 C490,90 340,0 0,0 Z"
                 fill="currentColor"
+                stroke="currentColor" 
+                strokeWidth="1"
               />
             </svg>
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        {/* CEKUNGAN BAWAH (Awalnya lurus di 0, mencekung saat ganti section) */}
-        {/* ═══════════════════════════════════════════════════════════════════ */}
-        <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-navy">
+        {/* ========================================================================= */}
+        {/* CEKUNGAN BAWAH (Patch Fix presisi tinggi tanpa memotong lengkungan) */}
+        {/* ========================================================================= */}
+        <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
+          {/* Balok penambal persis di BAWAH SVG, naik 1px aja biar nyambung rapi */}
+          <div className="absolute left-0 right-0 top-full h-[20px] bg-[#030035] -translate-y-[1px]"></div>
           <div className="relative w-full h-24 md:h-32">
             <svg
               viewBox="0 0 1440 120"
               fill="none"
               preserveAspectRatio="none"
-              className="w-full h-full"
+              className="w-full h-full block"
               style={{ transform: 'scaleY(-1)' }}
             >
               <path
                 ref={bottomPathRef}
                 d="M0,0 L1440,0 C1100,0 950,0 720,0 C490,0 340,0 0,0 Z"
                 fill="currentColor"
+                stroke="currentColor" 
+                strokeWidth="1"
               />
             </svg>
           </div>

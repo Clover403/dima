@@ -23,7 +23,9 @@ export default function HomeLegacy() {
       <HeroSection />
       <WhoWeAreSection />
       <ProductsToPhotoSection />
-      <ScrollMEF />
+      <div className="hidden lg:block">
+        <ScrollMEF />
+      </div>
       <ServicesSection />
       <CreditModelSection />
       <DalioPrinciplesSection />

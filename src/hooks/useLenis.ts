@@ -11,17 +11,24 @@ export function useLenis() {
   useEffect(() => {
     if (lenisInstance) return
 
-   // Deteksi Firefox
-    const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('firefox');
+    // Deteksi Browser dan OS
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+    const isFirefox = ua.includes('firefox');
+    const isLinux = ua.includes('linux') && !ua.includes('android');
+    const isWindows = ua.includes('windows');
+
+    // Linux: 0.45, Windows: 1.0 (Kembalikan ke normal)
+    let baseMultiplier = 1.0;
+    if (isLinux) baseMultiplier = 0.45;
+    if (isWindows) baseMultiplier = 2;
 
     const lenis = new Lenis({
-  duration: 1.3,
-  easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  smoothWheel: true,
-  
-  wheelMultiplier: isFirefox ? 1.6 : 0.45,
-  touchMultiplier: isFirefox ? 1.6 : 0.45,
-})
+      duration: 0.8, // Naikkan dari 1 ke 1.5 agar efek berhentinya lebih panjang dan elegan
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: isFirefox ? 1 : baseMultiplier,
+      touchMultiplier: isFirefox ? 1 : baseMultiplier,
+    })
 
     lenisInstance = lenis
 
@@ -33,19 +40,12 @@ export function useLenis() {
 
     gsap.ticker.add(onTick)
 
-    // Recalculate trigger positions after Lenis attaches.
     ScrollTrigger.refresh()
 
-    // Disable browser scroll restoration so reloads always start at the hero.
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual'
     }
 
-    // Single one-shot refresh after BOTH fonts have settled and the window
-    // has finished loading all assets. This catches the production case
-    // where useLayoutEffect ran before the layout was final, while avoiding
-    // mid-scroll refreshes that would re-fire pin onLeave callbacks and
-    // destabilize animations (e.g. TransparantDissolve clearing triangles).
     let cancelled = false
     let didFinalRefresh = false
     const finalRefresh = () => {
@@ -64,7 +64,6 @@ export function useLenis() {
 
     Promise.all([fontsReady, windowLoaded]).then(() => {
       if (cancelled) return
-      // One frame after both signals so layout has flushed.
       requestAnimationFrame(finalRefresh)
     })
 

@@ -67,6 +67,9 @@ function useEnvelopeDots(canvasRef: React.RefObject<HTMLCanvasElement>) {
 
     segments.forEach((_, i) => spawnDot(i))
     const spawnInterval = setInterval(() => {
+      // Jangan spawn titik baru jika di mobile
+      if (window.innerWidth < 768) return;
+
       segments.forEach((_, segIndex) => {
         if (dots.filter(d => d.segIndex === segIndex).length === 0) {
           spawnDot(segIndex)
@@ -75,9 +78,15 @@ function useEnvelopeDots(canvasRef: React.RefObject<HTMLCanvasElement>) {
     }, 1500)
 
     let raf = 0
-    const color = '3,0,53' 
+    const color = '3,0,53' // Tetap navy untuk desktop
 
     const draw = () => {
+      // Hentikan proses render di mobile untuk menghemat performa
+      if (window.innerWidth < 768) {
+        raf = requestAnimationFrame(draw)
+        return
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       const scaleX = canvas.width / 100
       const scaleY = canvas.height / 100
@@ -156,14 +165,12 @@ export default function Footer() {
   useEnvelopeDots(dotsCanvasRef as React.RefObject<HTMLCanvasElement>)
 
   return (
-    // Margin negatif dikurangi sedikit (-mt-12 md:-mt-20)
     <footer className="relative z-20 w-full min-h-screen flex flex-col bg-transparent -mt-12 md:-mt-20">
       
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* LAYER BACKGROUND (Cekungan Bolong & Warna Solid) */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
       <div className="absolute inset-0 z-0 flex flex-col pointer-events-none">
-        {/* Tinggi cekungan disesuaikan (h-12 md:h-20) */}
         <div className="relative z-10 w-full h-12 md:h-20 text-bronze -mb-[1px]">
           <svg
             viewBox="0 0 1440 100"
@@ -183,20 +190,19 @@ export default function Footer() {
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* SPACER ATAS (Mengosongkan area kurva agar tidak tertutup konten) */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* Tinggi spacer disesuaikan (h-12 md:h-20) */}
       <div className="w-full h-12 md:h-20 shrink-0 relative z-10 pointer-events-none" />
 
       {/* ═══════════════════════════════════════════════════════════════════ */}
       {/* KONTEN FOOTER */}
       {/* ═══════════════════════════════════════════════════════════════════ */}
-      {/* Padding horizontal sedikit dikurangi */}
       <div className="relative z-10 px-5 md:px-10 lg:px-20 pb-8 flex-1 flex flex-col">
         
         {/* ===== GARIS BACKGROUND BENTUK AMPLOP (MAIL) ===== */}
+        {/* Menggunakan hidden md:block agar tidak tampil di mobile */}
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
-          className="absolute inset-0 w-full h-full pointer-events-none text-navy opacity-30 z-0"
+          className="hidden md:block absolute inset-0 w-full h-full pointer-events-none text-navy opacity-30 z-0"
           aria-hidden="true"
         >
           <path
@@ -211,24 +217,22 @@ export default function Footer() {
         </svg>
 
         {/* ===== Canvas titik animasi jalan di sepanjang garis amplop ===== */}
+        {/* Menggunakan hidden md:block agar tidak tampil di mobile */}
         <canvas
           ref={dotsCanvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-0"
+          className="hidden md:block absolute inset-0 w-full h-full pointer-events-none z-0"
         />
 
         {/* Teks dan Navigasi */}
         <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col relative z-10">
           
           {/* ===== CTA Section ===== */}
-          {/* py-20 turun jadi py-16 */}
           <div className="flex-1 flex flex-col justify-center items-center py-16 text-center border-b border-navy/20">
             <div className="max-w-6xl mx-auto space-y-10 md:space-y-14 mb-8 md:mb-12">
-              {/* Teks judul dikecilkan sedikit */}
               <h2 className="font-display text-4xl md:text-6xl lg:text-[6rem] text-navy leading-[1.05] tracking-tight uppercase">
                 ¿Listo para estructurar su crecimiento?
               </h2>
               <div className="flex flex-wrap items-center justify-center gap-5 pt-2">
-                {/* Ukuran tombol dan teks tombol dikecilkan sedikit */}
                 <a
                   href="https://calendly.com/corporativo-dimafinance/30min"
                   target="_blank"
@@ -259,7 +263,6 @@ export default function Footer() {
               </div>
 
               <div className="col-span-1">
-                {/* Title kolom text-sm jadi text-xs, margin bawah dikurangi */}
                 <h4 className="font-display text-xs text-navy tracking-widest uppercase mb-4 font-bold">
                   Navegación
                 </h4>
@@ -332,7 +335,6 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* mt-20 jadi mt-16 */}
             <div className="mt-16 flex flex-col md:flex-row items-center justify-between gap-5">
               <div className="order-2 md:order-1">
                 <p className="text-xs text-navy">

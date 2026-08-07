@@ -35,27 +35,25 @@ export default function HeroSection() {
 
   // Parallax controls
   const parallaxOpacity = useTransform(scrollYProgress, (v) => v >= SEQUENCE_END ? 1 : 0);
-  const backgroundY = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '-5%']);
-  const backgroundX = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '3%']);
+  const backgroundY = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '10%']);
+  const backgroundScale = useTransform(scrollYProgress, [PARALLAX_START, 1], [1.05, 1.25]);
   const foregroundY = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '15%']);
-  const foregroundX = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '-3%']);
+  const foregroundX = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '3%']);
+  
   // DIMA FINANCE Text controls
-  // 0.75 - 0.80: Fade in
-  // 0.80 - 0.85: Pause (fully visible)
-  // 0.85 - 0.95: Fade out & split
   const dimaOpacity = useTransform(
     scrollYProgress,
     [PARALLAX_START, PARALLAX_START + 0.05, PARALLAX_START + 0.10, PARALLAX_START + 0.20, 1],
     [0, 1, 1, 0, 0]
   );
   const dimaLeftX = useTransform(
-    scrollYProgress, 
-    [PARALLAX_START + 0.10, PARALLAX_START + 0.20], 
+    scrollYProgress,
+    [PARALLAX_START + 0.10, PARALLAX_START + 0.20],
     ['0%', '-50%']
   );
   const dimaRightX = useTransform(
-    scrollYProgress, 
-    [PARALLAX_START + 0.10, PARALLAX_START + 0.20], 
+    scrollYProgress,
+    [PARALLAX_START + 0.10, PARALLAX_START + 0.20],
     ['0%', '50%']
   );
 
@@ -70,51 +68,48 @@ export default function HeroSection() {
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#F4F4F5] flex">
 
         {/* 1. Scroll Sequence Layer (z-0) */}
-        <motion.div 
+        <motion.div
           className="absolute inset-x-0 bottom-0 z-0 flex justify-center h-[105%] bg-[#F4F4F5] cursor-none"
           style={{ opacity: sequenceOpacity }}
         >
-          <ScrollSequence 
-            progress={sequenceProgress} 
-            frameCount={heroSequenceFrames.length} 
-            imagePaths={heroSequenceFrames} 
-            className="object-bottom contrast-105"
+          <ScrollSequence
+            progress={sequenceProgress}
+            frameCount={heroSequenceFrames.length}
+            imagePaths={heroSequenceFrames}
+            className="object-cover md:object-contain object-bottom contrast-105"
           />
           <HoverTrailOverlay
             theme="lightgray"
             className="absolute inset-0 w-full h-full"
           />
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-black pointer-events-none"
             style={{ opacity: overlayOpacity }}
           />
         </motion.div>
 
-       {/* Initial Logo & Text (z-15) - Muncul di awal, lalu pudar saat scroll */}
-<motion.div 
-  className="absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2 z-15 pointer-events-none flex flex-col items-center"
-  style={{ opacity: initialLogoOpacity }}
->
-  <img src="/logo/Imagen 1.png" alt="Logo" className="w-60 md:w-80 lg:w-[20rem] h-auto mb-5 md:mb-6" />          
-  
-  <div className="flex flex-col items-center mt-3">
-    {/* PERBAIKAN DIMA (AWAL) */}
-    <h1
-      className="relative -left-1 lg:-left-2 leading-[0.85] tracking-tight font-normal text-[4rem] md:text-[5rem] lg:text-[7.5rem]"
-      style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '-0.02em' }}
-    >
-      DIMA
-    </h1>
-    
-    {/* PERBAIKAN FINANCE (AWAL) */}
-    <h1
-      className="leading-[0.85] tracking-normal font-medium text-[2.5rem] md:text-[3.2rem] lg:text-[4rem]"
-      style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.06em' }}
-    >
-      FINANCE
-    </h1>
-  </div>
-</motion.div>
+        {/* Initial Logo & Text (z-15) */}
+        <motion.div
+          className="absolute left-1/2 top-[56%] -translate-x-1/2 -translate-y-1/2 z-15 pointer-events-none flex flex-col items-center"
+          style={{ opacity: initialLogoOpacity }}
+        >
+          <img src="/logo/Imagen 1.png" alt="Logo" className="w-60 md:w-80 lg:w-[20rem] h-auto mb-5 md:mb-6" />
+
+          <div className="flex flex-col items-center mt-3">
+            <h1
+              className="relative -left-1 lg:-left-2 leading-[0.85] tracking-tight font-normal text-[4rem] md:text-[5rem] lg:text-[7.5rem]"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '-0.02em' }}
+            >
+              DIMA
+            </h1>
+            <h1
+              className="leading-[0.85] tracking-normal font-medium text-[2.5rem] md:text-[3.2rem] lg:text-[4rem]"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.06em' }}
+            >
+              FINANCE
+            </h1>
+          </div>
+        </motion.div>
 
         {/* 2. Text Layer: chapter narasi (z-10) */}
         <motion.div
@@ -144,9 +139,9 @@ export default function HeroSection() {
             const chapterVisibility = useTransform(chapterOpacity, (v) => v > 0 ? "visible" : "hidden");
 
             return (
-              <motion.div 
-                key={i} 
-                className={`absolute left-6 md:left-12 lg:left-16 w-[90%] md:w-[65%] lg:w-[55%] max-w-none lg:max-w-[55vw] ${isBottom ? 'bottom-24 md:bottom-32 lg:bottom-36' : 'top-32 md:top-40 lg:top-48'}`} 
+              <motion.div
+                key={i}
+                className={`absolute left-6 md:left-12 lg:left-16 w-[90%] md:w-[65%] lg:w-[55%] max-w-none lg:max-w-[55vw] ${isBottom ? 'bottom-24 md:bottom-32 lg:bottom-36' : 'top-32 md:top-40 lg:top-48'}`}
                 style={{ opacity: chapterOpacity, visibility: chapterVisibility }}
               >
                 <HybridRevealText
@@ -166,13 +161,13 @@ export default function HeroSection() {
 
         {/* 3. Parallax Layer (z-20) */}
         <div className="absolute inset-0 z-20 pointer-events-none">
-          
+
           {/* Parallax Background */}
           <motion.div
-            className="absolute inset-x-0 bottom-0 z-0 flex justify-center h-[105%]"
-            style={{ opacity: parallaxOpacity, y: backgroundY, x: backgroundX }}
+            className="absolute inset-x-0 bottom-0 z-0 flex justify-center h-[105%] origin-bottom"
+            style={{ opacity: parallaxOpacity, y: backgroundY, scale: backgroundScale }}
           >
-            <img src="/illustration-compressed/home/temple6.webp" alt="Temple Background" className="w-full h-full object-cover object-bottom" />
+            <img src="/illustration-compressed/home/temple6.webp" alt="Temple Background" className="w-full h-full object-cover md:object-contain object-bottom" />
           </motion.div>
 
           {/* DIMA & FINANCE Text Parallax */}
@@ -180,17 +175,15 @@ export default function HeroSection() {
             className="absolute z-10 top-[15%] md:top-[16%] left-0 w-full pl-6 md:pl-12 lg:pl-16"
           >
             <motion.div style={{ opacity: dimaOpacity, x: dimaLeftX }}>
-              {/* PERBAIKAN DIMA (BESAR): letterSpacing dikurangi */}
               <h1
                 className="leading-[0.8] tracking-tight font-normal text-[24vw] md:text-[20vw] lg:text-[17vw]"
-                style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#030035', letterSpacing: '-0.02em'}}
+                style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#030035', letterSpacing: '-0.02em' }}
               >
                 DIMA
               </h1>
             </motion.div>
 
             <motion.div style={{ opacity: dimaOpacity, x: dimaRightX }}>
-              {/* PERBAIKAN FINANCE (BESAR): letterSpacing dikurangi */}
               <h1
                 className="leading-[0.8] tracking-tight font-normal text-[24vw] md:text-[20vw] lg:text-[17vw]"
                 style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#030035', letterSpacing: '-0.02em' }}
@@ -205,7 +198,7 @@ export default function HeroSection() {
             className="absolute inset-x-0 bottom-0 z-20 flex justify-center h-[105%]"
             style={{ opacity: parallaxOpacity, y: foregroundY, x: foregroundX }}
           >
-            <img src="/illustration-compressed/home/temple9.webp" alt="Temple Foreground" className="w-full h-full object-cover object-bottom" />
+            <img src="/illustration-compressed/home/temple9.webp" alt="Temple Foreground" className="w-full h-full object-cover md:object-contain object-bottom" />
           </motion.div>
         </div>
 
