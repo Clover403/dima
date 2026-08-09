@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { AnimatePresence, motion } from 'framer-motion'
-import HoverTrailOverlay from '../../HoverTrailOverlay';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -76,8 +76,8 @@ const imageVariants = {
   exit: (direction: number) => ({
     y: direction > 0 ? '-100%' : '0%',
     zIndex: direction > 0 ? 10 : 1,
-    transition: direction > 0 
-      ? { duration: 0.8, ease: easeCurtain } 
+    transition: direction > 0
+      ? { duration: 0.8, ease: easeCurtain }
       : { duration: 0, delay: 0.8 }
   }),
 }
@@ -164,9 +164,8 @@ export default function ServicesSection() {
                   className="group py-2 focus:outline-none flex items-center gap-3"
                 >
                   <span
-                    className={`font-mono text-xs md:text-sm transition-all duration-300 ${
-                      activeIdx === i ? 'text-[#E5997B] font-bold scale-125' : 'text-[#F4F4F5]/40 group-hover:text-[#F4F4F5]/80'
-                    }`}
+                    className={`font-mono text-xs md:text-sm transition-all duration-300 ${activeIdx === i ? 'text-[#E5997B] font-bold scale-125' : 'text-[#F4F4F5]/40 group-hover:text-[#F4F4F5]/80'
+                      }`}
                   >
                     {svc.number}
                   </span>
@@ -175,9 +174,8 @@ export default function ServicesSection() {
                 {i < services.length - 1 && (
                   <div className="w-[2px] h-6 md:h-10 bg-[#F4F4F5]/20 relative overflow-hidden">
                     <div
-                      className={`w-full bg-[#E5997B] transition-all duration-500 ${
-                        activeIdx > i ? 'h-full' : activeIdx === i ? 'h-1/2' : 'h-0'
-                      }`}
+                      className={`w-full bg-[#E5997B] transition-all duration-500 ${activeIdx > i ? 'h-full' : activeIdx === i ? 'h-1/2' : 'h-0'
+                        }`}
                     />
                   </div>
                 )}
@@ -189,9 +187,9 @@ export default function ServicesSection() {
         {/* === BAGIAN BAWAH: TEKS (Sisa layar agar bebas overlapping) === */}
         {/* Menggunakan flex-1 agar teks mengisi sisa ruang tanpa terpotong */}
         <div className="flex-1 w-full bg-[#030035] text-[#F4F4F5] flex items-center px-6 md:px-12 lg:px-16 border-t border-[#F4F4F5]/10 z-30 py-4 lg:py-0">
-          
+
           <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-6 lg:gap-8 items-center lg:ml-12">
-            
+
             {/* Kolom Kiri: Judul & Nomor */}
             <div className="lg:col-span-4 flex flex-col justify-center text-left">
               <div className="overflow-hidden mb-1 md:mb-2">

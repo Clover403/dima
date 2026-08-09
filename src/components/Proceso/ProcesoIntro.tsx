@@ -1,7 +1,6 @@
 // src/components/proceso/ProcesoIntro.tsx
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion'
-// Pastikan path import ini sesuai dengan struktur foldermu
 import HoverTrailOverlay from '../HoverTrailOverlay'
 
 const BG_COLOR = '#030035'   // Navy
@@ -49,8 +48,6 @@ function PhaseImage({
   const start = index * segment
   const end = start + segment
   
-  // Membuat interval crossfade perlahan yang saling bertumpuk (overlap)
-  // agar gambar tidak pernah menghilang menjadi background kosong / berkedip
   const fadeInStart = Math.max(0, start - segment / 2)
   const fadeInEnd = start + segment / 4
   const fadeOutStart = end - segment / 4
@@ -105,25 +102,25 @@ function PhaseText({
   )
 
   return (
-  <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0 pl-2 md:pl-6">
+    <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0 pl-0 lg:pl-6">
       <span
-        className="font-mono text-xs tracking-[0.5em] uppercase"
+        className="font-mono text-[10px] lg:text-xs tracking-[0.5em] uppercase"
         style={{ color: ACCENT }}
       >
         {phase.code}
       </span>
-      {/* Diperbesar menjadi text-4xl hingga 3.5vw */}
-     <h3
-        className="mt-4 text-4xl md:text-[3.5vw] leading-[1.1] font-light tracking-tight"
+      {/* Teks untuk desktop dan mobile disesuaikan ukurannya */}
+      <h3
+        className="mt-2 lg:mt-4 text-2xl lg:text-[3.5vw] leading-[1.1] font-light tracking-tight"
         style={{ fontFamily: "'Playfair Display', serif", fontStyle: 'normal', color: TEXT_MAIN }}
       >
         {phase.label}
       </h3>
-      {/* Batas lebar max-w-2xl diubah ke max-w-3xl agar teks deskripsi memanjang lebih ke kanan */}
+      {/* Deskripsi diperkecil untuk mobile, desktop tetap memanjang */}
       <p
-        className="mt-5 max-w-4xl text-[1.25rem] md:text-[1.4rem] leading-[1.75]"
-        style={{ fontFamily: "'Inter Tight', sans-serif", fontWeight: 300, color: TEXT_MUTED }}
-      >
+  className="mt-2 lg:mt-5 max-w-4xl text-base lg:text-[1.4rem] leading-relaxed lg:leading-[1.75]"
+  style={{ fontFamily: "'Inter Tight', sans-serif", fontWeight: 300, color: TEXT_MUTED }}
+>
         {phase.desc}
       </p>
     </motion.div>
@@ -150,7 +147,7 @@ function IndicatorDot({
   )
 
   return (
-    <motion.div style={{ opacity }} className="h-[2px] w-12">
+    <motion.div style={{ opacity }} className="h-[2px] w-8 lg:w-12">
       <div className="w-full h-full" style={{ backgroundColor: ACCENT }} />
     </motion.div>
   )
@@ -164,7 +161,7 @@ function PhaseIndicator({
   count: number
 }) {
   return (
-    <div className="flex items-center gap-3 mt-12">
+    <div className="flex items-center gap-2 lg:gap-3 mt-6 lg:mt-12">
       {Array.from({ length: count }).map((_, i) => (
         <IndicatorDot key={i} index={i} scrollYProgress={scrollYProgress} count={count} />
       ))}
@@ -182,11 +179,38 @@ export default function ProcesoIntro() {
       className="relative w-full"
       style={{ backgroundColor: BG_COLOR, height: `${PHASES.length * 100}vh` }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="relative z-10 h-full w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 max-w-none mx-auto px-8 md:px-16 xl:px-24">
+      {/* ─── MOBILE ONLY: Intro text (Scrolls naturally, not sticky) ─── */}
+      <div className="lg:hidden block px-6 pt-20 pb-8 relative z-20">
+        <span
+          className="font-mono text-[10px] tracking-[0.6em] uppercase mb-4 block"
+          style={{ color: ACCENT }}
+        >
+          Metodología
+        </span>
+        <h2
+          className="text-3xl leading-[1.1] tracking-tight font-normal"
+          style={{ fontFamily: "'Playfair Display', serif", color: TEXT_MAIN }}
+        >
+          Tres fases.{' '}
+          <span style={{ color: ACCENT, fontStyle: 'normal' }}>Una arquitectura</span>{' '}
+          financiera.
+        </h2>
+        <p
+          className="mt-4 text-base leading-relaxed"
+          style={{ fontFamily: "'Inter Tight', sans-serif", fontWeight: 300, color: TEXT_MUTED }}
+        >
+          Cada estructura de capital comienza con un diagnóstico profundo y termina en
+          escalabilidad sostenida. Así transformamos balances corporativos en instrumentos
+          de crecimiento.
+        </p>
+      </div>
 
-          {/* LEFT — Teks Utama Dibuat Raksasa (Giant Typography) */}
-          <div className="flex flex-col justify-center w-full lg:w-[45%] shrink-0 py-6 lg:py-0">
+      {/* ─── STICKY AREA ─── */}
+      <div className="sticky top-0 h-[100dvh] lg:h-screen w-full overflow-hidden flex flex-col justify-center">
+        <div className="relative z-10 w-full h-full lg:h-auto flex flex-col lg:flex-row items-center justify-between gap-0 lg:gap-20 max-w-none mx-auto px-6 md:px-16 xl:px-24 py-8 lg:py-0">
+
+          {/* DESKTOP ONLY: Teks Utama Raksasa Kiri */}
+          <div className="hidden lg:flex flex-col justify-center w-full lg:w-[45%] shrink-0">
             <span
               className="font-mono text-xs tracking-[0.6em] uppercase mb-6 block"
               style={{ color: ACCENT }}
@@ -201,7 +225,6 @@ export default function ProcesoIntro() {
               <span style={{ color: ACCENT, fontStyle: 'normal' }}>Una arquitectura</span>{' '}
               financiera.
             </h2>
-            {/* Ukuran deskripsi utama kiri diperbesar agar lebih terbaca (text-[1.35rem] md:text-[1.5rem]) */}
             <p
               className="mt-8 max-w-xl text-[1.35rem] md:text-[1.5rem] leading-[1.8]"
               style={{ fontFamily: "'Inter Tight', sans-serif", fontWeight: 300, color: TEXT_MUTED }}
@@ -214,10 +237,15 @@ export default function ProcesoIntro() {
             <PhaseIndicator scrollYProgress={scrollYProgress} count={PHASES.length} />
           </div>
 
-          {/* RIGHT — Area Immersive Full Layar Kesamping */}
-          <div className="relative w-full lg:w-[50%] flex-1 py-6 lg:py-0 h-[75vh] lg:h-[85vh] flex flex-col justify-between">
-            {/* Container Gambar yang diberi efek HoverTrailOverlay */}
-            <div className="relative w-full flex-1 overflow-hidden rounded-2xl shadow-2xl border border-white/5 cursor-none">
+          {/* RIGHT — Area Gambar dan Teks Fase (Muncul di Mobile dan Desktop) */}
+          <div className="relative w-full lg:w-[50%] h-full lg:h-[85vh] flex flex-col justify-between lg:justify-between pb-8 lg:pb-0">
+            {/* Indikator fase untuk mobile (Desktop menggunakan indikator di sebelah kiri) */}
+            <div className="lg:hidden mb-4">
+              <PhaseIndicator scrollYProgress={scrollYProgress} count={PHASES.length} />
+            </div>
+
+            {/* Container Gambar: Di mobile ambil ~60% tinggi, di desktop ambil sisa flex */}
+            <div className="relative w-full h-[50%] md:h-[55%] lg:h-auto lg:flex-1 overflow-hidden rounded-2xl shadow-2xl border border-white/5 cursor-none shrink-0 mb-6 lg:mb-0">
               {PHASES.map((phase, i) => (
                 <PhaseImage
                   key={phase.num}
@@ -227,13 +255,11 @@ export default function ProcesoIntro() {
                   count={PHASES.length}
                 />
               ))}
-              
-              {/* Efek Rasi Bintang ditambahkan di sini agar terisolasi di dalam gambar */}
               <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
             </div>
 
-            {/* Area teks kanan ditinggikan min-h nya menyesuaikan font deskripsi yang membesar */}
-            <div className="relative mt-10 min-h-[280px] md:min-h-[220px]">
+            {/* Container Teks Fase: Di mobile ambil sisanya agar tidak bertabrakan */}
+            <div className="relative w-full h-[35%] lg:h-auto lg:min-h-[220px] lg:mt-10 shrink-0">
               {PHASES.map((phase, i) => (
                 <PhaseText
                   key={phase.num}

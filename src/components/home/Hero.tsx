@@ -1,8 +1,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import HoverTrailOverlay from '../../HoverTrailOverlay';
-import ScrollSequence from '../../ScrollSequence';
-import HybridRevealText from '../../HybridRevealText';
+import HoverTrailOverlay from '../HoverTrailOverlay';
+import ScrollSequence from '../ScrollSequence';
+import HybridRevealText from '../HybridRevealText';
 
 const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
 const hero1Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero1_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
@@ -39,7 +39,7 @@ export default function HeroSection() {
   const backgroundScale = useTransform(scrollYProgress, [PARALLAX_START, 1], [1.05, 1.25]);
   const foregroundY = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '15%']);
   const foregroundX = useTransform(scrollYProgress, [PARALLAX_START, 1], ['0%', '3%']);
-  
+
   // DIMA FINANCE Text controls
   const dimaOpacity = useTransform(
     scrollYProgress,

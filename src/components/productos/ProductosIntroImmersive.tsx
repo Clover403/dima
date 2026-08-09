@@ -110,12 +110,23 @@ export default function ProductosIntroImmersive() {
       ref={sectionRef}
       className="relative min-h-screen w-full flex items-center justify-center bg-[#E5E5E5] z-20 overflow-hidden"
     >
+      {/* ── CSS Khusus untuk Teks Stroke Responsif ── */}
+      {/* Mengurangi ketebalan stroke menjadi 1px di mobile agar lebih elegan dan bersih, kembali ke 2px di desktop */}
+      <style>{`
+        .stroke-navy { -webkit-text-stroke: 1px #030035; }
+        .stroke-bronze { -webkit-text-stroke: 1px #E5997B; }
+        @media (min-width: 768px) {
+          .stroke-navy { -webkit-text-stroke: 2px #030035; }
+          .stroke-bronze { -webkit-text-stroke: 2px #E5997B; }
+        }
+      `}</style>
+
       {/* ── Layer RippleGrid Background (Statis & Ringan) ── */}
       <RippleGrid />
 
-      {/* ── Cekungan Atas (Statis Permanen) ── */}
+      {/* ── Cekungan Atas (Tinggi diturunkan menjadi 100px di mobile) ── */}
       <div className="absolute top-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
-        <div className="relative w-full h-[250px] md:h-[400px]">
+        <div className="relative w-full h-[100px] sm:h-[150px] md:h-[400px]">
           <svg viewBox="0 0 1440 400" fill="none" preserveAspectRatio="none" className="w-full h-full">
             <path
               d="M0,0 L0,400 C320,400 480,180 720,180 C960,180 1120,400 1440,400 L1440,0 Z"
@@ -125,9 +136,9 @@ export default function ProductosIntroImmersive() {
         </div>
       </div>
 
-      {/* ── Cekungan Bawah (Statis Permanen) ── */}
+      {/* ── Cekungan Bawah (Tinggi diturunkan menjadi 100px di mobile) ── */}
       <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none text-[#030035]">
-        <div className="relative w-full h-[250px] md:h-[400px]">
+        <div className="relative w-full h-[100px] sm:h-[150px] md:h-[400px]">
           <svg
             viewBox="0 0 1440 400"
             fill="none"
@@ -143,19 +154,17 @@ export default function ProductosIntroImmersive() {
         </div>
       </div>
 
-      {/* ── Konten Teks ── */}
-      <div className="relative z-10 max-w-6xl mx-auto text-center px-8 py-20 flex flex-col items-center">
-        <p className="font-body text-[#E5997B] text-sm tracking-[0.4em] uppercase mb-12 font-bold">
+      {/* ── Konten Teks (Padding vertikal ditambah untuk mengimbangi cekungan) ── */}
+      <div className="relative z-10 max-w-6xl mx-auto text-center px-6 md:px-8 py-32 md:py-20 flex flex-col items-center">
+        <p className="font-body text-[#E5997B] text-xs md:text-sm tracking-[0.4em] uppercase mb-8 md:mb-12 font-bold">
           Nuestros Productos
         </p>
 
         {/* ── Baris Teks 1 ── */}
         <h2 
-          className="font-display font-normal leading-tight tracking-tight mb-4 flex flex-wrap justify-center text-5xl md:text-7xl lg:text-8xl"
-          style={{ WebkitTextStroke: '2px #030035' }}
+          className="font-display font-normal leading-tight tracking-tight mb-2 md:mb-4 flex flex-wrap justify-center text-5xl sm:text-6xl md:text-7xl lg:text-8xl stroke-navy"
         >
           {words1.map((word, wIndex) => (
-            // Bungkus per kata pakai inline-block supaya gak putus di tengah jalan
             <span key={wIndex} className="inline-block whitespace-nowrap mr-[0.25em]">
               {word.split("").map((char, cIndex) => (
                 <span key={cIndex} className="char-line-1">{char}</span>
@@ -165,9 +174,8 @@ export default function ProductosIntroImmersive() {
         </h2>
 
         {/* ── Baris Teks 2 ── */}
-        <h2 
-          className="font-display font-normal leading-tight tracking-tight flex flex-wrap justify-center text-5xl md:text-7xl lg:text-8xl"
-          style={{ WebkitTextStroke: '2px #E5997B' }}
+       <h2 
+          className="font-display font-normal leading-tight tracking-tight flex flex-wrap justify-center text-5xl sm:text-6xl md:text-7xl lg:text-8xl stroke-bronze"
         >
           {words2.map((word, wIndex) => (
             <span key={wIndex} className="inline-block whitespace-nowrap mr-[0.25em]">
@@ -178,13 +186,13 @@ export default function ProductosIntroImmersive() {
           ))}
         </h2>
 
-        <p className="font-body text-[#030035]/70 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mt-12 font-medium">
-          Cada producto está diseñado como una pieza di ingeniería financiera.
+        <p className="font-body text-[#030035]/70 text-sm md:text-xl leading-relaxed max-w-2xl mx-auto mt-8 md:mt-12 font-medium px-4 md:px-0">
+          Cada producto está diseñado como una pieza de ingeniería financiera.
           La mayoría de los créditos pueden adaptarse a las circunstancias y
-          necesidades di cada cliente.
+          necesidades de cada cliente.
         </p>
 
-        <div className="accent-line w-24 h-px bg-[#E5997B] mx-auto mt-12 origin-center" />
+        <div className="accent-line w-16 md:w-24 h-px bg-[#E5997B] mx-auto mt-8 md:mt-12 origin-center" />
       </div>
     </section>
   )

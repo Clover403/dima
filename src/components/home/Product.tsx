@@ -5,7 +5,7 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import HoverTrailOverlay from "../../HoverTrailOverlay"; 
+import HoverTrailOverlay from "../HoverTrailOverlay";
 
 const items = [
   {
@@ -58,7 +58,7 @@ function ScrollTextItem({ item, innerRef }: ScrollTextItemProps) {
     const handleScroll = () => {
       const el = document.getElementById(`text-item-${item.num}`);
       if (!el) return;
-      
+
       const rect = el.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const elementCenter = rect.top + rect.height / 2;
@@ -76,7 +76,7 @@ function ScrollTextItem({ item, innerRef }: ScrollTextItemProps) {
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleScroll);
-    handleScroll(); 
+    handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -126,7 +126,7 @@ function ScrollImageItem({ image, isActive }: { image: string; isActive: boolean
 export default function ProductsToPhotoSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
+
   const [activeNumber, setActiveNumber] = useState(items[0].num);
   const [activeIndex, setActiveIndex] = useState(0);
   const [mobileImageIndex, setMobileImageIndex] = useState(0);
@@ -143,7 +143,7 @@ export default function ProductsToPhotoSection() {
 
   useEffect(() => {
     // Sinkronisasi teks dan gambar hanya untuk layout desktop
-    if (window.innerWidth < 1024) return; 
+    if (window.innerWidth < 1024) return;
 
     const syncImageWithText = () => {
       const viewportHeight = window.innerHeight;
@@ -156,9 +156,9 @@ export default function ProductsToPhotoSection() {
         const elementCenter = rect.top + rect.height / 2;
         const elementCenterPercent = (elementCenter / viewportHeight) * 100;
 
-        const targetPoint = 50; 
+        const targetPoint = 50;
         const distance = Math.abs(elementCenterPercent - targetPoint);
-        
+
         if (distance < closestDistance) {
           closestDistance = distance;
           closestIndex = index;
@@ -171,7 +171,7 @@ export default function ProductsToPhotoSection() {
           const rect = el.getBoundingClientRect();
           const elementCenter = rect.top + rect.height / 2;
           const elementCenterPercent = (elementCenter / viewportHeight) * 100;
-          
+
           if (elementCenterPercent >= 40 && elementCenterPercent <= 60) {
             setActiveIndex(closestIndex);
             setActiveNumber(items[closestIndex].num);
@@ -192,7 +192,7 @@ export default function ProductsToPhotoSection() {
 
   return (
     <section className="relative bg-[#030035] w-full">
-      
+
       {/* HEADER SECTION - Jarak pb-10 untuk mobile agar lebih dekat ke gambar */}
       <div className="w-full flex flex-col items-center justify-center text-center px-6 pt-24 pb-10 lg:pt-32 lg:pb-32">
         <p className="text-[#F4F4F5]/70 text-xs md:text-sm tracking-[0.2em] uppercase mb-4 md:mb-6">
@@ -211,7 +211,7 @@ export default function ProductsToPhotoSection() {
       {/* Normal flow, scroll cepat      */}
       {/* ============================== */}
       <div className="block lg:hidden relative w-full px-4 pb-24 md:px-12 md:pb-32">
-        
+
         {/* Container Gambar Mobile */}
         <div className="relative w-full h-[55vh] sm:h-[65vh] rounded-2xl overflow-hidden cursor-none shadow-2xl mb-8">
           <AnimatePresence mode="wait">
@@ -286,11 +286,11 @@ export default function ProductsToPhotoSection() {
       <div ref={sectionRef} className="hidden lg:block relative w-full h-[650vh]">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-start">
           <div className="relative z-10 w-full h-full grid grid-cols-[1.15fr_1.2fr] gap-8 lg:gap-20 items-center pl-8 md:pl-16 lg:pl-24 pr-10 md:pr-14 lg:pr-20 py-6 md:py-10">
-            
+
             <div className="relative h-screen flex items-center gap-8 md:gap-14">
               <div className="w-12 md:w-16 shrink-0 z-20 flex justify-center">
                 <AnimatePresence mode="wait">
-                  <motion.span 
+                  <motion.span
                     key={activeNumber}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -327,15 +327,15 @@ export default function ProductsToPhotoSection() {
               ))}
 
               <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
-              
-              <motion.div 
-                style={{ top: cutoutTop, y: cutoutY }} 
+
+              <motion.div
+                style={{ top: cutoutTop, y: cutoutY }}
                 className="absolute left-0 w-20 md:w-28 h-[400px] md:h-[500px] z-30 pointer-events-none -translate-x-[1px]"
               >
-                <svg 
-                  viewBox="0 0 100 100" 
-                  className="w-full h-full text-[#030035]" 
-                  fill="currentColor" 
+                <svg
+                  viewBox="0 0 100 100"
+                  className="w-full h-full text-[#030035]"
+                  fill="currentColor"
                   preserveAspectRatio="none"
                 >
                   <path d="M0,0 L0,100 C0,75 50,65 50,50 C50,35 0,25 0,0 Z" />
@@ -346,7 +346,7 @@ export default function ProductsToPhotoSection() {
           </div>
         </div>
       </div>
-      
+
     </section>
   );
 }

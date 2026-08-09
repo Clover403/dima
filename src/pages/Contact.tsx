@@ -99,7 +99,7 @@ export default function Contact() {
                   Complete la información y agende directamente su sesión con nuestro equipo de ingeniería financiera.
                 </p>
               </div>
-             <div className="relative group overflow-hidden border border-[#F4F4F5]/10 bg-[#F4F4F5]/5 rounded-2xl shadow-2xl">
+<div className="hidden lg:block relative group overflow-hidden border border-[#F4F4F5]/10 bg-[#F4F4F5]/5 rounded-2xl shadow-2xl">
                 <img 
                   src="/illustration-compressed/contact/invoice2.webp" 
                   alt="Corporate Architecture" 

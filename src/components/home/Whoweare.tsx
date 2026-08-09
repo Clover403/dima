@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import HoverTrailOverlay from '../../HoverTrailOverlay';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -45,14 +45,14 @@ export default function WhoWeAreSection() {
         },
       })
     })
-    
+
     return () => ctx.revert()
   }, [])
 
- return (
-    <section 
+  return (
+    <section
       ref={sectionRef}
-      className="relative w-full font-sans -mt-20 md:-mt-28" 
+      className="relative w-full font-sans -mt-20 md:-mt-28"
     >
       {/* BACKGROUND & CEKUNGAN */}
       <div className="absolute inset-0 z-0 flex flex-col pointer-events-none">
@@ -74,11 +74,11 @@ export default function WhoWeAreSection() {
       </div>
 
       {/* KONTEN SECTION - Ubah ke min-h-screen dan flex-col agar tidak overlap */}
-      <div 
-        ref={contentRef} 
+      <div
+        ref={contentRef}
         className="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-12 lg:px-20 pt-28 md:pt-40 pb-16 md:pb-24 opacity-0"
       >
-        
+
         {/* TEKS KIRI ATAS */}
         <div className="w-full max-w-lg md:max-w-3xl lg:max-w-4xl z-10">
           <p className="text-[#F4F4F5]/70 text-xs tracking-[0.2em] uppercase mb-2 md:mb-4">
@@ -112,5 +112,5 @@ export default function WhoWeAreSection() {
 
       </div>
     </section>
- )
+  )
 }

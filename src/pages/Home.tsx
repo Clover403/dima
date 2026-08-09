@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PageTransition from "../components/layout/PageTransition";
 // import TransparantDissolve from '../components/TransparantDissolve'
-import HeroSection from "../components/home/NewDesign/Hero";
-import WhoWeAreSection from "../components/home/NewDesign/Whoweare";
-import ScrollMEF from "../components/home/NewDesign/Mef";
-import ProductsToPhotoSection from "../components/home/NewDesign/Product";
-import ServicesSection from "../components/home/NewDesign/Service";
-import CreditModelSection from "../components/home/NewDesign/CreditModel";
-import DalioPrinciplesSection from "../components/home/NewDesign/DalioPrinciples";
+import HeroSection from "../components/home/Hero";
+import WhoWeAreSection from "../components/home/Whoweare";
+import ScrollMEF from "../components/home/Mef";
+import ProductsToPhotoSection from "../components/home/Product";
+import ServicesSection from "../components/home/Service";
+import CreditModelSection from "../components/home/CreditModel";
+import DalioPrinciplesSection from "../components/home/DalioPrinciples";
 import CTA from "../components/layout/CTA";
 
 export default function HomeLegacy() {
@@ -23,7 +23,7 @@ export default function HomeLegacy() {
       <HeroSection />
       <WhoWeAreSection />
       <ProductsToPhotoSection />
-      <div className="hidden lg:block">
+      <div className="hidde n lg:block">
         <ScrollMEF />
       </div>
       <ServicesSection />
