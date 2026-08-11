@@ -23,7 +23,7 @@ export default function HomeLegacy() {
       <HeroSection />
       <WhoWeAreSection />
       <ProductsToPhotoSection />
-      <div className="hidde n lg:block">
+      <div className="hidden lg:block">
         <ScrollMEF />
       </div>
       <ServicesSection />
