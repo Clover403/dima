@@ -43,6 +43,7 @@ function NavDropdown({ label, baseTo, items, isActive }: NavDropdownProps) {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false)
   }, [location.pathname])
 
@@ -118,6 +119,7 @@ export default function Navbar() {
   }))
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false)
   }, [location])
 
@@ -181,9 +183,10 @@ export default function Navbar() {
             })}
           </div>
 
+          {/* PERUBAHAN: Ditambahkan hidden lg:inline-flex agar sembunyi di mobile/tab tapi tetap ada di desktop */}
           <Link
             to="/contacto"
-            className="group inline-flex items-center justify-center text-center bg-bronze/90 hover:bg-bronze text-white font-body text-xs lg:text-[13px] font-medium px-5 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-bronze/30 hover:scale-[1.02] active:scale-[0.98] shrink-0 ml-auto"
+            className="group hidden lg:inline-flex items-center justify-center text-center bg-bronze/90 hover:bg-bronze text-white font-body text-xs lg:text-[13px] font-medium px-5 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-bronze/30 hover:scale-[1.02] active:scale-[0.98] shrink-0 ml-auto"
           >
             <span>Contacto</span>
           </Link>
@@ -222,17 +225,30 @@ export default function Navbar() {
                       transition={{ delay: i * 0.05 + 0.1, duration: 0.3 }}
                       className="w-full text-center"
                     >
-                      <button
-                        onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                        className={`inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl text-lg transition-all w-full ${
+                      <div
+                        className={`relative flex items-center justify-center py-1.5 rounded-xl transition-all w-full ${
                           isActive || mobileProductsOpen
                             ? 'bg-black/10 text-gray-900 font-bold' 
-                            : 'text-gray-600 font-medium hover:text-gray-900 hover:bg-black/5'
+                            : 'text-gray-600 font-medium hover:bg-black/5'
                         }`}
                       >
-                        {link.label}
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${mobileProductsOpen ? 'rotate-180' : ''}`} />
-                      </button>
+                        <Link
+                          to={link.to}
+                          className="py-1 px-4 text-lg hover:text-gray-900"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setMobileProductsOpen(!mobileProductsOpen)
+                          }}
+                          className="absolute right-2 p-2 rounded-full hover:bg-black/10"
+                        >
+                          <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileProductsOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                      </div>
                       
                       <AnimatePresence>
                         {mobileProductsOpen && (
@@ -269,17 +285,30 @@ export default function Navbar() {
                       transition={{ delay: i * 0.05 + 0.1, duration: 0.3 }}
                       className="w-full text-center"
                     >
-                      <button
-                        onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                        className={`inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-xl text-lg transition-all w-full ${
+                      <div
+                        className={`relative flex items-center justify-center py-1.5 rounded-xl transition-all w-full ${
                           isActive || mobileServicesOpen
                             ? 'bg-black/10 text-gray-900 font-bold' 
-                            : 'text-gray-600 font-medium hover:text-gray-900 hover:bg-black/5'
+                            : 'text-gray-600 font-medium hover:bg-black/5'
                         }`}
                       >
-                        {link.label}
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
-                      </button>
+                        <Link
+                          to={link.to}
+                          className="py-1 px-4 text-lg hover:text-gray-900"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          {link.label}
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setMobileServicesOpen(!mobileServicesOpen)
+                          }}
+                          className="absolute right-2 p-2 rounded-full hover:bg-black/10"
+                        >
+                          <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                      </div>
                       
                       <AnimatePresence>
                         {mobileServicesOpen && (
@@ -317,7 +346,7 @@ export default function Navbar() {
                   >
                     <Link
                       to={link.to}
-                      className={`inline-block py-2.5 px-5 rounded-xl text-lg transition-all ${
+                      className={`inline-block py-2.5 px-5 rounded-xl text-lg transition-all w-full ${
                         isActive 
                           ? 'bg-black/10 text-gray-900 font-bold' 
                           : 'text-gray-600 font-medium hover:text-gray-900 hover:bg-black/5'
@@ -328,6 +357,23 @@ export default function Navbar() {
                   </motion.div>
                 )
               })}
+              
+              {/* PERUBAHAN: Tombol Contacto ditambahkan di bagian paling bawah menu mobile dropdown */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: navLinks.length * 0.05 + 0.1, duration: 0.3 }}
+                className="w-full text-center mt-4"
+              >
+                <Link
+                  to="/contacto"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-block w-full py-3 px-5 rounded-xl text-lg font-bold bg-[#E5997B]/90 hover:bg-[#E5997B] text-white shadow-md transition-all active:scale-[0.98]"
+                >
+                  Contacto
+                </Link>
+              </motion.div>
+
             </div>
           </motion.div>
         )}

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import HoverTrailOverlay from '../../HoverTrailOverlay';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -45,14 +45,14 @@ export default function WhoWeAreSection() {
         },
       })
     })
-    
+
     return () => ctx.revert()
   }, [])
 
- return (
-    <section 
+  return (
+    <section
       ref={sectionRef}
-      className="relative w-full font-sans -mt-20 md:-mt-28" 
+      className="relative w-full font-sans -mt-20 md:-mt-28"
     >
       {/* BACKGROUND & CEKUNGAN */}
       <div className="absolute inset-0 z-0 flex flex-col pointer-events-none">
@@ -73,23 +73,14 @@ export default function WhoWeAreSection() {
         <div className="w-full flex-1 bg-[#030035]" />
       </div>
 
-      {/* KONTEN SECTION */}
-      <div ref={contentRef} className="relative z-10 w-full h-screen flex flex-col justify-center overflow-hidden opacity-0">
-        
-        {/* CONTAINER GAMBAR */}
-        <div className="absolute inset-0 flex items-center justify-center p-4 md:p-8 pointer-events-none z-0 cursor-none">
-          <div className="relative w-full max-w-lg md:max-w-3xl lg:max-w-5xl aspect-square flex items-center justify-center transform translate-y-16 md:translate-y-24 pointer-events-auto cursor-none">
-            <img
-              src="/illustration-compressed/home/jembatan3.webp"
-              alt="DIMA Finance Illustration"
-              className="w-full h-full object-contain"
-            />
-            <HoverTrailOverlay theme="navy" className="absolute inset-0 z-20 w-full h-full" />
-          </div>
-        </div>
+      {/* KONTEN SECTION - Ubah ke min-h-screen dan flex-col agar tidak overlap */}
+      <div
+        ref={contentRef}
+        className="relative z-10 w-full min-h-screen flex flex-col justify-between px-6 md:px-12 lg:px-20 pt-28 md:pt-40 pb-16 md:pb-24 opacity-0"
+      >
 
         {/* TEKS KIRI ATAS */}
-        <div className="absolute top-20 left-6 right-6 text-left md:top-32 md:left-12 lg:left-20 md:right-auto max-w-lg md:max-w-3xl lg:max-w-4xl z-10">
+        <div className="w-full max-w-lg md:max-w-3xl lg:max-w-4xl z-10">
           <p className="text-[#F4F4F5]/70 text-xs tracking-[0.2em] uppercase mb-2 md:mb-4">
             QUIÉNES SOMOS
           </p>
@@ -100,18 +91,26 @@ export default function WhoWeAreSection() {
           </h2>
         </div>
 
+        {/* CONTAINER GAMBAR (Tengah) */}
+        <div className="flex-1 w-full flex items-center justify-center py-10 md:py-12 z-0">
+          <div className="relative w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-5xl aspect-square flex items-center justify-center pointer-events-auto cursor-none">
+            <img
+              src="/illustration-compressed/home/jembatan3.webp"
+              alt="DIMA Finance Illustration"
+              className="w-full h-full object-contain"
+            />
+            <HoverTrailOverlay theme="navy" className="absolute inset-0 z-20 w-full h-full" />
+          </div>
+        </div>
+
         {/* TEKS KANAN BAWAH */}
-        <div className="absolute bottom-12 left-6 right-6 text-left md:bottom-28 md:right-12 lg:right-20 md:left-auto max-w-sm md:max-w-lg lg:max-w-2xl z-10 md:text-right">
+        <div className="w-full max-w-sm md:max-w-lg lg:max-w-2xl z-10 self-start md:self-end md:text-right">
           <p className="font-body font-light text-[#F4F4F5]/80 text-lg sm:text-xl md:text-2xl lg:text-3xl leading-snug md:leading-tight">
             Transformamos la deuda en productividad. Cada decisión crediticia en DIMA Finance se fundamenta en principios de ingeniería financiera y equilibrio macroeconómico — no otorgamos créditos, diseñamos estructuras que generan valor.
           </p>
         </div>
 
       </div>
-
-      {/* RUANG KOSONG TAMBAHAN DI BAWAH */}
-      <div className="relative z-10 w-full h-16 md:h-28" />
-
     </section>
- )
+  )
 }

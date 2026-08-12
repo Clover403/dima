@@ -332,347 +332,347 @@ export default function ProcesodiagramaInteractivo() {
             {/* SHIFT GROUP: move diagram slightly right so circles/lines aren't clipped */}
             <g transform="translate(60,0)">
 
-            {/* Y-axis label */}
-            <text
-              x="18"
-              y="185"
-              textAnchor="middle"
-              fontSize="9"
-              fontFamily="'Inter Tight',monospace"
-              fill={C.white}
-              fillOpacity="0.18"
-              letterSpacing="4"
-              transform="rotate(-90, 18, 185)"
-            >
-              PRÁCTICA
-            </text>
-            <text
-              x="18"
-              y="390"
-              textAnchor="middle"
-              fontSize="9"
-              fontFamily="'Inter Tight',monospace"
-              fill={C.white}
-              fillOpacity="0.18"
-              letterSpacing="4"
-              transform="rotate(-90, 18, 390)"
-            >
-              TEORÍA
-            </text>
-
-            {/* VERTICAL DIVIDER DIHAPUS - tidak ada garis pemisah */}
-
-            {/* Fase labels at bottom */}
-            {FASE_LABELS.map((f, i) => (
+              {/* Y-axis label */}
               <text
-                key={i}
-                x={f.x}
-                y="565"
+                x="18"
+                y="185"
                 textAnchor="middle"
-                fontSize="13"
+                fontSize="9"
                 fontFamily="'Inter Tight',monospace"
-                letterSpacing="1.5"
-                fill={f.color}
-                fillOpacity="0.55"
+                fill={C.white}
+                fillOpacity="0.18"
+                letterSpacing="4"
+                transform="rotate(-90, 18, 185)"
               >
-                {f.text}
+                PRÁCTICA
               </text>
-            ))}
+              <text
+                x="18"
+                y="390"
+                textAnchor="middle"
+                fontSize="9"
+                fontFamily="'Inter Tight',monospace"
+                fill={C.white}
+                fillOpacity="0.18"
+                letterSpacing="4"
+                transform="rotate(-90, 18, 390)"
+              >
+                TEORÍA
+              </text>
 
-            {/* Phase brackets bottom */}
-            <line
-              x1="50"
-              y1="552"
-              x2="470"
-              y2="552"
-              stroke={C.teal}
-              strokeWidth="0.8"
-              strokeOpacity="0.3"
-            />
-            <line
-              x1="520"
-              y1="552"
-              x2="1000"
-              y2="552"
-              stroke={C.bronze}
-              strokeWidth="0.8"
-              strokeOpacity="0.3"
-            />
+              {/* VERTICAL DIVIDER DIHAPUS - tidak ada garis pemisah */}
 
-            {/* Loop paths */}
-            <path
-              className="proc-loop"
-              d={LOOP_SMALL}
-              stroke={C.teal}
-              strokeWidth="1.2"
-              strokeOpacity="0.22"
-              strokeDasharray="2200"
-              strokeDashoffset="2200"
-            />
-            <path
-              className="proc-loop"
-              d={LOOP_LARGE}
-              stroke={C.bronze}
-              strokeWidth="1.2"
-              strokeOpacity="0.22"
-              strokeDasharray="2200"
-              strokeDashoffset="2200"
-            />
+              {/* Fase labels at bottom */}
+              {FASE_LABELS.map((f, i) => (
+                <text
+                  key={i}
+                  x={f.x}
+                  y="565"
+                  textAnchor="middle"
+                  fontSize="13"
+                  fontFamily="'Inter Tight',monospace"
+                  letterSpacing="1.5"
+                  fill={f.color}
+                  fillOpacity="0.55"
+                >
+                  {f.text}
+                </text>
+              ))}
 
-            {/* Energy flow */}
-            <path
-              className="energy-left"
-              d={LOOP_SMALL}
-              stroke={C.teal}
-              strokeWidth="1.8"
-              strokeOpacity="0.35"
-              strokeDasharray="55 1500"
-              filter="url(#pdi-soft)"
-              style={{ mixBlendMode: "screen" }}
-            />
-            <path
-              className="energy-right"
-              d={LOOP_LARGE}
-              stroke={C.bronze}
-              strokeWidth="1.8"
-              strokeOpacity="0.35"
-              strokeDasharray="55 1500"
-              filter="url(#pdi-soft)"
-              style={{ mixBlendMode: "screen" }}
-            />
+              {/* Phase brackets bottom */}
+              <line
+                x1="50"
+                y1="552"
+                x2="470"
+                y2="552"
+                stroke={C.teal}
+                strokeWidth="0.8"
+                strokeOpacity="0.3"
+              />
+              <line
+                x1="520"
+                y1="552"
+                x2="1000"
+                y2="552"
+                stroke={C.bronze}
+                strokeWidth="0.8"
+                strokeOpacity="0.3"
+              />
 
-            {/* Connections */}
-            {CONNECTIONS.map(([a, b], i) => {
-              const na = NODES.find((n) => n.id === a)!;
-              const nb = NODES.find((n) => n.id === b)!;
-              const A = getLineAnchor(na);
-              const B = getLineAnchor(nb);
-              const isConnected =
-                active !== null && (active === a || active === b);
-              const connColor = ["1", "2", "3", "4"].includes(a)
-                ? C.teal
-                : C.bronze;
-              return (
-                <g key={`c-${i}`}>
-                  <line
-                    x1={A.x}
-                    y1={A.y}
-                    x2={B.x}
-                    y2={B.y}
-                    stroke={isConnected ? C.white : C.whiteDim}
-                    strokeWidth={isConnected ? 1.2 : 0.6}
-                    strokeOpacity={isConnected ? 0.5 : 0.12}
-                    style={{ transition: "all 0.3s ease" }}
-                  />
-                  {isConnected && (
+              {/* Loop paths */}
+              <path
+                className="proc-loop"
+                d={LOOP_SMALL}
+                stroke={C.teal}
+                strokeWidth="1.2"
+                strokeOpacity="0.22"
+                strokeDasharray="2200"
+                strokeDashoffset="2200"
+              />
+              <path
+                className="proc-loop"
+                d={LOOP_LARGE}
+                stroke={C.bronze}
+                strokeWidth="1.2"
+                strokeOpacity="0.22"
+                strokeDasharray="2200"
+                strokeDashoffset="2200"
+              />
+
+              {/* Energy flow */}
+              <path
+                className="energy-left"
+                d={LOOP_SMALL}
+                stroke={C.teal}
+                strokeWidth="1.8"
+                strokeOpacity="0.35"
+                strokeDasharray="55 1500"
+                filter="url(#pdi-soft)"
+                style={{ mixBlendMode: "screen" }}
+              />
+              <path
+                className="energy-right"
+                d={LOOP_LARGE}
+                stroke={C.bronze}
+                strokeWidth="1.8"
+                strokeOpacity="0.35"
+                strokeDasharray="55 1500"
+                filter="url(#pdi-soft)"
+                style={{ mixBlendMode: "screen" }}
+              />
+
+              {/* Connections */}
+              {CONNECTIONS.map(([a, b], i) => {
+                const na = NODES.find((n) => n.id === a)!;
+                const nb = NODES.find((n) => n.id === b)!;
+                const A = getLineAnchor(na);
+                const B = getLineAnchor(nb);
+                const isConnected =
+                  active !== null && (active === a || active === b);
+                const connColor = ["1", "2", "3", "4"].includes(a)
+                  ? C.teal
+                  : C.bronze;
+                return (
+                  <g key={`c-${i}`}>
                     <line
-                      className="proc-data-flow"
                       x1={A.x}
                       y1={A.y}
                       x2={B.x}
                       y2={B.y}
-                      stroke={connColor}
-                      strokeWidth="2.5"
-                      strokeOpacity="0.9"
-                      strokeDasharray="9 120"
-                      filter="url(#pdi-soft)"
+                      stroke={isConnected ? C.white : C.whiteDim}
+                      strokeWidth={isConnected ? 1.2 : 0.6}
+                      strokeOpacity={isConnected ? 0.5 : 0.12}
+                      style={{ transition: "all 0.3s ease" }}
                     />
-                  )}
-                </g>
-              );
-            })}
-
-            {/* Nodes */}
-            {NODES.map((n) => {
-              const s = nodeStyle(n, active);
-              const isIt = n.id === "iterate";
-              const isAct = active === n.id;
-              const isConnected = isConnectedToActive(n.id);
-              const lbl = LABEL_OFFSETS[n.id];
-              const nodeGlowColor =
-                n.phase === "identificacion" ? C.teal : C.bronze;
-
-              const dx = NODE_DISPLAY_SHIFT.x;
-              const dy = NODE_DISPLAY_SHIFT.y;
-              // AFTER
-              const displayExtra = NODE_DISPLAY_OVERRIDES[n.id] ?? {
-                x: 0,
-                y: 0,
-              };
-              const dxCx = n.cx + dx + displayExtra.x;
-              const dxCy = n.cy + dy + displayExtra.y;
-
-              return (
-                <g
-                  key={n.id}
-                  className="proc-node"
-                  onClick={() =>
-                    setActive((prev) => (prev === n.id ? null : n.id))
-                  }
-                  style={{
-                    cursor: "pointer",
-                    opacity: s.opacity,
-                    transition: "opacity 0.3s ease",
-                  }}
-                >
-                  {/* Active glow rings */}
-                  {isAct && (
-                    <>
-                      <circle
-                        className="proc-active-ring"
-                        cx={dxCx}
-                        cy={dxCy}
-                        r={n.r + 10}
-                        fill="none"
-                        stroke={s.glow}
-                        strokeWidth="3.5"
-                        filter="url(#pdi-glow)"
-                        style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
+                    {isConnected && (
+                      <line
+                        className="proc-data-flow"
+                        x1={A.x}
+                        y1={A.y}
+                        x2={B.x}
+                        y2={B.y}
+                        stroke={connColor}
+                        strokeWidth="2.5"
+                        strokeOpacity="0.9"
+                        strokeDasharray="9 120"
+                        filter="url(#pdi-soft)"
                       />
-                      <circle
-                        cx={dxCx}
-                        cy={dxCy}
-                        r={n.r + 28}
-                        fill={s.glow}
-                        opacity="0.15"
-                        filter="url(#pdi-glow)"
-                      />
-                    </>
-                  )}
+                    )}
+                  </g>
+                );
+              })}
 
-                  {/* Connected glow rings (subtle, same family as idle look) */}
-                  {!isAct && isConnected && (
-                    <>
-                      <circle
-                        className="proc-active-ring"
-                        cx={dxCx}
-                        cy={dxCy}
-                        r={n.r + 6}
-                        fill="none"
-                        stroke={nodeGlowColor}
-                        strokeWidth="2"
-                        strokeOpacity="0.2"
-                        filter="url(#pdi-glow)"
-                      />
-                      <circle
-                        className="connected-glow-ring"
-                        cx={dxCx}
-                        cy={dxCy}
-                        r={n.r + 8}
-                        fill="none"
-                        stroke={nodeGlowColor}
-                        strokeWidth="2"
-                        strokeOpacity="0.6"
-                        filter="url(#connected-glow-filter)"
-                        style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
-                      />
-                      <circle
-                        cx={dxCx}
-                        cy={dxCy}
-                        r={n.r + 18}
-                        fill={nodeGlowColor}
-                        fillOpacity="0.12"
-                        filter="url(#pdi-glow)"
-                      />
-                    </>
-                  )}
+              {/* Nodes */}
+              {NODES.map((n) => {
+                const s = nodeStyle(n, active);
+                const isIt = n.id === "iterate";
+                const isAct = active === n.id;
+                const isConnected = isConnectedToActive(n.id);
+                const lbl = LABEL_OFFSETS[n.id];
+                const nodeGlowColor =
+                  n.phase === "identificacion" ? C.teal : C.bronze;
 
-                  {/* Idle dashed ring */}
-                 /* AFTER */
-{!isAct && isConnected && (
-  <>
-    <circle
-      className="connected-pulse-ring"
-      cx={dxCx} cy={dxCy} r={n.r + 10}
-      fill="none"
-      stroke={nodeGlowColor}
-      strokeWidth="3"
-      filter="url(#pdi-glow)"
-      style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
-    />
-    <circle
-      cx={dxCx} cy={dxCy} r={n.r + 22}
-      fill={nodeGlowColor}
-      fillOpacity="0.18"
-      filter="url(#pdi-glow)"
-    />
-    <circle
-      cx={dxCx} cy={dxCy} r={n.r + 5}
-      fill={nodeGlowColor}
-      fillOpacity="0.12"
-      filter="url(#pdi-soft)"
-    />
-  </>
-)}
+                const dx = NODE_DISPLAY_SHIFT.x;
+                const dy = NODE_DISPLAY_SHIFT.y;
+                // AFTER
+                const displayExtra = NODE_DISPLAY_OVERRIDES[n.id] ?? {
+                  x: 0,
+                  y: 0,
+                };
+                const dxCx = n.cx + dx + displayExtra.x;
+                const dxCy = n.cy + dy + displayExtra.y;
 
-
-
-                  {/* Node body */}
-                  <circle
-                    cx={dxCx}
-                    cy={dxCy}
-                    r={n.r}
-                    fill={s.fill}
-                    stroke={s.stroke}
-                    strokeWidth={s.strokeWidth}
-                    style={{ transition: "fill 0.3s ease, stroke 0.3s ease" }}
-                  />
-
-                  {/* Number / ITERAR label */}
-                  <text
-                    x={dxCx}
-                    y={dxCy + 5}
-                    textAnchor="middle"
-                    fontSize={isIt ? 12 : 15}
-                    fontFamily={
-                      isIt
-                        ? "'Playfair Display',serif"
-                        : "'Inter Tight',sans-serif"
+                return (
+                  <g
+                    key={n.id}
+                    className="proc-node"
+                    onClick={() =>
+                      setActive((prev) => (prev === n.id ? null : n.id))
                     }
-                    fontStyle={isIt ? "italic" : "normal"}
-                    fontWeight={isIt ? "400" : "600"}
-                    fill={s.labelColor}
-                    className="pointer-events-none select-none"
-                    style={{ transition: "fill 0.3s ease" }}
+                    style={{
+                      cursor: "pointer",
+                      opacity: s.opacity,
+                      transition: "opacity 0.3s ease",
+                    }}
                   >
-                    {n.label}
-                  </text>
+                    {/* Active glow rings */}
+                    {isAct && (
+                      <>
+                        <circle
+                          className="proc-active-ring"
+                          cx={dxCx}
+                          cy={dxCy}
+                          r={n.r + 10}
+                          fill="none"
+                          stroke={s.glow}
+                          strokeWidth="3.5"
+                          filter="url(#pdi-glow)"
+                          style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
+                        />
+                        <circle
+                          cx={dxCx}
+                          cy={dxCy}
+                          r={n.r + 28}
+                          fill={s.glow}
+                          opacity="0.15"
+                          filter="url(#pdi-glow)"
+                        />
+                      </>
+                    )}
 
-                  {/* External name label */}
-                  {!isIt && lbl && (
+                    {/* Connected glow rings (subtle, same family as idle look) */}
+                    {!isAct && isConnected && (
+                      <>
+                        <circle
+                          className="proc-active-ring"
+                          cx={dxCx}
+                          cy={dxCy}
+                          r={n.r + 6}
+                          fill="none"
+                          stroke={nodeGlowColor}
+                          strokeWidth="2"
+                          strokeOpacity="0.2"
+                          filter="url(#pdi-glow)"
+                        />
+                        <circle
+                          className="connected-glow-ring"
+                          cx={dxCx}
+                          cy={dxCy}
+                          r={n.r + 8}
+                          fill="none"
+                          stroke={nodeGlowColor}
+                          strokeWidth="2"
+                          strokeOpacity="0.6"
+                          filter="url(#connected-glow-filter)"
+                          style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
+                        />
+                        <circle
+                          cx={dxCx}
+                          cy={dxCy}
+                          r={n.r + 18}
+                          fill={nodeGlowColor}
+                          fillOpacity="0.12"
+                          filter="url(#pdi-glow)"
+                        />
+                      </>
+                    )}
+
+                    {/* Idle dashed ring */}
+                 /* AFTER */
+                    {!isAct && isConnected && (
+                      <>
+                        <circle
+                          className="connected-pulse-ring"
+                          cx={dxCx} cy={dxCy} r={n.r + 10}
+                          fill="none"
+                          stroke={nodeGlowColor}
+                          strokeWidth="3"
+                          filter="url(#pdi-glow)"
+                          style={{ transformOrigin: `${dxCx}px ${dxCy}px` }}
+                        />
+                        <circle
+                          cx={dxCx} cy={dxCy} r={n.r + 22}
+                          fill={nodeGlowColor}
+                          fillOpacity="0.18"
+                          filter="url(#pdi-glow)"
+                        />
+                        <circle
+                          cx={dxCx} cy={dxCy} r={n.r + 5}
+                          fill={nodeGlowColor}
+                          fillOpacity="0.12"
+                          filter="url(#pdi-soft)"
+                        />
+                      </>
+                    )}
+
+
+
+                    {/* Node body */}
+                    <circle
+                      cx={dxCx}
+                      cy={dxCy}
+                      r={n.r}
+                      fill={s.fill}
+                      stroke={s.stroke}
+                      strokeWidth={s.strokeWidth}
+                      style={{ transition: "fill 0.3s ease, stroke 0.3s ease" }}
+                    />
+
+                    {/* Number / ITERAR label */}
                     <text
-                      x={dxCx + lbl.dx}
-                      y={dxCy + lbl.dy}
-                      textAnchor={lbl.anchor}
-                      fontSize="17"
-                      fontFamily="'Inter Tight',monospace"
-                      fill={isAct || isConnected ? C.white : C.white}
-                      fillOpacity={isAct || isConnected ? 0.9 : 0.5}
-                      fontWeight={isAct || isConnected ? "500" : "400"}
-                      letterSpacing="0.5"
+                      x={dxCx}
+                      y={dxCy + 5}
+                      textAnchor="middle"
+                      fontSize={isIt ? 12 : 15}
+                      fontFamily={
+                        isIt
+                          ? "'Playfair Display',serif"
+                          : "'Inter Tight',sans-serif"
+                      }
+                      fontStyle={isIt ? "italic" : "normal"}
+                      fontWeight={isIt ? "400" : "600"}
+                      fill={s.labelColor}
                       className="pointer-events-none select-none"
-                      style={{ transition: "fill-opacity 0.3s ease" }}
+                      style={{ transition: "fill 0.3s ease" }}
                     >
-                      {n.title.split(" ")[0]}
+                      {n.label}
                     </text>
-                  )}
-                </g>
-              );
-            })}
 
-            {/* Center ¿Viabilidad? label */}
-            <text
-              x="490"
-              y="400"
-              textAnchor="middle"
-              fontSize="8"
-              fontFamily="'Inter Tight',monospace"
-              fill={C.white}
-              fillOpacity="0.18"
-              letterSpacing="1.5"
-            >
-              ¿Viabilidad / Intervención?
-            </text>
+                    {/* External name label */}
+                    {!isIt && lbl && (
+                      <text
+                        x={dxCx + lbl.dx}
+                        y={dxCy + lbl.dy}
+                        textAnchor={lbl.anchor}
+                        fontSize="17"
+                        fontFamily="'Inter Tight',monospace"
+                        fill={isAct || isConnected ? C.white : C.white}
+                        fillOpacity={isAct || isConnected ? 0.9 : 0.5}
+                        fontWeight={isAct || isConnected ? "500" : "400"}
+                        letterSpacing="0.5"
+                        className="pointer-events-none select-none"
+                        style={{ transition: "fill-opacity 0.3s ease" }}
+                      >
+                        {n.title.split(" ")[0]}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* Center ¿Viabilidad? label */}
+              <text
+                x="490"
+                y="400"
+                textAnchor="middle"
+                fontSize="8"
+                fontFamily="'Inter Tight',monospace"
+                fill={C.white}
+                fillOpacity="0.18"
+                letterSpacing="1.5"
+              >
+                ¿Viabilidad / Intervención?
+              </text>
 
             </g>
           </svg>

@@ -18,7 +18,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main>
+      <main className="overflow-x-clip">
         <Outlet />
       </main>
       <Footer />

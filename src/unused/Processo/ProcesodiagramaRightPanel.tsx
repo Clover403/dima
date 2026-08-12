@@ -1,7 +1,7 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { NodeId, NodeDef } from "./ProcesodiagramaData";
-import { NODES, C } from "./ProcesodiagramaData";
+import type { NodeId, NodeDef } from "../../unused/Processo/ProcesodiagramaData";
+import { NODES, C } from "../../unused/Processo/ProcesodiagramaData";
 
 type Props = {
   active: NodeId | null;

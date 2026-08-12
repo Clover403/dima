@@ -93,12 +93,12 @@ export default function CreditModelSection() {
           {/* === KOLOM KIRI (6 Kolom): Timbangan & Deskripsi === */}
           <div className="lg:col-span-6 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1">
             
-            {/* Gambar Timbangan */}
+          {/* Gambar Timbangan */}
             <div className="model-visual w-full flex justify-center lg:justify-start mb-20 lg:mb-28 xl:mb-36">
               <img
                 src="/illustration-compressed/home/timbangan1.webp"
                 alt="Modelo Crediticio DIMA"
-                className="w-full max-w-none h-auto object-contain scale-[1.25] lg:scale-[1.35] origin-center lg:origin-left transform -translate-x-[20%] lg:-translate-x-[25%] transition-transform duration-700"
+                className="w-full max-w-none h-auto object-contain scale-[1.25] lg:scale-[1.35] origin-center lg:origin-left transform translate-x-0 lg:-translate-x-[25%] transition-transform duration-700"
               />
             </div>
 

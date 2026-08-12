@@ -298,13 +298,17 @@ export default function ProductosOverview() {
             ))}
           </div>
 
-          <div className="absolute left-8 md:left-16 bottom-10 z-30">
-            <div className="overflow-hidden" style={{ height: '140px' }}>
-              <div className="transition-transform duration-700 ease-out" style={{ transform: `translateY(-${active * 140}px)` }}>
+          {/* ── Perbaikan Slider Angka: Dinamis sesuai ukuran layar ── */}
+          <div className="absolute left-6 md:left-16 bottom-8 md:bottom-10 z-30 pointer-events-none">
+            <div className="overflow-hidden h-[70px] md:h-[140px] [--slide-h:70px] md:[--slide-h:140px]">
+              <div 
+                className="transition-transform duration-700 ease-out" 
+                style={{ transform: `translateY(calc(-1 * ${active} * var(--slide-h)))` }}
+              >
                 {productsData.map((p, i) => (
                   <span
                     key={i}
-                    className="block font-display text-[120px] leading-[140px] transition-colors duration-500"
+                    className="block font-display text-[70px] md:text-[120px] leading-[70px] md:leading-[140px] transition-colors duration-500"
                     style={{ color: active === i ? '#E5997B' : 'rgba(3, 0, 53, 0.12)' }}
                   >
                     {p.number}
@@ -312,40 +316,45 @@ export default function ProductosOverview() {
                 ))}
               </div>
             </div>
-            <p className="font-mono text-[#030035]/30 text-[10px] tracking-[0.5em] uppercase mt-2 font-bold">
+            <p className="font-mono text-[#030035]/50 text-[8px] md:text-[10px] tracking-[0.5em] uppercase mt-2 font-bold hidden md:block">
               Portafolio DIMA
             </p>
           </div>
 
-          <div className="absolute right-8 md:right-16 top-0 h-full flex flex-col justify-center items-center gap-3 z-30">
-            <div className="h-[180px] w-px bg-[#030035]/10 relative">
-              <div className="absolute top-0 left-0 w-full bg-[#E5997B] transition-all duration-700 ease-out" style={{ height: `${((active + 1) / productsData.length) * 100}%` }} />
+          {/* ── Perbaikan Bar Pagination di Kanan ── */}
+          <div className="absolute right-4 md:right-16 top-0 h-full flex flex-col justify-center items-center gap-3 z-30 pointer-events-none">
+            <div className="h-[120px] md:h-[180px] w-px bg-[#030035]/10 relative">
+              <div 
+                className="absolute top-0 left-0 w-full bg-[#E5997B] transition-all duration-700 ease-out" 
+                style={{ height: `${((active + 1) / productsData.length) * 100}%` }} 
+              />
             </div>
-            <span className="font-mono text-[#030035]/30 text-[10px] tracking-[0.5em] uppercase font-bold" style={{ writingMode: 'vertical-rl' }}>
-              {String(active + 1).padStart(2, '0')} / 06
+            <span className="font-mono text-[#030035]/40 text-[9px] md:text-[10px] tracking-[0.4em] md:tracking-[0.5em] uppercase font-bold" style={{ writingMode: 'vertical-rl' }}>
+              {String(active + 1).padStart(2, '0')} / {String(productsData.length).padStart(2, '0')}
             </span>
           </div>
 
-          <div className="relative w-full h-full z-10">
+          {/* ── Perbaikan Konten Slide Utama ── */}
+          <div className="relative w-full h-full z-10 pointer-events-none">
             {productsData.map((p) => (
-              <div key={p.number} className="product-slide absolute inset-0 flex flex-col items-center justify-center px-8 md:px-20 lg:px-36">
-                <div className="max-w-6xl w-full">
-                  <div className="w-28 h-[3px] bg-[#E5997B] mb-10" />
-                  <h2 className="font-display text-5xl md:text-7xl lg:text-8xl text-[#030035] leading-[1.05] mb-8 tracking-tight">
+              <div key={p.number} className="product-slide absolute inset-0 flex flex-col items-center justify-center px-6 md:px-20 lg:px-36">
+                <div className="max-w-6xl w-full pt-6 md:pt-0 pointer-events-auto">
+                  <div className="w-16 md:w-28 h-[2px] md:h-[3px] bg-[#E5997B] mb-6 md:mb-10" />
+                  <h2 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl text-[#030035] leading-[1.05] mb-4 md:mb-8 tracking-tight">
                     <span className="text-[#E5997B] italic">"</span>{p.label}<span className="text-[#E5997B] italic">"</span>
                   </h2>
-                  <p className="font-body text-2xl md:text-3xl text-[#030035]/60 leading-relaxed mb-6 max-w-3xl">
+                  <p className="font-body text-xl sm:text-2xl md:text-3xl text-[#030035]/70 leading-relaxed mb-4 md:mb-6 max-w-3xl">
                     {p.tagline}
                   </p>
-                  <p className="font-body text-lg md:text-xl text-[#030035]/50 leading-relaxed max-w-2xl mb-10">
+                  <p className="font-body text-sm sm:text-base md:text-xl text-[#030035]/50 leading-relaxed max-w-2xl mb-8 md:mb-10">
                     {p.desc}
                   </p>
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-8 border-t border-[#030035]/10">
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 md:gap-4 pt-6 md:pt-8 border-t border-[#030035]/10">
                     <div>
-                      <p className="font-body text-[#030035] text-xl md:text-2xl font-semibold">— {p.label}</p>
-                      <p className="text-[#030035]/40 font-mono text-[11px] tracking-[0.4em] uppercase mt-1 font-bold">DIMA Finance — Portafolio Crediticio</p>
+                      <p className="font-body text-[#030035] text-lg md:text-2xl font-semibold">— {p.label}</p>
+                      <p className="text-[#030035]/40 font-mono text-[9px] md:text-[11px] tracking-[0.3em] md:tracking-[0.4em] uppercase mt-1 font-bold">DIMA Finance — Portafolio</p>
                     </div>
-                    <p className="font-mono text-[#E5997B] text-xs md:text-sm tracking-[0.6em] uppercase font-bold">
+                    <p className="font-mono text-[#E5997B] text-[10px] md:text-sm tracking-[0.4em] md:tracking-[0.6em] uppercase font-bold mt-2 md:mt-0">
                       {p.sector}
                     </p>
                   </div>
@@ -355,9 +364,9 @@ export default function ProductosOverview() {
           </div>
 
        {/* ... scroll para explorar ... */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none">
-            <span className="font-mono text-[#030035]/30 text-[9px] tracking-[0.5em] uppercase font-bold">Scroll para explorar</span>
-            <div className="w-px h-6 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />
+          <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none">
+            <span className="font-mono text-[#030035]/30 text-[8px] md:text-[9px] tracking-[0.5em] uppercase font-bold">Scroll para explorar</span>
+            <div className="w-px h-4 md:h-6 bg-gradient-to-b from-[#E5997B]/40 to-transparent" />
           </div>
 
         </div> 
@@ -366,7 +375,7 @@ export default function ProductosOverview() {
 
         {/* ── PASTE CEKUNGAN BAWAH DI SINI (DI LUAR SLIDES) ── */}
         <div className="absolute -bottom-[2px] left-0 w-full z-[60] pointer-events-none text-[#030035]">
-          <div className="relative w-full h-24 md:h-32 scale-x-110">
+          <div className="relative w-full h-16 md:h-32 scale-x-110">
             <svg
               viewBox="0 0 1440 120"
               fill="none"
@@ -409,9 +418,9 @@ export default function ProductosOverview() {
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
           <div className="overflow-hidden py-4 px-4 flex items-center justify-center">
             <div
-              className="block select-none font-display font-light tracking-tight leading-none text-[#F4F4F5]"
+              className="block select-none font-display font-light tracking-tight leading-none text-[#F4F4F5] whitespace-nowrap"
               style={{
-                fontSize: 'clamp(6rem, 22vw, 18rem)',
+                fontSize: 'clamp(3rem, 18vw, 18rem)',
                 willChange: 'transform, opacity',
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',

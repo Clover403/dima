@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import ProductVisual from './ProductVisual'
+import ProductVisual from '../../unused/products/ProductVisual'
 import { PRODUCTOS_CTA_LINK, type ProductData } from '../../data/productos'
 import HoverTrailOverlay from '../HoverTrailOverlay'
 
@@ -72,7 +72,8 @@ export function ProductLayerTabs({
 
   return (
     <div className="flex flex-col w-full h-full justify-center">
-      <div className="self-start inline-flex items-center p-1 rounded-full bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.2)] mb-6">
+      {/* Container diubah jadi flex-wrap untuk mobile agar rapi */}
+      <div className="self-start md:inline-flex flex-wrap items-center justify-center p-1 rounded-3xl md:rounded-full bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.2)] mb-4 md:mb-6">
         {LAYERS.map(({ key, label }) => {
           const isActive = activeLayer === key
           return (
@@ -80,7 +81,7 @@ export function ProductLayerTabs({
               key={key}
               onClick={() => onSelect(key)}
               className={`
-                relative px-5 md:px-6 py-2 rounded-full font-mono text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 focus:outline-none select-none
+                relative px-3 py-1.5 md:px-6 md:py-2 rounded-full font-mono text-[9px] md:text-[10px] font-bold tracking-[0.15em] md:tracking-[0.2em] uppercase transition-colors duration-300 focus:outline-none select-none flex-1 md:flex-none text-center
                 ${isActive ? 'text-white' : 'text-[#F4F4F5]/70 hover:text-[#F4F4F5]'}
               `}
             >
@@ -104,26 +105,28 @@ export function ProductLayerTabs({
           animate={{ opacity: 1, y: 0,  filter: 'blur(0px)' }}
           exit={{    opacity: 0, y: -10, filter: 'blur(3px)' }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full flex flex-col gap-5 lg:gap-6"
+          className="w-full flex flex-col gap-4 md:gap-5 lg:gap-6"
         >
           <div className="py-1 text-[#F4F4F5]/90">
-            <p className="font-body text-lg md:text-xl lg:text-2xl leading-relaxed font-light">
+            {/* Teks di mobile lebih kecil */}
+            <p className="font-body text-base md:text-xl lg:text-2xl leading-relaxed font-light">
               {current.content}
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 mt-2">
+          <div className="flex flex-col gap-3 md:gap-4 mt-1 md:mt-2">
             {current.details.map((d, i) => (
               <div 
                 key={i} 
-                className="group flex items-center gap-4 md:gap-5 transition-all duration-300 text-[#F4F4F5]/70 hover:text-[#F4F4F5]"
+                className="group flex items-start md:items-center gap-3 md:gap-4 lg:gap-5 transition-all duration-300 text-[#F4F4F5]/70 hover:text-[#F4F4F5]"
               >
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E5997B] border border-[#E5997B] flex items-center justify-center shrink-0 shadow-sm">
-                  <span className="font-mono text-xs md:text-sm font-bold tracking-tighter text-white">
+                <div className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full bg-[#E5997B] border border-[#E5997B] flex items-center justify-center shrink-0 shadow-sm mt-0.5 md:mt-0">
+                  <span className="font-mono text-[10px] md:text-xs lg:text-sm font-bold tracking-tighter text-white">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 </div>
-                <span className="font-body text-base md:text-lg lg:text-xl leading-snug font-light">
+                {/* Teks bullet di mobile lebih kecil */}
+                <span className="font-body text-sm md:text-base lg:text-xl leading-snug font-light">
                   {d}
                 </span>
               </div>
@@ -175,7 +178,7 @@ export default function ProductosShowcase({ products }: Props) {
   const displayIndex = isDetailView ? active : autoIndex
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#030035]">
+    <div className="relative w-full h-[100dvh] md:h-screen overflow-hidden bg-[#030035]">
       
       {/* ── GRID & MESH BACKGROUND ── */}
       {/* <SpotlightGridBackground isHighContrast={true} /> */}
@@ -189,37 +192,44 @@ export default function ProductosShowcase({ products }: Props) {
       )}
 
       {/* ── MAIN SPLIT-SCREEN CONTENT ── */}
-      <div className="relative z-10 w-full h-full flex flex-col lg:flex-row items-center pt-14 lg:pt-12 pb-6 lg:pb-24">
+      <div className="relative z-10 w-full h-full flex flex-col lg:flex-row items-center pt-24 md:pt-14 lg:pt-12 pb-6 lg:pb-24">
         
-        {/* KOLOM KIRI */}
-        <div className="w-full lg:w-[50%] h-full pl-[4vw] md:pl-[6vw] lg:pl-[8vw] pr-5 lg:pr-8 flex items-center">
+        {/* KOLOM KIRI (Disesuaikan padding untuk mobile) */}
+        <div className="w-full lg:w-[50%] h-full px-5 md:pl-[6vw] lg:pl-[8vw] lg:pr-8 flex items-center">
           <AnimatePresence mode="wait">
             {!isDetailView ? (
               // ── TAMPILAN CARDS ──
-              <motion.div
+             <motion.div
                 key="cards-view"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full h-[70vh] overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-5"
+                className="w-full h-[calc(100dvh-120px)] lg:h-[70vh] overflow-y-auto pb-32 lg:pb-0 grid grid-cols-2 gap-3 lg:gap-5 hide-scrollbar pt-2"
               >
+                <style>{`
+                  /* Hide scrollbar for Chrome, Safari and Opera */
+                  .hide-scrollbar::-webkit-scrollbar { display: none; }
+                  /* Hide scrollbar for IE, Edge and Firefox */
+                  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                `}</style>
                 {products.map((prod, i) => (
                   <button
                     key={prod.number}
                     onClick={() => scrollToProduct(i)}
-                    className="group text-left p-4 md:p-5 flex flex-col justify-between w-full h-full bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(229,153,123,0.15)] rounded-2xl transition-all duration-500 transform hover:-translate-y-1 hover:border-[#E5997B]/30"
+                    className="group text-left p-4 lg:p-5 flex flex-col justify-between w-full h-full min-h-[130px] lg:min-h-[160px] bg-[#F4F4F5]/5 border border-[#F4F4F5]/10 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_50px_rgba(229,153,123,0.15)] rounded-2xl transition-all duration-500 transform hover:-translate-y-1 hover:border-[#E5997B]/30"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="font-mono text-[12px] md:text-sm font-extrabold text-[#E5997B] bg-[#E5997B]/10 px-2 py-1 rounded-md">{prod.number}</span>
-                      <div className="hidden md:block w-12 h-12 md:w-16 md:h-16 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 origin-top-right">
+                    <div className="flex justify-between items-start mb-2 lg:mb-3">
+                      <span className="font-mono text-[9px] lg:text-sm font-extrabold text-[#E5997B] bg-[#E5997B]/10 px-1.5 py-0.5 lg:px-2 lg:py-1 rounded-md">{prod.number}</span>
+                      {/* hidden dihapus, ukuran disesuaikan jadi w-8 h-8 untuk mobile */}
+                     <div className="block w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 origin-top-right">
                         <ProductVisual index={i} isActive={true} inverted={true} />
                       </div>
                     </div>
                     
                     <div className="mt-auto">
-                      <h3 className="font-display font-semibold text-[#F4F4F5] text-xl md:text-2xl lg:text-[1.75rem] mb-2 leading-tight group-hover:text-[#E5997B] transition-colors">{prod.label}</h3>
-                      <p className="font-body text-[#F4F4F5]/70 text-base md:text-lg lg:text-xl line-clamp-3 leading-snug">{prod.tagline}</p>
+                      <h3 className="font-display font-semibold text-[#F4F4F5] text-base sm:text-lg lg:text-[1.75rem] mb-1 lg:mb-2 leading-tight group-hover:text-[#E5997B] transition-colors">{prod.label}</h3>
+                      <p className="hidden md:block font-body text-[#F4F4F5]/70 text-sm lg:text-xl line-clamp-2 lg:line-clamp-3 leading-snug">{prod.tagline}</p>
                     </div>
                   </button>
                 ))}
@@ -238,25 +248,26 @@ export default function ProductosShowcase({ products }: Props) {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full h-[70vh] flex flex-col justify-center"
+                // Overflow-y auto untuk mobile jika konten terlalu panjang
+                className="w-full h-full max-h-[85vh] md:h-[70vh] flex flex-col justify-start md:justify-center overflow-y-auto overflow-x-hidden hide-scrollbar pb-10 md:pb-0"
               >
                 <button 
                   onClick={() => setIsDetailView(false)}
-                  className="mb-6 self-start flex items-center gap-2 font-mono font-bold text-[10px] tracking-[0.2em] uppercase text-[#F4F4F5]/70 hover:text-[#E5997B] transition-colors bg-[#F4F4F5]/5 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-[#F4F4F5]/10 hover:border-[#E5997B]/30"
+                  className="mb-4 md:mb-6 self-start flex items-center gap-2 font-mono font-bold text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-[#F4F4F5]/70 hover:text-[#E5997B] transition-colors bg-[#F4F4F5]/5 backdrop-blur-sm px-3 md:px-4 py-1.5 md:py-2 rounded-full shadow-sm border border-[#F4F4F5]/10 hover:border-[#E5997B]/30"
                 >
                   <span>←</span> Volver a tarjetas
                 </button>
 
                 {/* GAMBAR KHUSUS MOBILE DI ATAS */}
-                <div className="block lg:hidden w-full h-[30vh] rounded-2xl overflow-hidden mb-6 relative shrink-0 cursor-none">
+                <div className="block lg:hidden w-full h-[25vh] min-h-[160px] rounded-2xl overflow-hidden mb-5 relative shrink-0 cursor-none">
                   <img src={PRODUCT_IMAGES[displayIndex]} alt="Product" className="absolute inset-0 w-full h-full object-cover bg-white" />
                   <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
-                  <div className="absolute bottom-3 left-3 bg-white/60 px-2 py-1 backdrop-blur-sm rounded-md">
-                    <span className="font-mono text-[10px] text-[#030035] font-bold tracking-widest uppercase">
+                  <div className="absolute bottom-3 left-3 bg-white/60 px-2 py-1 backdrop-blur-sm rounded-md z-30">
+                    <span className="font-mono text-[9px] text-[#030035] font-bold tracking-widest uppercase">
                       {p.number}
                     </span>
                   </div>
-                  <div className="absolute bottom-3 right-3">
+                  <div className="absolute bottom-3 right-3 z-30">
                     <Link
                       to={PRODUCTOS_CTA_LINK}
                       className="inline-flex items-center justify-center px-3 py-1.5 bg-[#E5997B] text-white font-body font-bold text-[9px] tracking-[0.2em] uppercase rounded-md shadow-[0_4px_15px_rgba(0,0,0,0.3)] backdrop-blur-md"
@@ -266,15 +277,15 @@ export default function ProductosShowcase({ products }: Props) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="font-mono text-[14px] font-extrabold tracking-[0.3em] uppercase text-[#E5997B]">
+                <div className="flex items-center gap-2 mb-2 md:mb-4">
+                  <span className="font-mono text-[11px] md:text-[14px] font-extrabold tracking-[0.3em] uppercase text-[#E5997B]">
                     {p.number}
                   </span>
-                  <div className="w-8 h-[2px] bg-[#E5997B]/40" />
+                  <div className="w-6 md:w-8 h-[2px] bg-[#E5997B]/40" />
                 </div>
 
                 <h2
-                  className="text-[2.2rem] sm:text-[3rem] md:text-[3.8vw] lg:text-[4vw] leading-[1.05] tracking-tight font-normal mb-6 break-words hyphens-auto"
+                  className="text-[2rem] sm:text-[2.5rem] md:text-[3.8vw] lg:text-[4vw] leading-[1.05] tracking-tight font-normal mb-4 md:mb-6 break-words hyphens-auto"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   <AccentHeading heading={p.heading} />
@@ -292,7 +303,7 @@ export default function ProductosShowcase({ products }: Props) {
           </AnimatePresence>
         </div>
 
-        {/* KOLOM KANAN */}
+        {/* KOLOM KANAN (TIDAK DIUBAH UNTUK DESKTOP) */}
         <div className="hidden lg:flex w-[50%] h-full pr-[2vw] md:pr-[4vw] lg:pr-[5vw] items-center justify-end relative">
           <div className="w-full max-w-xl xl:max-w-3xl h-[70vh] relative rounded-3xl overflow-hidden group shadow-2xl bg-white cursor-none">
             
@@ -342,7 +353,7 @@ export default function ProductosShowcase({ products }: Props) {
         </div>
       </div>
 
-      {/* ── BOTTOM PLANET NAV ── */}
+      {/* ── BOTTOM PLANET NAV (TIDAK DIUBAH UNTUK DESKTOP) ── */}
       <div className="hidden lg:block absolute bottom-0 left-0 right-0 z-30 border-t border-[#F4F4F5]/10 bg-[#030035]/80 backdrop-blur-xl">
         <div className="flex justify-center items-center gap-5 md:gap-10 mx-auto max-w-4xl px-4">
           {products.map((prod, i) => (

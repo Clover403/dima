@@ -13,24 +13,40 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(frameCount).fill(null));
   const requestRef = useRef<number>(0);
 
+  const imagePathsRef = useRef(imagePaths);
+  useEffect(() => {
+    imagePathsRef.current = imagePaths;
+  }, [imagePaths]);
+
   const drawFrame = (frameIndex: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx) {
+      console.log("[ScrollSequence] drawFrame aborted: no canvas or ctx");
+      return;
+    }
 
     frameIndex = Math.max(0, Math.min(frameIndex, frameCount - 1));
     let img = imagesRef.current[frameIndex];
-    
+
     if (!img) {
       for (let i = frameIndex - 1; i >= 0; i--) if (imagesRef.current[i]) { img = imagesRef.current[i]; break; }
       if (!img) for (let i = frameIndex + 1; i < frameCount; i++) if (imagesRef.current[i]) { img = imagesRef.current[i]; break; }
     }
-    
-    if (!img) return;
 
-    if (canvas.width !== img.width || canvas.height !== img.height) {
-      canvas.width = img.width;
-      canvas.height = img.height;
+    if (!img) {
+      console.log(`[ScrollSequence] drawFrame(${frameIndex}) aborted: no img found`);
+      return;
+    }
+
+    const imgW = img.naturalWidth || img.width;
+    const imgH = img.naturalHeight || img.height;
+    
+    console.log(`[ScrollSequence] Drawing frame ${frameIndex}. Image size: ${imgW}x${imgH}`);
+
+    if (canvas.width !== imgW || canvas.height !== imgH) {
+      canvas.width = imgW;
+      canvas.height = imgH;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -39,22 +55,19 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
 
   useEffect(() => {
     if (frameCount === 0) return;
-    
+
     let isActive = true;
     const pendingImages = new Set<HTMLImageElement>();
     const unloadedFrames = new Set(Array.from({ length: frameCount }, (_, i) => i));
 
+    // MENGGUNAKAN ONLOAD (Stabil di Windows/Chromium)
     const loadFrame = (index: number, priorityTarget: number) => {
       return new Promise<void>((resolve) => {
         if (!isActive) return resolve();
-        
+
         const img = new Image();
         pendingImages.add(img);
-        
-        img.decoding = "async";
-        
-        // Priority loading logic for Chromium (Chrome/Edge)
-        // Berikan prioritas "high" pada batch terdekat dari titik scroll user (radius 15 frame)
+
         const distance = Math.abs(index - priorityTarget);
         if (distance <= 15) {
           (img as any).fetchPriority = "high";
@@ -67,153 +80,85 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
           resolve();
         };
 
-        img.src = imagePaths[index];
-
-        img.decode().then(() => {
-          if (isActive) imagesRef.current[index] = img;
-          cleanupAndResolve();
-        }).catch(() => {
-          // Fallback jika decode gagal
-          if (isActive && img.complete && img.naturalWidth > 0) {
+        img.onload = async () => {
+          if (isActive) {
+            try {
+              await img.decode();
+            } catch (e) {
+              // Ignore decode errors, fallback to raw draw
+            }
             imagesRef.current[index] = img;
+            const currentFrame = Math.floor(progress.get() * (frameCount - 1));
+            if (index === currentFrame) {
+              drawFrame(index);
+            }
           }
           cleanupAndResolve();
-        });
+        };
+
+        img.onerror = () => cleanupAndResolve();
+
+        img.src = imagePathsRef.current[index];
       });
     };
 
-    const bootSequence = async () => {
-      // 1. Dapatkan index pertama berdasarkan posisi scroll user SAT INI (jangan selalu 0)
+const bootSequence = async () => {
       let currentTargetIndex = Math.floor(progress.get() * (frameCount - 1)) || 0;
+      if (window.scrollY === 0) currentTargetIndex = 0;
 
-      // Fix for stale progress.get() right after navigation when window.scrollTo(0,0) has just run
-      if (window.scrollY === 0) {
-        currentTargetIndex = 0;
-      }
-
-      // Render frame pertama dengan prioritas sangat tinggi
-      const firstImg = new Image();
-      pendingImages.add(firstImg);
-      (firstImg as any).fetchPriority = 'high';
-      firstImg.src = imagePaths[currentTargetIndex];
-      await firstImg.decode().catch(() => {});
-      
-      pendingImages.delete(firstImg);
-      if (!isActive) return;
-      
-      imagesRef.current[currentTargetIndex] = firstImg;
-      unloadedFrames.delete(currentTargetIndex);
-      drawFrame(currentTargetIndex);
-
-      // 2. Tunggu loader utama selesai
+      // 1. Prioritaskan Frame Pertama agar canvas tidak kosong
       await new Promise<void>((resolve) => {
-        const proceed = () => {
-          if (!isActive) return resolve();
-          setTimeout(resolve, 2000);
+        const firstImg = new Image();
+        pendingImages.add(firstImg);
+        (firstImg as any).fetchPriority = 'high';
+
+        firstImg.onload = async () => {
+          if (isActive) {
+            try { await firstImg.decode(); } catch (e) {}
+            imagesRef.current[currentTargetIndex] = firstImg;
+            unloadedFrames.delete(currentTargetIndex);
+            drawFrame(currentTargetIndex);
+          }
+          pendingImages.delete(firstImg);
+          resolve();
         };
-        
-        if ((window as any).isLoaderFinished) {
-          proceed();
-        } else {
-          const onFinished = () => {
-            window.removeEventListener('loaderFinished', onFinished);
-            proceed();
-          };
-          window.addEventListener('loaderFinished', onFinished);
-        }
+
+        firstImg.onerror = () => resolve();
+        firstImg.src = imagePathsRef.current[currentTargetIndex];
       });
 
       if (!isActive) return;
 
-      // 3. Dynamic Adaptive Batching berdasarkan kualitas network
-      const connection = (navigator as any).connection;
-      const isSlowConnection = connection ? (
-        connection.saveData || 
-        connection.effectiveType === 'slow-2g' || 
-        connection.effectiveType === '2g' || 
-        connection.effectiveType === '3g'
-      ) : false;
+      // 2. HAJAR SEMUA SISA FRAME SEKALIGUS (Aggressive Load)
+      // Hapus tunggu loaderFinished, hapus cek koneksi, hapus sistem batch
+      const remainingFrames = Array.from(unloadedFrames);
       
-      const baseChunkSize = isSlowConnection ? 15 : 40;
-
-      const loadNextBatch = async () => {
-        if (!isActive || unloadedFrames.size === 0) return;
-
-        // Ambil target index TERBARU (update real-time setiap mulai load batch baru)
-        const currentTarget = Math.floor(progress.get() * (frameCount - 1));
-
-        // Sortir frame yang tersisa berdasarkan Jarak Terdekat ke frame yg user lihat sekarang
-        const sortedUnloaded = Array.from(unloadedFrames).sort((a, b) => {
-          return Math.abs(a - currentTarget) - Math.abs(b - currentTarget);
-        });
-
-        const batch = sortedUnloaded.slice(0, baseChunkSize);
-        batch.forEach(i => unloadedFrames.delete(i));
-
-        const startTime = import.meta.env.DEV ? performance.now() : 0;
-
-        await Promise.all(batch.map(index => loadFrame(index, currentTarget)));
-
-        if (import.meta.env.DEV) {
-          console.log(`[ScrollSequence] Loaded chunk of ${batch.length} frames in ${Math.round(performance.now() - startTime)}ms`);
-        }
-
-        if (isActive) {
-          // Force redraw in case the correct frame for current progress just finished loading
-          // but the user hasn't scrolled yet to trigger a redraw.
-          if (requestRef.current) cancelAnimationFrame(requestRef.current);
-          requestRef.current = requestAnimationFrame(() => {
-            drawFrame(Math.floor(progress.get() * (frameCount - 1)));
-          });
-        }
-
-        if (isActive && unloadedFrames.size > 0) {
-          // requestIdleCallback mencegah freezing di main thread Chromium / Edge saat decoding WebP
-          if ('requestIdleCallback' in window) {
-            (window as any).requestIdleCallback(() => loadNextBatch(), { timeout: 2000 });
-          } else {
-            setTimeout(loadNextBatch, 10);
-          }
-        }
-      };
-
-      loadNextBatch();
+      Promise.all(remainingFrames.map(index => {
+        unloadedFrames.delete(index);
+        return loadFrame(index, currentTargetIndex);
+      }));
     };
 
     bootSequence();
 
-    // 4. Memory Safety Cleanup yang Brutal & Ekstensif
     return () => {
       isActive = false;
-      
-      // A. Batalkan semua request image in-flight & lepas referensi memory-nya
-      pendingImages.forEach(img => { 
-        img.src = ''; 
+
+      pendingImages.forEach(img => {
         img.onload = null;
         img.onerror = null;
       });
       pendingImages.clear();
 
-      // B. Hancurkan referensi frame yang sudah beres ter-load di array
-      imagesRef.current.forEach(img => { 
-        if (img) {
-          img.src = '';
-          img.onload = null;
-          img.onerror = null;
-        }
-      });
       imagesRef.current = new Array(frameCount).fill(null);
 
-      // C. Bebaskan backing store dari element canvas itu sendiri
       const canvas = canvasRef.current;
       if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = 0;
-        canvas.height = 0;
       }
     };
-  }, [imagePaths, frameCount, progress]);
+  }, [frameCount]);
 
   useEffect(() => {
     const unsubscribe = progress.on("change", (v) => {
@@ -227,12 +172,12 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
       unsubscribe();
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [progress, frameCount]); 
+  }, [progress, frameCount]);
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className={`w-full h-full object-cover ${className?.includes('object-') ? '' : 'object-center'} ${className || ''}`} 
+    <canvas
+      ref={canvasRef}
+      className={`w-full h-full ${className?.includes('object-contain') ? 'object-contain' : 'object-cover'} ${className?.includes('object-') ? '' : 'object-center'} ${className || ''}`}
     />
   );
 }

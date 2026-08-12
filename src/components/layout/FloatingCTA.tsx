@@ -225,7 +225,7 @@ export default function FloatingCTA() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             layout
             aria-label="Agendar Sesión"
-            className="fixed bottom-8 right-8 z-[9999] flex items-center gap-6 rounded-full px-6 py-5 min-w-[96px] min-h-[96px] cursor-pointer select-none will-change-transform"
+className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[9999] flex items-center gap-4 md:gap-6 rounded-full px-4 md:px-6 py-3 md:py-5 min-w-[64px] md:min-w-[96px] min-h-[64px] md:min-h-[96px] cursor-pointer select-none will-change-transform"
             style={{
               backgroundColor: NAVY,
               border: '1px solid rgba(244,244,245,0.06)',
@@ -240,9 +240,9 @@ export default function FloatingCTA() {
               layout="position"
               animate={pulse ? { scale: [1, 1.14, 1] } : { scale: 1 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
-              className="flex items-center justify-center w-10 h-10 shrink-0"
+              className="flex items-center justify-center w-7 h-7 md:w-10 md:h-10 shrink-0"
             >
-              <CalendarIcon className="w-10 h-10" />
+              <CalendarIcon className="w-7 h-7 md:w-10 md:h-10" />
             </motion.div>
 
             <AnimatePresence initial={false}>
@@ -253,7 +253,7 @@ export default function FloatingCTA() {
                   animate={{ opacity: 1, width: 'auto', marginLeft: 4 }}
                   exit={{ opacity: 0, width: 0, marginLeft: 0 }}
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden whitespace-nowrap font-sans font-medium text-[15px] tracking-wide pr-4"
+                  className="overflow-hidden whitespace-nowrap font-sans font-medium text-[13px] md:text-[15px] tracking-wide pr-2 md:pr-4"
                   style={{ color: GRAY }}
                 >
                   Agendar Sesión

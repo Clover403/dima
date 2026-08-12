@@ -14,7 +14,6 @@
 
   body {
     @apply bg-navy text-lightgray font-body antialiased;
-    overflow-x: hidden;
   }
 
   ::selection {

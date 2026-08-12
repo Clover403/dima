@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { AnimatePresence, motion } from 'framer-motion'
-import HoverTrailOverlay from '../../HoverTrailOverlay';
+import HoverTrailOverlay from '../HoverTrailOverlay';
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -62,9 +62,6 @@ const services = [
 
 const easeCurtain: [number, number, number, number] = [0.76, 0, 0.24, 1]
 
-// Logika Tumpukan Sempurna:
-// Saat scroll bawah (dir > 0): gambar lama naik (-100%), gambar baru diam di belakang (0%).
-// Saat scroll atas (dir < 0): gambar baru turun dari atas (-100% ke 0%), gambar lama ditahan diam di bawah (0%) dengan transition duration 0 di akhir.
 const imageVariants = {
   enter: (direction: number) => ({
     y: direction > 0 ? '0%' : '-100%',
@@ -79,9 +76,8 @@ const imageVariants = {
   exit: (direction: number) => ({
     y: direction > 0 ? '-100%' : '0%',
     zIndex: direction > 0 ? 10 : 1,
-    // Jika scroll balik (dir < 0), gambar yang keluar harus TETAP DIAM dan tidak boleh unmount sebelum durasi animasi selesai (0.8s)
-    transition: direction > 0 
-      ? { duration: 0.8, ease: easeCurtain } 
+    transition: direction > 0
+      ? { duration: 0.8, ease: easeCurtain }
       : { duration: 0, delay: 0.8 }
   }),
 }
@@ -133,8 +129,9 @@ export default function ServicesSection() {
     >
       <div className="sticky top-0 w-full h-screen flex flex-col justify-between overflow-hidden bg-[#030035]">
 
-        {/* === BAGIAN ATAS: GAMBAR (~80% HEIGHT) === */}
-        <div className="relative w-full h-[80vh] overflow-hidden bg-[#030035] cursor-none">
+        {/* === BAGIAN ATAS: GAMBAR (55vh Mobile, 75vh Desktop) === */}
+        {/* Supaya di mobile gambar tidak makan tempat terlalu banyak */}
+        <div className="relative w-full h-[55vh] md:h-[60vh] lg:h-[75vh] overflow-hidden bg-[#030035] cursor-none shrink-0">
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={services[activeIdx].image}
@@ -153,11 +150,13 @@ export default function ServicesSection() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Hover Trail Overlay */}
-          <HoverTrailOverlay theme="lightgray" className="absolute inset-0 z-20 w-full h-full" />
+          {/* HIDE HOVER TRAIL ON MOBILE/TAB (Mencegah bug sentuhan layar) */}
+          <div className="hidden lg:block absolute inset-0 z-20 w-full h-full">
+            <HoverTrailOverlay theme="lightgray" />
+          </div>
 
           {/* Vertical Progress Line */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-6 md:left-12 lg:left-16 flex flex-col items-center z-30">
+          <div className="absolute top-1/2 -translate-y-1/2 left-4 md:left-8 lg:left-16 flex flex-col items-center z-30">
             {services.map((svc, i) => (
               <div key={svc.number} className="flex flex-col items-center">
                 <button
@@ -165,20 +164,18 @@ export default function ServicesSection() {
                   className="group py-2 focus:outline-none flex items-center gap-3"
                 >
                   <span
-                    className={`font-mono text-xs transition-all duration-300 ${
-                      activeIdx === i ? 'text-[#E5997B] font-bold scale-125' : 'text-[#F4F4F5]/40 group-hover:text-[#F4F4F5]/80'
-                    }`}
+                    className={`font-mono text-xs md:text-sm transition-all duration-300 ${activeIdx === i ? 'text-[#E5997B] font-bold scale-125' : 'text-[#F4F4F5]/40 group-hover:text-[#F4F4F5]/80'
+                      }`}
                   >
                     {svc.number}
                   </span>
                 </button>
 
                 {i < services.length - 1 && (
-                  <div className="w-[2px] h-10 bg-[#F4F4F5]/20 relative overflow-hidden">
+                  <div className="w-[2px] h-6 md:h-10 bg-[#F4F4F5]/20 relative overflow-hidden">
                     <div
-                      className={`w-full bg-[#E5997B] transition-all duration-500 ${
-                        activeIdx > i ? 'h-full' : activeIdx === i ? 'h-1/2' : 'h-0'
-                      }`}
+                      className={`w-full bg-[#E5997B] transition-all duration-500 ${activeIdx > i ? 'h-full' : activeIdx === i ? 'h-1/2' : 'h-0'
+                        }`}
                     />
                   </div>
                 )}
@@ -187,38 +184,38 @@ export default function ServicesSection() {
           </div>
         </div>
 
-        {/* === BAGIAN BAWAH: TEKS (~20% HEIGHT) === */}
-        <div className="w-full h-[20vh] bg-[#030035] text-[#F4F4F5] flex items-center px-6 md:px-12 lg:px-16 border-t border-[#F4F4F5]/10 z-30">
-          
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center ml-4 md:ml-8 lg:ml-12">
-            
+        {/* === BAGIAN BAWAH: TEKS (Sisa layar agar bebas overlapping) === */}
+        {/* Menggunakan flex-1 agar teks mengisi sisa ruang tanpa terpotong */}
+        <div className="flex-1 w-full bg-[#030035] text-[#F4F4F5] flex items-center px-6 md:px-12 lg:px-16 border-t border-[#F4F4F5]/10 z-30 py-4 lg:py-0">
+
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-6 lg:gap-8 items-center lg:ml-12">
+
             {/* Kolom Kiri: Judul & Nomor */}
-            <div className="lg:col-span-3 flex flex-col justify-center text-left">
-              
-              <div className="overflow-hidden mb-1">
+            <div className="lg:col-span-4 flex flex-col justify-center text-left">
+              <div className="overflow-hidden mb-1 md:mb-2">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`num-${activeIdx}`}
-                    initial={{ y: '100%' }}
-                    animate={{ y: '0%' }}
-                    exit={{ y: '-100%' }}
-                    transition={{ duration: 0.5, ease: easeCurtain }}
-                    className="font-display text-2xl md:text-3xl lg:text-4xl text-[#E5997B] font-normal leading-snug tracking-tight"
+                    initial={{ y: '100%', opacity: 0 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    exit={{ y: '-100%', opacity: 0 }}
+                    transition={{ duration: 0.4, ease: easeCurtain }}
+                    className="font-display text-lg sm:text-xl md:text-2xl lg:text-3xl text-[#E5997B] font-normal leading-snug tracking-tight"
                   >
                     Servicio / {services[activeIdx].number}
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              <div className="overflow-hidden max-w-[320px]">
+              <div className="overflow-hidden lg:max-w-[320px]">
                 <AnimatePresence mode="wait">
                   <motion.h3
                     key={`title-${activeIdx}`}
-                    initial={{ y: '100%' }}
-                    animate={{ y: '0%' }}
-                    exit={{ y: '-100%' }}
-                    transition={{ duration: 0.6, delay: 0.05, ease: easeCurtain }}
-                    className="font-display text-2xl md:text-3xl lg:text-4xl text-[#F4F4F5] font-normal leading-snug tracking-tight line-clamp-2"
+                    initial={{ y: '100%', opacity: 0 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    exit={{ y: '-100%', opacity: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05, ease: easeCurtain }}
+                    className="font-display text-2xl sm:text-3xl md:text-4xl text-[#F4F4F5] font-normal leading-[1.1] tracking-tight line-clamp-2"
                   >
                     {services[activeIdx].name}
                   </motion.h3>
@@ -226,37 +223,32 @@ export default function ServicesSection() {
               </div>
             </div>
 
-            {/* Kolom Kanan: Deskripsi */}
-            <div className="lg:col-span-9 flex flex-col justify-between text-left lg:pl-4">
-              <div className="flex flex-col">
+            {/* Kolom Kanan: Deskripsi (Digabung jadi 1 paragraf agar fluid) */}
+            <div className="lg:col-span-8 flex flex-col justify-between text-left lg:pl-4 mt-2 lg:mt-0">
+              <div className="flex flex-col overflow-hidden">
                 <AnimatePresence mode="wait">
-                  {services[activeIdx].description.map((line, index) => (
-                    <div key={`${activeIdx}-${index}`} className="overflow-hidden">
-                      <motion.p
-                        initial={{ y: '100%' }}
-                        animate={{ y: '0%' }}
-                        exit={{ y: '-100%' }}
-                        transition={{
-                          duration: 0.5,
-                          delay: 0.1 + index * 0.06,
-                          ease: easeCurtain,
-                        }}
-                        className="font-body text-lg md:text-xl lg:text-2xl text-[#F4F4F5]/80 leading-relaxed font-light"
-                      >
-                        {line}
-                      </motion.p>
-                    </div>
-                  ))}
+                  <motion.p
+                    key={`desc-${activeIdx}`}
+                    initial={{ y: '100%', opacity: 0 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    exit={{ y: '-100%', opacity: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1, ease: easeCurtain }}
+                    // Teks lebih kecil sedikit di mobile, membesar di desktop
+                    className="font-body text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#F4F4F5]/80 leading-snug md:leading-relaxed font-light"
+                  >
+                    {/* Menggabungkan array agar responsive wrap-nya sempurna di mobile */}
+                    {services[activeIdx].description.join(' ')}
+                  </motion.p>
                 </AnimatePresence>
               </div>
 
-              <div className="mt-3 pt-1 flex justify-start">
+              <div className="mt-4 md:mt-6 flex justify-start">
                 <Link
                   to="/servicios"
-                  className="group inline-flex items-center gap-4 text-xs font-mono tracking-[0.25em] uppercase text-[#F4F4F5] hover:text-[#E5997B] transition-colors duration-300 py-1"
+                  className="group inline-flex items-center gap-3 text-[10px] md:text-xs font-mono tracking-[0.2em] md:tracking-[0.25em] uppercase text-[#F4F4F5] hover:text-[#E5997B] transition-colors duration-300 py-1"
                 >
                   <span>Explorar Servicios</span>
-                  <span className="w-8 h-[1px] bg-[#E5997B] group-hover:w-16 transition-all duration-500 ease-out" />
+                  <span className="w-6 md:w-8 h-[1px] bg-[#E5997B] group-hover:w-12 md:group-hover:w-16 transition-all duration-500 ease-out" />
                 </Link>
               </div>
             </div>
