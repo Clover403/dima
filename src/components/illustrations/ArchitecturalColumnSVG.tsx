@@ -467,4 +467,5 @@ export default function ArchitecturalColumnSVG({
       ))}
     </motion.svg>
   )
+  
 }
