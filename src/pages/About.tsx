@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import NosotrosHeroScroll from '../components/About/NosotrosHeroScroll';
+import NosotrosHeroScroll from '../components/about/NosotrosHeroScroll';
 import CTA from '../components/layout/CTA';
 import PageTransition from '../components/layout/PageTransition';
 

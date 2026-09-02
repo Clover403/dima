@@ -4,12 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import HoverTrailOverlay from '../HoverTrailOverlay';
 import ScrollSequence from '../ScrollSequence';
 import HybridRevealText from '../HybridRevealText';
-
-const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-const nosotros1Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/nosotros1_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const nosotros2Frames = Array.from({ length: 144 }, (_, i) => `${R2_BASE_URL}/nosotros2_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const nosotros3Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/nosotros3_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const nosotrosSequenceFrames = [...nosotros1Frames, ...nosotros2Frames, ...nosotros3Frames];
+import { nosotrosSequenceFrames } from '../../lib/sequences';
 
 const chapters = [
   {

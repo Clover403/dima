@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Layout from './components/layout/Layout'
 import Loader from './components/Loader'
+import RouteSequencePreloader from './components/RouteSequencePreloader'
 import Home from './pages/Home'
 import CreditModel from './pages/CreditModel'
 import Products from './pages/Products'
@@ -18,6 +19,7 @@ export default function App() {
   return (
     <>
       <Loader />
+      <RouteSequencePreloader />
       <AnimatePresence mode="wait" initial={false}>
         <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
