@@ -2,11 +2,11 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
+import ScrollVideo from '../ScrollVideo'
 import ScrollSequence from '../ScrollSequence'
 import HybridRevealText from '../HybridRevealText'
-
-const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-const models3Frames = Array.from({ length: 240 }, (_, i) => `${R2_BASE_URL}/models3_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
+import { modelPrincipiosVideoUrl, modelPrincipiosSequenceFrames } from '../../lib/sequences'
+import { isIOS } from '../../lib/isSafariOrIOS'
 
 const chapters = [
   {
@@ -91,14 +91,22 @@ export default function PrincipiosHero() {
     <div ref={containerRef} className="relative h-[550vh] w-full bg-[#F4F4F5]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         
-        {/* Scroll Sequence Background */}
+        {/* Scroll Background (Video for non-iOS browsers like Firefox & Chrome, ScrollSequence for iOS) */}
         <div className="absolute inset-0 z-0 pointer-events-none bg-navy cursor-none">
-          <ScrollSequence 
-            progress={scrollYProgress} 
-            frameCount={models3Frames.length} 
-            imagePaths={models3Frames} 
-            className="contrast-105"
-          />
+          {isIOS() ? (
+            <ScrollSequence
+              progress={scrollYProgress}
+              frameCount={modelPrincipiosSequenceFrames.length}
+              imagePaths={modelPrincipiosSequenceFrames}
+              className="contrast-105"
+            />
+          ) : (
+            <ScrollVideo 
+              progress={scrollYProgress} 
+              src={modelPrincipiosVideoUrl} 
+              className="contrast-105"
+            />
+          )}
         </div>
 
         {/* Overlay Gelap */}
