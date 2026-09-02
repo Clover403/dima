@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { sequenceCache } from '../lib/sequenceCache';
 
 // ─── HOOK ANIMASI ENVELOPE DOTS ───
 function useEnvelopeDots(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
@@ -171,8 +172,14 @@ export default function Loader() {
       "/logo/Imagen 1.png"
     ];
     
-    const priority2 = R2_BASE_URL ? [`${R2_BASE_URL}/hero1_re/ezgif-frame-001.webp`] : [];
-    
+    const priority2 = R2_BASE_URL ? [
+      `${R2_BASE_URL}/hero1_re/ezgif-frame-001.webp`,
+      `${R2_BASE_URL}/models1_re/ezgif-frame-001.webp`,
+      `${R2_BASE_URL}/models2_re/ezgif-frame-001.webp`,
+      `${R2_BASE_URL}/models3_re/ezgif-frame-001.webp`,
+      `${R2_BASE_URL}/nosotros1_re/ezgif-frame-001.webp`
+    ] : [];
+
     const priority3 = [
       "/illustration-compressed/home/temple6.webp",
       "/illustration-compressed/home/temple9.webp",
@@ -203,22 +210,20 @@ export default function Loader() {
       }
     };
 
-    const preloadImage = (src: string): Promise<void> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.fetchPriority = 'high';
-        img.onload = () => {
-          loadedItemsCount++;
-          setProgress((loadedItemsCount / essentialItems.length) * 100);
-          resolve();
-        };
-        img.onerror = () => {
-          loadedItemsCount++;
-          setProgress((loadedItemsCount / essentialItems.length) * 100);
-          resolve();
-        };
-        img.src = src;
-      });
+    const preloadImage = async (src: string): Promise<void> => {
+      if (src.includes('.webp') && R2_BASE_URL && src.includes(R2_BASE_URL)) {
+        await sequenceCache.preloadImage(src, 'high');
+      } else {
+        await new Promise<void>((resolve) => {
+          const img = new Image();
+          img.fetchPriority = 'high';
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = src;
+        });
+      }
+      loadedItemsCount++;
+      setProgress((loadedItemsCount / essentialItems.length) * 100);
     };
 
     const loadSequentially = async () => {
@@ -233,30 +238,11 @@ export default function Loader() {
       
       checkReadyToFinish();
 
-      // Background loading for other priorities (Phase 2)
-      // 4. Frame awal sequences
-      const priority4 = R2_BASE_URL ? [
-        `${R2_BASE_URL}/hero2_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/models1_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/models2_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/models3_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/nosotros1_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/nosotros2_re/ezgif-frame-001.webp`,
-        `${R2_BASE_URL}/nosotros3_re/ezgif-frame-001.webp`
+      // Background loading for Home hero sequence continuation
+      const homeBackgroundAssets = R2_BASE_URL ? [
+        `${R2_BASE_URL}/hero2_re/ezgif-frame-001.webp`
       ] : [];
 
-      // 5. Di modelo harus gambar biasa nya dulu sebelum sequences di load
-      const priority5 = [
-        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=1600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=1600&auto=format&fit=crop",
-        "/illustration-compressed/home/3rodaekonomi.webp",
-        "/foto/brand-corporate.jpg",
-        "/illustration-compressed/models/penggiling.webp",
-        "/illustration-compressed/models/balon2.webp"
-      ];
-
-      // Load background assets sequentially to avoid killing the network
       const backgroundPreload = (src: string) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
@@ -267,10 +253,7 @@ export default function Loader() {
         });
       };
       
-      // Load Priority 4 (First frames of other sequences)
-      await Promise.all(priority4.map(backgroundPreload));
-      // Load Priority 5 (Modelo images)
-      await Promise.all(priority5.map(backgroundPreload));
+      await Promise.all(homeBackgroundAssets.map(backgroundPreload));
     };
 
     loadSequentially();
