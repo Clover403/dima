@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { MotionValue } from 'framer-motion';
+import { sequenceCache } from '../lib/sequenceCache';
 
 interface ScrollSequenceProps {
   progress: MotionValue<number>;
@@ -10,46 +11,74 @@ interface ScrollSequenceProps {
 
 export default function ScrollSequence({ progress, frameCount, imagePaths, className }: ScrollSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(frameCount).fill(null));
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
+  const lastDrawnImgRef = useRef<HTMLImageElement | null>(null);
   const requestRef = useRef<number>(0);
-
   const imagePathsRef = useRef(imagePaths);
+
   useEffect(() => {
     imagePathsRef.current = imagePaths;
   }, [imagePaths]);
 
+  // Synchronously populate imagesRef from sequenceCache whenever imagePaths change
+  useEffect(() => {
+    imagesRef.current = new Array(frameCount).fill(null);
+    for (let i = 0; i < frameCount; i++) {
+      if (imagePaths[i]) {
+        const cached = sequenceCache.get(imagePaths[i]);
+        if (cached) imagesRef.current[i] = cached;
+      }
+    }
+  }, [imagePaths, frameCount]);
+
   const drawFrame = (frameIndex: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) {
-      console.log("[ScrollSequence] drawFrame aborted: no canvas or ctx");
-      return;
-    }
+    if (!canvas || !ctx) return;
 
     frameIndex = Math.max(0, Math.min(frameIndex, frameCount - 1));
     let img = imagesRef.current[frameIndex];
 
-    if (!img) {
-      for (let i = frameIndex - 1; i >= 0; i--) if (imagesRef.current[i]) { img = imagesRef.current[i]; break; }
-      if (!img) for (let i = frameIndex + 1; i < frameCount; i++) if (imagesRef.current[i]) { img = imagesRef.current[i]; break; }
+    // 1. Coba ambil dari sequenceCache jika belum di-set
+    if (!img && imagePathsRef.current[frameIndex]) {
+      img = sequenceCache.get(imagePathsRef.current[frameIndex]) || null;
+      if (img) imagesRef.current[frameIndex] = img;
     }
 
+    // 2. O(1) Fast Local Radius Search (Mencari frame terdekat di sekitar target)
     if (!img) {
-      console.log(`[ScrollSequence] drawFrame(${frameIndex}) aborted: no img found`);
-      return;
+      for (let offset = 1; offset <= 25; offset++) {
+        const left = frameIndex - offset;
+        if (left >= 0) {
+          const candidate = imagesRef.current[left] || sequenceCache.get(imagePathsRef.current[left]) || null;
+          if (candidate) { img = candidate; break; }
+        }
+        const right = frameIndex + offset;
+        if (right < frameCount) {
+          const candidate = imagesRef.current[right] || sequenceCache.get(imagePathsRef.current[right]) || null;
+          if (candidate) { img = candidate; break; }
+        }
+      }
     }
 
-    const imgW = img.naturalWidth || img.width;
-    const imgH = img.naturalHeight || img.height;
-    
-    console.log(`[ScrollSequence] Drawing frame ${frameIndex}. Image size: ${imgW}x${imgH}`);
+    // 3. Fallback ke gambar terakhir yang berhasil di-render (Never clear to blank!)
+    if (!img) {
+      img = lastDrawnImgRef.current;
+    }
+
+    if (!img) return;
+
+    lastDrawnImgRef.current = img;
+
+    const imgW = img.naturalWidth || img.width || 1920;
+    const imgH = img.naturalHeight || img.height || 1080;
 
     if (canvas.width !== imgW || canvas.height !== imgH) {
       canvas.width = imgW;
       canvas.height = imgH;
     }
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // JANGAN GUNAKAN ctx.clearRect() - drawImage langsung menimpa pixel tanpa jeda kedip!
     ctx.drawImage(img, 0, 0);
   };
 
@@ -57,110 +86,57 @@ export default function ScrollSequence({ progress, frameCount, imagePaths, class
     if (frameCount === 0) return;
 
     let isActive = true;
-    const pendingImages = new Set<HTMLImageElement>();
-    const unloadedFrames = new Set(Array.from({ length: frameCount }, (_, i) => i));
 
-    // MENGGUNAKAN ONLOAD (Stabil di Windows/Chromium)
-    const loadFrame = (index: number, priorityTarget: number) => {
-      return new Promise<void>((resolve) => {
-        if (!isActive) return resolve();
+    const loadFrame = async (index: number, priorityTarget: number) => {
+      if (!isActive) return;
+      const url = imagePathsRef.current[index];
+      if (!url) return;
 
-        const img = new Image();
-        pendingImages.add(img);
+      if (imagesRef.current[index]) {
+        const currentFrame = Math.floor(progress.get() * (frameCount - 1));
+        if (index === currentFrame) drawFrame(index);
+        return;
+      }
 
-        const distance = Math.abs(index - priorityTarget);
-        if (distance <= 15) {
-          (img as any).fetchPriority = "high";
-        } else {
-          (img as any).fetchPriority = "low";
-        }
+      const distance = Math.abs(index - priorityTarget);
+      const priority = distance <= 15 ? 'high' : 'low';
+      const img = await sequenceCache.preloadImage(url, priority);
 
-        const cleanupAndResolve = () => {
-          pendingImages.delete(img);
-          resolve();
-        };
-
-        img.onload = async () => {
-          if (isActive) {
-            try {
-              await img.decode();
-            } catch (e) {
-              // Ignore decode errors, fallback to raw draw
-            }
-            imagesRef.current[index] = img;
-            const currentFrame = Math.floor(progress.get() * (frameCount - 1));
-            if (index === currentFrame) {
-              drawFrame(index);
-            }
-          }
-          cleanupAndResolve();
-        };
-
-        img.onerror = () => cleanupAndResolve();
-
-        img.src = imagePathsRef.current[index];
-      });
+      if (isActive && img) {
+        imagesRef.current[index] = img;
+        const currentFrame = Math.floor(progress.get() * (frameCount - 1));
+        if (index === currentFrame) drawFrame(index);
+      }
     };
 
-const bootSequence = async () => {
+    const bootSequence = async () => {
       let currentTargetIndex = Math.floor(progress.get() * (frameCount - 1)) || 0;
       if (window.scrollY === 0) currentTargetIndex = 0;
 
-      // 1. Prioritaskan Frame Pertama agar canvas tidak kosong
-      await new Promise<void>((resolve) => {
-        const firstImg = new Image();
-        pendingImages.add(firstImg);
-        (firstImg as any).fetchPriority = 'high';
+      // Draw initial frame immediately from cache if available
+      drawFrame(currentTargetIndex);
 
-        firstImg.onload = async () => {
-          if (isActive) {
-            try { await firstImg.decode(); } catch (e) {}
-            imagesRef.current[currentTargetIndex] = firstImg;
-            unloadedFrames.delete(currentTargetIndex);
-            drawFrame(currentTargetIndex);
-          }
-          pendingImages.delete(firstImg);
-          resolve();
-        };
-
-        firstImg.onerror = () => resolve();
-        firstImg.src = imagePathsRef.current[currentTargetIndex];
-      });
+      await loadFrame(currentTargetIndex, currentTargetIndex);
 
       if (!isActive) return;
 
-      // 2. HAJAR SEMUA SISA FRAME SEKALIGUS (Aggressive Load)
-      // Hapus tunggu loaderFinished, hapus cek koneksi, hapus sistem batch
-      const remainingFrames = Array.from(unloadedFrames);
-      
-      Promise.all(remainingFrames.map(index => {
-        unloadedFrames.delete(index);
-        return loadFrame(index, currentTargetIndex);
-      }));
+      // Load all remaining frames
+      const remainingIndexes = Array.from({ length: frameCount }, (_, i) => i)
+        .filter(i => !imagesRef.current[i]);
+
+      remainingIndexes.forEach(index => loadFrame(index, currentTargetIndex));
     };
 
     bootSequence();
 
     return () => {
       isActive = false;
-
-      pendingImages.forEach(img => {
-        img.onload = null;
-        img.onerror = null;
-      });
-      pendingImages.clear();
-
-      imagesRef.current = new Array(frameCount).fill(null);
-
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
     };
   }, [frameCount]);
 
   useEffect(() => {
+    drawFrame(Math.floor(progress.get() * (frameCount - 1)) || 0);
+
     const unsubscribe = progress.on("change", (v) => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       requestRef.current = requestAnimationFrame(() => {
@@ -174,10 +150,16 @@ const bootSequence = async () => {
     };
   }, [progress, frameCount]);
 
+  const objectFitClass = className?.includes('object-contain') ? 'object-contain' : 'object-cover';
+  const objectPositionClass = className?.includes('object-') ? '' : 'object-center';
+  const combinedClass = `${objectFitClass} ${objectPositionClass} ${className || ''}`;
+
   return (
-    <canvas
-      ref={canvasRef}
-      className={`w-full h-full ${className?.includes('object-contain') ? 'object-contain' : 'object-cover'} ${className?.includes('object-') ? '' : 'object-center'} ${className || ''}`}
-    />
+    <div className="relative w-full h-full">
+      <canvas
+        ref={canvasRef}
+        className={`absolute inset-0 w-full h-full ${combinedClass}`}
+      />
+    </div>
   );
 }
