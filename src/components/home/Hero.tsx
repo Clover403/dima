@@ -3,11 +3,7 @@ import { useRef } from 'react';
 import HoverTrailOverlay from '../HoverTrailOverlay';
 import ScrollSequence from '../ScrollSequence';
 import HybridRevealText from '../HybridRevealText';
-
-const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-const hero1Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero1_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const hero2Frames = Array.from({ length: 176 }, (_, i) => `${R2_BASE_URL}/hero2_re/ezgif-frame-${String(i + 1).padStart(3, '0')}.webp`);
-const heroSequenceFrames = [...hero1Frames, ...hero2Frames];
+import { homeSequenceFrames } from '../../lib/sequences';
 const chapters = [
   "La economía no es caos.",
   "Es un mecanismo — predecible, medible, replicable.",
@@ -74,16 +70,16 @@ export default function HeroSection() {
         >
           <ScrollSequence
             progress={sequenceProgress}
-            frameCount={heroSequenceFrames.length}
-            imagePaths={heroSequenceFrames}
+            frameCount={homeSequenceFrames.length}
+            imagePaths={homeSequenceFrames}
             className="object-cover md:object-contain object-bottom contrast-105"
           />
           <HoverTrailOverlay
             theme="lightgray"
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full z-[2]"
           />
           <motion.div
-            className="absolute inset-0 bg-black pointer-events-none"
+            className="absolute inset-0 bg-black pointer-events-none z-[3]"
             style={{ opacity: overlayOpacity }}
           />
         </motion.div>
