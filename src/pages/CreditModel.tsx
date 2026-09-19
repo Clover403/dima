@@ -28,7 +28,7 @@ export default function CreditModel() {
       <ModeloFuerzas />
       <ModeloPrincipios />
 
-      <CTA theme="light" />
+      <CTA theme="light" className="-mt-[2px] relative z-20" />
     </PageTransition>
   )
 }

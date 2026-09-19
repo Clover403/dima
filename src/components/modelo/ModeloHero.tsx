@@ -1,9 +1,11 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence, useInView } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 import HoverTrailOverlay from '../HoverTrailOverlay' 
 import ScrollSequence from '../ScrollSequence'
 import HybridRevealText from '../HybridRevealText'
+import SpotlightGridBackground from '../layout/SpotlightGridBackground'
+import SequenceLoadingBar from '../common/SequenceLoadingBar'
 import { modelHeroSequenceFrames } from '../../lib/sequences'
 
 const chapters = [
@@ -35,6 +37,7 @@ const chapters = [
 
 export default function ModeloHero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { margin: "200px 0px" });
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -44,6 +47,8 @@ export default function ModeloHero() {
   const slot = 1 / chapters.length;
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
+  const [isSequenceLoaded, setIsSequenceLoaded] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const activeChapterRef = useRef(0);
 
   useEffect(() => {
@@ -74,25 +79,57 @@ export default function ModeloHero() {
     });
   };
 
-  const logoOpacity = useTransform(scrollYProgress, [0, 0.015, 1], [1, 0, 0]);
+  useEffect(() => {
+    const triggerUpdate = () => {
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+    };
+    triggerUpdate();
+    const rafId = requestAnimationFrame(triggerUpdate);
+    const timer = setTimeout(triggerUpdate, 120);
+    window.addEventListener('loaderFinished', triggerUpdate, { once: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+      window.removeEventListener('loaderFinished', triggerUpdate);
+    };
+  }, []);
+
+  const logoOpacity = useTransform(scrollYProgress, (v) => {
+    if (typeof v !== 'number' || isNaN(v) || v <= 0) return 1;
+    if (v >= 0.015) return 0;
+    return 1 - (v / 0.015);
+  });
   
   // Overlay diturunkan ke 0.5 - 0.6
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [0.5, 0.6, 0]);
+  const overlayOpacity = useTransform(scrollYProgress, (v) => {
+    if (typeof v !== 'number' || isNaN(v) || v <= 0) return 0.5;
+    if (v >= 1) return 0;
+    if (v >= 0.85) return 0.6 * (1 - (v - 0.85) / 0.15);
+    return 0.5 + (v / 0.85) * 0.1;
+  });
 
   return (
     <div ref={containerRef} className="relative h-[650vh] w-full bg-[#F4F4F5]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden cursor-none">
+      <div className="sticky top-0 h-[calc(100vh+2px)] w-full overflow-hidden cursor-none bg-[#F4F4F5]">
         
-        {/* Scroll Sequence Background */}
+        {/* Spotlight Grid Background dengan tema Lightgray (#F4F4F5) persis seperti di Product Hero */}
         <div className="absolute inset-0 z-0 pointer-events-none">
+          <SpotlightGridBackground theme="lightgray" />
+        </div>
+
+        {/* Scroll Sequence Background */}
+        <div className="absolute inset-0 z-[1] pointer-events-none">
           <ScrollSequence 
             progress={scrollYProgress} 
             frameCount={modelHeroSequenceFrames.length} 
             imagePaths={modelHeroSequenceFrames} 
+            onLoadedChange={setIsSequenceLoaded}
+            onProgress={(pct) => setLoadingProgress(pct)}
           />
         </div>
 
-        {/* Overlay Gelap Transparan */}
+        {/* Overlay Gelap Transparan - Tetap aktif dengan overlay */}
         <motion.div 
           className="absolute inset-0 bg-black z-[5] pointer-events-none"
           style={{ opacity: overlayOpacity }}
@@ -104,24 +141,30 @@ export default function ModeloHero() {
           className="absolute inset-0 z-15 w-full h-full" 
         />
 
-        {/* Logo & Teks DIMA FINANCE (z-20) */}
+        {/* Logo & Teks DIMA FINANCE (z-20) - Hanya di awal aja */}
         <motion.div 
           className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none flex flex-col items-center"
           style={{ opacity: logoOpacity }}
         >
-          <img src="/logo/Imagen 1.png" alt="Logo" className="w-52 md:w-68 lg:w-80 h-auto mb-7 md:mb-8" />          
+          <img 
+            src="/logo/Imagen 1.png" 
+            alt="Logo" 
+            loading="eager"
+            fetchPriority="high"
+            className="w-52 md:w-68 lg:w-80 h-auto mb-7 md:mb-8" 
+          />          
           
           <div className="flex flex-col items-center mt-4">
             <h1
-              className="relative -left-1 lg:-left-2 leading-[0.85] tracking-tighter font-normal text-[5.5rem] md:text-[4.5rem] lg:text-[7rem]"
-              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.02em' }}
+              className="relative -left-1 lg:-left-2 leading-[0.85] tracking-tighter font-normal text-[5.5rem] md:text-[4.5rem] lg:text-[7rem] text-white"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", letterSpacing: '0.02em' }}
             >
               DIMA
             </h1>
             
             <h1
-              className="leading-[0.85] tracking-normal font-medium text-[3.2rem] md:text-[3.8rem] lg:text-[4rem]"
-              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", color: '#ffffffff', letterSpacing: '0.05em' }}
+              className="leading-[0.85] tracking-normal font-medium text-[3.2rem] md:text-[3.8rem] lg:text-[4rem] text-white"
+              style={{ fontFamily: "'Gill Sans MT', 'Montserrat', sans-serif", letterSpacing: '0.05em' }}
             >
               FINANCE
             </h1>
@@ -225,6 +268,15 @@ export default function ModeloHero() {
             );
           })}
         </div>
+
+        {/* Minimalist Bottom-Center Sequence Loading Indicator */}
+        <SequenceLoadingBar 
+          progress={loadingProgress} 
+          isLoaded={isSequenceLoaded} 
+          isVisible={isInView}
+          overlayOpacity={overlayOpacity}
+          label="Cargando animación" 
+        />
       </div>
     </div>
   )

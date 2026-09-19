@@ -1,12 +1,13 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence, useInView } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
-import ScrollVideo from '../ScrollVideo'
 import ScrollSequence from '../ScrollSequence'
 import HybridRevealText from '../HybridRevealText'
-import { modelPrincipiosVideoUrl, modelPrincipiosSequenceFrames } from '../../lib/sequences'
-import { isIOS } from '../../lib/isSafariOrIOS'
+import SequenceLoadingBar from '../common/SequenceLoadingBar'
+import SpotlightGridBackground from '../layout/SpotlightGridBackground'
+import HoverTrailOverlay from '../HoverTrailOverlay'
+import { modelPrincipiosSequenceFrames } from '../../lib/sequences'
 
 const chapters = [
   {
@@ -45,6 +46,7 @@ const chapters = [
 
 export default function PrincipiosHero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { margin: "200px 0px" });
   
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -53,10 +55,33 @@ export default function PrincipiosHero() {
 
   const slot = 1 / chapters.length;
 
-  // 1. Overlay mulai memudar dari 0.55 ke 0 pada jarak 95% sampai 100% scroll
-  const overlayOpacity = useTransform(scrollYProgress, [0, 0.1, 0.95, 1], [0, 0.55, 0.55, 0]);
+  useEffect(() => {
+    const triggerUpdate = () => {
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+    };
+    triggerUpdate();
+    const rafId = requestAnimationFrame(triggerUpdate);
+    const timer = setTimeout(triggerUpdate, 120);
+    window.addEventListener('loaderFinished', triggerUpdate, { once: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+      window.removeEventListener('loaderFinished', triggerUpdate);
+    };
+  }, []);
+
+  // 1. Overlay aktif sejak awal (0.55) dan memudar ke 0 pada jarak 95% sampai 100% scroll
+  const overlayOpacity = useTransform(scrollYProgress, (v) => {
+    if (typeof v !== 'number' || isNaN(v) || v <= 0) return 0.55;
+    if (v <= 0.95) return 0.55;
+    if (v >= 1) return 0;
+    return 0.55 * (1 - (v - 0.95) / 0.05);
+  });
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
+  const [isSequenceLoaded, setIsSequenceLoaded] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const activeChapterRef = useRef(0);
 
   useEffect(() => {
@@ -89,30 +114,35 @@ export default function PrincipiosHero() {
 
   return (
     <div ref={containerRef} className="relative h-[550vh] w-full bg-[#F4F4F5]">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div className="sticky top-0 h-[calc(100vh+2px)] w-full overflow-hidden cursor-none bg-[#F4F4F5]">
         
-        {/* Scroll Background (Video for non-iOS browsers like Firefox & Chrome, ScrollSequence for iOS) */}
-        <div className="absolute inset-0 z-0 pointer-events-none bg-navy cursor-none">
-          {isIOS() ? (
-            <ScrollSequence
-              progress={scrollYProgress}
-              frameCount={modelPrincipiosSequenceFrames.length}
-              imagePaths={modelPrincipiosSequenceFrames}
-              className="contrast-105"
-            />
-          ) : (
-            <ScrollVideo 
-              progress={scrollYProgress} 
-              src={modelPrincipiosVideoUrl} 
-              className="contrast-105"
-            />
-          )}
+        {/* Spotlight Grid Background dengan tema Lightgray (#F4F4F5) persis seperti di Modelo Hero & Nosotros */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <SpotlightGridBackground theme="lightgray" />
         </div>
 
-        {/* Overlay Gelap */}
+        {/* Scroll Sequence Background */}
+        <div className="absolute inset-0 z-[1] pointer-events-none">
+          <ScrollSequence
+            progress={scrollYProgress}
+            frameCount={modelPrincipiosSequenceFrames.length}
+            imagePaths={modelPrincipiosSequenceFrames}
+            className="contrast-105"
+            onLoadedChange={setIsSequenceLoaded}
+            onProgress={(pct) => setLoadingProgress(pct)}
+          />
+        </div>
+
+        {/* Overlay Gelap Transparan */}
         <motion.div 
           className="absolute inset-0 bg-black z-[5] pointer-events-none"
           style={{ opacity: overlayOpacity }}
+        />
+
+        {/* Hover Trail Overlay */}
+        <HoverTrailOverlay 
+          theme="white" 
+          className="absolute inset-0 z-15 w-full h-full mix-blend-soft-light" 
         />
 
         {/* Text Layer */}
@@ -120,19 +150,49 @@ export default function PrincipiosHero() {
           {chapters.map((ch, i) => {
             const start = i * slot;
             const end = (i + 1) * slot;
+            const isFirst = i === 0;
             const isLast = i === chapters.length - 1;
 
-            const chapterProgress = useTransform(scrollYProgress, [start, end], [0, 1]);
-            const buttonOpacity = useTransform(chapterProgress, [0.5, 0.7], [0, 1]);
+            const chapterProgress = useTransform(scrollYProgress, (v) => {
+              if (isFirst) return 1;
+              if (typeof v !== 'number' || isNaN(v) || v <= start) return 0;
+              if (v >= end) return 1;
+              return (v - start) / (end - start);
+            });
+            const buttonOpacity = useTransform(chapterProgress, (p) => {
+              if (isFirst) return 1;
+              if (typeof p !== 'number' || isNaN(p) || p <= 0.5) return 0;
+              if (p >= 0.7) return 1;
+              return (p - 0.5) / 0.2;
+            });
             
-            // 2. blockOpacity sekarang akan selalu berakhir di 0 pada akhir scroll untuk isLast
-            const blockOpacity = useTransform(
-              scrollYProgress,
-              isLast 
-                ? [start, start + slot * 0.15, 0.95, 1] 
-                : [start, start + slot * 0.1, end - slot * 0.15, end],
-              [0, 1, 1, 0] // Karena elemen terakhir butuh memudar, array akhirnya disamakan ke 0
-            );
+            // blockOpacity: Bab 0 (isFirst) langsung terlihat di awal scroll
+            const blockOpacity = useTransform(scrollYProgress, (v) => {
+              if (isFirst) {
+                if (typeof v !== 'number' || isNaN(v) || v <= slot * 0.5) return 1;
+                if (v >= slot) return 0;
+                return 1 - ((v - slot * 0.5) / (slot * 0.5));
+              }
+              if (typeof v !== 'number' || isNaN(v)) return 0;
+              const bStart = start;
+              if (isLast) {
+                const bInEnd = start + slot * 0.15;
+                if (v < bStart) return 0;
+                if (v < bInEnd) return (v - bStart) / (bInEnd - bStart);
+                if (v <= 0.95) return 1;
+                if (v >= 1) return 0;
+                return 1 - (v - 0.95) / 0.05;
+              } else {
+                const bInEnd = start + slot * 0.1;
+                const bOutStart = end - slot * 0.15;
+                const bEnd = end;
+                if (v < bStart) return 0;
+                if (v < bInEnd) return (v - bStart) / (bInEnd - bStart);
+                if (v <= bOutStart) return 1;
+                if (v >= bEnd) return 0;
+                return 1 - (v - bOutStart) / (bEnd - bOutStart);
+              }
+            });
 
             const xTransform = useTransform(
               scrollYProgress,
@@ -168,6 +228,8 @@ export default function PrincipiosHero() {
                   <img 
                     src="/logo/Imagen 1.png" 
                     alt="Logo" 
+                    loading="eager"
+                    fetchPriority="high"
                     className="w-56 md:w-72 lg:w-96 h-auto mb-8 md:mb-12" 
                   />
                   
@@ -242,6 +304,16 @@ export default function PrincipiosHero() {
             );
           })}
         </div>
+
+        {/* Minimalist Bottom-Center Sequence Loading Indicator */}
+        <SequenceLoadingBar 
+          progress={loadingProgress} 
+          isLoaded={isSequenceLoaded} 
+          isVisible={isInView}
+          theme="light"
+          overlayOpacity={overlayOpacity}
+          label="Cargando animación" 
+        />
       </div>
     </div>
   )

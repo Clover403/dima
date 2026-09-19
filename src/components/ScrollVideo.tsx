@@ -5,9 +5,17 @@ interface ScrollVideoProps {
   progress: MotionValue<number>;
   src: string;
   className?: string;
+  onLoadedChange?: (isLoaded: boolean) => void;
+  onProgress?: (progress: number) => void;
 }
 
-export default function ScrollVideo({ progress, src, className }: ScrollVideoProps) {
+export default function ScrollVideo({ 
+  progress, 
+  src, 
+  className,
+  onLoadedChange,
+  onProgress
+}: ScrollVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isReady, setIsReady] = useState(false);
   const targetProgressRef = useRef<number>(progress.get());
@@ -19,23 +27,66 @@ export default function ScrollVideo({ progress, src, className }: ScrollVideoPro
 
     video.pause();
 
+    const checkAndReportProgress = () => {
+      if (!video) return false;
+      if (video.duration && video.buffered.length > 0) {
+        let maxBuffered = 0;
+        for (let i = 0; i < video.buffered.length; i++) {
+          if (video.buffered.end(i) > maxBuffered) {
+            maxBuffered = video.buffered.end(i);
+          }
+        }
+        const pct = Math.min(100, Math.round((maxBuffered / video.duration) * 100));
+        onProgress?.(pct);
+        if (pct >= 95 || video.readyState >= 4) {
+          setIsReady(true);
+          onLoadedChange?.(true);
+          onProgress?.(100);
+          return true;
+        }
+      } else if (video.readyState >= 3) {
+        setIsReady(true);
+        onLoadedChange?.(true);
+        onProgress?.(100);
+        return true;
+      }
+      return false;
+    };
+
     const handleLoadedMetadata = () => {
-      setIsReady(true);
       if (video.duration) {
         video.currentTime = targetProgressRef.current * video.duration;
       }
+      checkAndReportProgress();
     };
 
     const handleCanPlay = () => {
       setIsReady(true);
+      onLoadedChange?.(true);
+      onProgress?.(100);
+    };
+
+    const handleProgress = () => {
+      checkAndReportProgress();
     };
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('canplaythrough', handleCanPlay);
+    video.addEventListener('progress', handleProgress);
 
-    if (video.readyState >= 1) {
+    if (video.readyState >= 3) {
       setIsReady(true);
+      onLoadedChange?.(true);
+      onProgress?.(100);
+    } else {
+      onProgress?.(15);
     }
+
+    const interval = setInterval(() => {
+      const isDone = checkAndReportProgress();
+      if (isDone) clearInterval(interval);
+    }, 250);
 
     const renderLoop = () => {
       if (video && video.duration && !isNaN(video.duration) && video.readyState >= 2) {
@@ -55,13 +106,16 @@ export default function ScrollVideo({ progress, src, className }: ScrollVideoPro
 
     return () => {
       unsubscribe();
+      clearInterval(interval);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('canplaythrough', handleCanPlay);
+      video.removeEventListener('progress', handleProgress);
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }
     };
-  }, [progress, src]);
+  }, [progress, src, onLoadedChange, onProgress]);
 
   return (
     <video

@@ -17,13 +17,13 @@ export function useLenis() {
     const isLinux = ua.includes('linux') && !ua.includes('android');
     const isWindows = ua.includes('windows');
 
-    // Linux: 0.45, Windows: 1.0 (Kembalikan ke normal)
+    // Windows & Linux calibration: keep multiplier at 1.0 to prevent jerky wheel impulses
     let baseMultiplier = 1.0;
-    if (isLinux) baseMultiplier = 0.45;
-    if (isWindows) baseMultiplier = 2;
+    if (isLinux) baseMultiplier = 0.65;
+    if (isWindows) baseMultiplier = 1.0;
 
     const lenis = new Lenis({
-      duration: 0.8, // Naikkan dari 1 ke 1.5 agar efek berhentinya lebih panjang dan elegan
+      duration: 1.1, // Smooth cinematic glide without abrupt braking
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: isFirefox ? 1 : baseMultiplier,
@@ -39,6 +39,22 @@ export function useLenis() {
     }
 
     gsap.ticker.add(onTick)
+
+    // Lock scrolling while loader is active so user cannot scroll before the curtain is completely open
+    if (typeof window !== 'undefined' && !(window as any).isLoaderFinished) {
+      lenis.stop();
+      lenis.scrollTo(0, { immediate: true });
+      window.scrollTo(0, 0);
+
+      const unlockScroll = () => {
+        lenis.scrollTo(0, { immediate: true });
+        window.scrollTo(0, 0);
+        lenis.start();
+        ScrollTrigger.refresh();
+      };
+
+      window.addEventListener('loaderFinished', unlockScroll, { once: true });
+    }
 
     ScrollTrigger.refresh()
 
@@ -75,5 +91,9 @@ export function useLenis() {
     }
   }, [])
 
+  return lenisInstance
+}
+
+export function getLenis(): Lenis | null {
   return lenisInstance
 }

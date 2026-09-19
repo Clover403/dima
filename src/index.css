@@ -10,6 +10,7 @@
 
   html {
     scroll-behavior: auto;
+    overflow-x: clip;
   }
 
   body {
@@ -87,4 +88,32 @@ html.lenis, html.lenis body {
 
 .lenis.lenis-stopped {
   overflow: hidden;
+}
+
+/* Custom Minimalist Editorial Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(229, 153, 123, 0.4);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 153, 123, 0.8);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(229, 153, 123, 0.4) transparent;
+}
+
+/* Hide scrollbar while preserving scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -1,9 +1,11 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import HoverTrailOverlay from '../HoverTrailOverlay';
 import ScrollSequence from '../ScrollSequence';
 import HybridRevealText from '../HybridRevealText';
+import SpotlightGridBackground from '../layout/SpotlightGridBackground';
+import SequenceLoadingBar from '../common/SequenceLoadingBar';
 import { nosotrosSequenceFrames } from '../../lib/sequences';
 
 const chapters = [
@@ -74,6 +76,7 @@ const chapters = [
 
 export default function NosotrosHeroScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(containerRef, { margin: "200px 0px" });
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -83,6 +86,8 @@ export default function NosotrosHeroScroll() {
   const slot = 1 / chapters.length;
 
   const [expandedChapters, setExpandedChapters] = useState<Set<number>>(new Set());
+  const [isSequenceLoaded, setIsSequenceLoaded] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const activeChapterRef = useRef(0);
 
   useEffect(() => {
@@ -113,42 +118,79 @@ export default function NosotrosHeroScroll() {
     });
   };
 
-  // Terkunci di 0 pada akhir scroll untuk mencegah bug muncul kembali
-  const bgLightOpacity = useTransform(scrollYProgress, [0, slot * 0.15, slot * 0.6, 1], [1, 1, 0, 0]);
-  const overlayOpacity = useTransform(scrollYProgress, [0, slot * 0.8, slot * 1.5, 0.95, 1], [0, 0, 0.5, 0.5, 0]);
-  const logoOpacity = useTransform(scrollYProgress, [0, slot * 0.5, slot, 1], [1, 1, 0, 0]);
+  useEffect(() => {
+    const triggerUpdate = () => {
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+    };
+    triggerUpdate();
+    const rafId = requestAnimationFrame(triggerUpdate);
+    const timer = setTimeout(triggerUpdate, 120);
+    window.addEventListener('loaderFinished', triggerUpdate, { once: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timer);
+      window.removeEventListener('loaderFinished', triggerUpdate);
+    };
+  }, []);
+
+  // Logo hanya di awal (Chapter 0) dan menghilang saat scroll ke bab selanjutnya
+  const logoOpacity = useTransform(scrollYProgress, (v) => {
+    if (typeof v !== 'number' || isNaN(v) || v <= 0) return 1;
+    if (v >= slot * 0.7) return 0;
+    if (v <= slot * 0.3) return 1 - (v / (slot * 0.3)) * 0.4;
+    return 0.6 - ((v - slot * 0.3) / (slot * 0.4)) * 0.6;
+  });
+
+  const overlayOpacity = useTransform(scrollYProgress, (v) => {
+    if (typeof v !== 'number' || isNaN(v) || v <= slot * 0.8) return 0;
+    if (v >= 1) return 0;
+    if (v >= 0.95) return 0.5 * (1 - (v - 0.95) / 0.05);
+    if (v <= slot * 1.5) return ((v - slot * 0.8) / (slot * 0.7)) * 0.5;
+    return 0.5;
+  });
 
   return (
-      <div ref={containerRef} className="relative w-full bg-[#030035]" style={{ height: `${chapters.length * 150}vh` }}>
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
+      <div ref={containerRef} className="relative w-full bg-[#F4F4F5]" style={{ height: `${chapters.length * 150}vh` }}>
+        <div className="sticky top-0 h-[calc(100vh+2px)] w-full overflow-hidden bg-[#F4F4F5]">
 
+          {/* Spotlight Grid Background dengan tema Lightgray (#F4F4F5) persis seperti di Product Hero */}
           <div className="absolute inset-0 z-0 pointer-events-none">
+            <SpotlightGridBackground theme="lightgray" />
+          </div>
+
+          <div className="absolute inset-0 z-[1] pointer-events-none">
             <ScrollSequence 
               progress={scrollYProgress} 
               frameCount={nosotrosSequenceFrames.length} 
               imagePaths={nosotrosSequenceFrames} 
+              onLoadedChange={setIsSequenceLoaded}
+              onProgress={(pct) => setLoadingProgress(pct)}
             />
           </div>
-
-          <motion.div 
-            className="absolute inset-0 bg-[#F4F4F5] z-10 pointer-events-none block lg:hidden"
-            style={{ opacity: bgLightOpacity }}
-          />
 
           <div className="absolute inset-0 z-20 pointer-events-auto cursor-none">
             <HoverTrailOverlay theme="white" className="w-full h-full mix-blend-soft-light" />
           </div>
 
+          {/* Overlay Gelap untuk kontras teks saat scroll ke bab selanjutnya */}
           <motion.div 
             className="absolute inset-0 bg-black z-30 pointer-events-none"
             style={{ opacity: overlayOpacity }}
           />
 
+          {/* Logo Terracotta di awal (Chapter 0) */}
           <motion.div 
             className="hidden lg:flex absolute bottom-8 right-12 z-40 pointer-events-none flex-col items-end"
             style={{ opacity: logoOpacity }}
           >
-            <img src="/logo/Imagen 1.png" alt="Logo DIMA" className="w-72 h-auto" />
+            <img 
+              src="/logo/Imagen 1.png" 
+              alt="Logo DIMA" 
+              loading="eager"
+              fetchPriority="high"
+              className="w-72 h-auto" 
+            />
           </motion.div>
 
           <div className="absolute inset-0 z-50 pointer-events-none">
@@ -160,31 +202,45 @@ export default function NosotrosHeroScroll() {
               const isLast = i === chapters.length - 1;
               const isCentered = i === 3 || i === 4;
 
-              const chapterProgress = useTransform(
-                scrollYProgress, 
-                isFirst ? [0, 0.01] : [start, end], 
-                isFirst ? [1, 1] : [0, 1]
-              );
+              const chapterProgress = useTransform(scrollYProgress, (v) => {
+                if (isFirst) return 1;
+                if (typeof v !== 'number' || isNaN(v) || v <= start) return 0;
+                if (v >= end) return 1;
+                return (v - start) / (end - start);
+              });
               
-              const buttonOpacity = useTransform(
-                chapterProgress, 
-                isFirst ? [0, 1] : [0.5, 0.7], 
-                isFirst ? [1, 1] : [0, 1]
-              );
+              const buttonOpacity = useTransform(chapterProgress, (p) => {
+                if (isFirst) return 1;
+                if (typeof p !== 'number' || isNaN(p) || p <= 0.5) return 0;
+                if (p >= 0.7) return 1;
+                return (p - 0.5) / 0.2;
+              });
 
-              const blockOpacity = useTransform(
-                scrollYProgress,
-                isFirst 
-                  ? [0, slot * 0.5, slot, 1] 
-                  : isLast
-                    ? [start, start + slot * 0.05, 0.95, 1]
-                    : [start, start + slot * 0.05, end - slot * 0.05, end],
-                isFirst
-                  ? [1, 1, 0, 0]
-                  : isLast
-                    ? [0, 1, 1, 0]
-                    : [0, 1, 1, 0]
-              );
+              const blockOpacity = useTransform(scrollYProgress, (v) => {
+                if (isFirst) {
+                  if (typeof v !== 'number' || isNaN(v) || v <= slot * 0.5) return 1;
+                  if (v >= slot) return 0;
+                  return 1 - ((v - slot * 0.5) / (slot * 0.5));
+                }
+                if (typeof v !== 'number' || isNaN(v)) return 0;
+                const bStart = start;
+                const bInEnd = start + slot * 0.05;
+                if (isLast) {
+                  if (v < bStart) return 0;
+                  if (v < bInEnd) return (v - bStart) / (bInEnd - bStart);
+                  if (v <= 0.95) return 1;
+                  if (v >= 1) return 0;
+                  return 1 - (v - 0.95) / 0.05;
+                } else {
+                  const bOutStart = end - slot * 0.05;
+                  const bEnd = end;
+                  if (v < bStart) return 0;
+                  if (v < bInEnd) return (v - bStart) / (bInEnd - bStart);
+                  if (v <= bOutStart) return 1;
+                  if (v >= bEnd) return 0;
+                  return 1 - (v - bOutStart) / (bEnd - bOutStart);
+                }
+              });
 
               const pointerEvents = useTransform(blockOpacity, (v) => v > 0.1 ? "auto" : "none");
               
@@ -206,7 +262,13 @@ const textColorClass = isFirst ? 'text-[#030035]' : 'text-white';
                   
                   {isFirst && (
                     <motion.div className="flex lg:hidden mb-2 sm:mb-4 pointer-events-none w-full justify-center items-center">
-                      <img src="/logo/Imagen 1.png" alt="Logo DIMA" className="w-36 sm:w-48 md:w-56 h-auto object-contain mx-auto" />
+                      <img 
+                        src="/logo/Imagen 1.png" 
+                        alt="Logo DIMA" 
+                        loading="eager"
+                        fetchPriority="high"
+                        className="w-36 sm:w-48 md:w-56 h-auto object-contain mx-auto" 
+                      />
                     </motion.div>
                   )}
 
@@ -266,6 +328,15 @@ const textColorClass = isFirst ? 'text-[#030035]' : 'text-white';
               );
             })}
           </div>
+
+          {/* Minimalist Bottom-Center Sequence Loading Indicator */}
+          <SequenceLoadingBar 
+            progress={loadingProgress} 
+            isLoaded={isSequenceLoaded} 
+            isVisible={isInView}
+            overlayOpacity={overlayOpacity}
+            label="Cargando animación" 
+          />
         </div>
       </div>
   );

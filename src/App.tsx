@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout'
 import Loader from './components/Loader'
 import RouteSequencePreloader from './components/RouteSequencePreloader'
 import Home from './pages/Home'
+import NewHome from './pages/NewHome'
 import CreditModel from './pages/CreditModel'
 import Products from './pages/Products'
 import ProductoDetalle from './pages/ProductoDetalle'
@@ -23,8 +24,9 @@ export default function App() {
       <AnimatePresence mode="wait" initial={false}>
         <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
-          {/* <Route path="/" element={<HomeLegacy />} /> */}
-          <Route path="/" element={<Home />} />
+          {/* File Home lama tetap utuh di src/pages/Home.tsx, tapi rute aktif di web diganti oleh NewHome */}
+          <Route path="/" element={<NewHome />} />
+          <Route path="/home-legacy" element={<Home />} />
           {/* <Route path="/home-lama" element={<HomeLegacy />} /> */}
           <Route path="/modelo-crediticio" element={<CreditModel />} />
           <Route path="/productos" element={<Products />} />

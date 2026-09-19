@@ -1,7 +1,7 @@
 import { motion, MotionValue, useTransform } from 'framer-motion';
 
 export default function HybridRevealText({
-  text,
+  text = '',
   progress,
   className,
   style,
@@ -10,7 +10,7 @@ export default function HybridRevealText({
   totalLength,
   targetColor = "#E5E5E5"
 }: {
-  text: string;
+  text?: string;
   progress: MotionValue<number>;
   className?: string;
   style?: React.CSSProperties;
@@ -19,11 +19,12 @@ export default function HybridRevealText({
   totalLength?: number;
   targetColor?: string;
 }) {
-  const chars = text.split('');
+  const safeText = text || '';
+  const chars = safeText.split('');
   
   // Hitung total karakter tanpa spasi agar scroll progress fokus hanya pada huruf
   const validCharsCount = chars.filter(c => c.trim() !== '').length;
-  const tLength = totalLength || validCharsCount;
+  const tLength = totalLength || validCharsCount || 1;
   
   let validCharIndex = 0;
 
@@ -71,22 +72,23 @@ function HybridChar({
   isLast?: boolean;
   targetColor: string;
 }) {
-  const opStart = isLast ? start * 0.7 : start * 0.6;
-  const opEnd = isLast ? end * 0.7 : end * 0.6;
+  const opStart = Math.min(0.85, isLast ? start * 0.7 : start * 0.6);
+  const opEnd = Math.max(opStart + 0.005, Math.min(0.90, isLast ? end * 0.7 : end * 0.6));
 
-  const opacity = useTransform(
-    progress,
-    [opStart, opEnd],
-    [0, 1]
-  );
+  const opacity = useTransform(progress, (p) => {
+    if (typeof p !== 'number' || isNaN(p)) return 1;
+    if (p <= opStart) return 0;
+    if (p >= opEnd) return 1;
+    return (p - opStart) / (opEnd - opStart);
+  });
 
-  const colorEnd = Math.min(1, opEnd + 0.015); 
+  const safeColorEnd = Math.min(0.98, opEnd + 0.02);
 
-  const color = useTransform(
-    progress,
-    [0, opEnd, colorEnd, 1],
-    ["#E5997B", "#E5997B", targetColor, targetColor]
-  );
+  const color = useTransform(progress, (p) => {
+    if (typeof p !== 'number' || isNaN(p) || p >= safeColorEnd) return targetColor;
+    if (p <= opEnd) return "#E5997B";
+    return targetColor;
+  });
 
   return <motion.span style={{ opacity, color }}>{char}</motion.span>;
 }

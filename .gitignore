@@ -24,3 +24,13 @@ dist-ssr
 *.sw?
 .vercel
 .env*
+
+# Only home1_intra.mp4 and home2_intra.mp4 are committed & deployed locally with the web; videos 3-10 are served via Cloudflare R2
+public/video/video-home/intra/home3_intra.mp4
+public/video/video-home/intra/home4_intra.mp4
+public/video/video-home/intra/home5_intra.mp4
+public/video/video-home/intra/home6_intra.mp4
+public/video/video-home/intra/home7_intra.mp4
+public/video/video-home/intra/home8_intra.mp4
+public/video/video-home/intra/home9_intra.mp4
+public/video/video-home/intra/home10_intra.mp4

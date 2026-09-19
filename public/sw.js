@@ -31,8 +31,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // HANYA mencegat dan meng-cache aset dari R2 Cloudflare
-  if (url.hostname.includes('pub-') && url.hostname.includes('r2.dev')) {
+  // HANYA mencegat dan meng-cache aset gambar/ilustrasi dari R2 Cloudflare (JANGAN sentuh video .mp4)
+  if (url.hostname.includes('pub-') && url.hostname.includes('r2.dev') && !url.pathname.endsWith('.mp4')) {
     event.respondWith(
       (async () => {
         const cache = await getCache();
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
           // Jika tidak ada di cache, download dari internet
           const networkResponse = await fetch(event.request);
           
-          if (networkResponse && networkResponse.status === 200) {
+          if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
             // Simpan copy ke cache secara asinkron (tidak memblokir render UI)
             cache.put(event.request, networkResponse.clone()).catch(() => {});
           }

@@ -3,19 +3,27 @@ import gsap from 'gsap'
 
 type SpotlightGridBackgroundProps = {
   isHighContrast?: boolean
+  theme?: 'navy' | 'lightgray'
 }
 
-export default function SpotlightGridBackground({ 
-  isHighContrast = false 
+export default function SpotlightGridBackground({
+  isHighContrast = false,
+  theme = 'navy'
 }: SpotlightGridBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const gridSweepRef = useRef<HTMLDivElement>(null)
   const dotsSweepRef = useRef<HTMLDivElement>(null)
 
-  const gridAlpha = isHighContrast ? 0.55 : 0.35
-  const gridOpacity = isHighContrast ? 1 : 0.85
+  const isLight = theme === 'lightgray'
+  // Kontras dinaikkan sedikit untuk tema lightgray (0.42) agar lebih tegas namun tetap halus
+  const gridAlpha = isLight ? 0.42 : (isHighContrast ? 0.55 : 0.35)
+  const gridOpacity = isLight ? 0.95 : (isHighContrast ? 1 : 0.85)
   const shadowBlur = isHighContrast ? '2px' : '1px'
-  const shadowAlpha = isHighContrast ? 0.3 : 0.1
+  const shadowAlpha = isLight ? 0.15 : (isHighContrast ? 0.3 : 0.1)
+
+  const lineColor = isLight ? `rgba(3,0,53,${gridAlpha})` : `rgba(211,211,211,${gridAlpha})`
+  const dotColor = isLight ? `rgba(3,0,53,${gridAlpha})` : `rgba(211,211,211,${gridAlpha})`
+  const shadowColor = isLight ? `rgba(3,0,53,${shadowAlpha})` : `rgba(211,211,211,${shadowAlpha})`
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -47,7 +55,7 @@ export default function SpotlightGridBackground({
           gsap.globalTimeline.play()
         }
       }
-      
+
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
       return () => {
@@ -58,13 +66,16 @@ export default function SpotlightGridBackground({
     return () => ctx.revert()
   }, [])
 
-  // Gradient sweep overlay yang berputar. 
-  // Bagian `#030035` akan menutupi grid, sedangkan `transparent` akan menampilkan grid.
-  const sweepGradient = 'conic-gradient(from -180deg at center, #030035 30deg, rgba(3,0,53,0.98) 70deg, rgba(3,0,53,0.6) 170deg, transparent 230deg, rgba(3,0,53,0.6) 290deg, rgba(3,0,53,0.98) 330deg, #030035 360deg)'
+  // Gradient sweep overlay yang berputar.
+  // Persis seperti di product hero, hanya diganti warnanya:
+  // Bagian `#F4F4F5` / `#030035` akan menutupi grid, sedangkan `transparent` akan menampilkan grid.
+  const sweepGradient = isLight
+    ? 'conic-gradient(from -180deg at center, #F4F4F5 30deg, rgba(244,244,245,0.98) 70deg, rgba(244,244,245,0.6) 170deg, transparent 230deg, rgba(244,244,245,0.6) 290deg, rgba(244,244,245,0.98) 330deg, #F4F4F5 360deg)'
+    : 'conic-gradient(from -180deg at center, #030035 30deg, rgba(3,0,53,0.98) 70deg, rgba(3,0,53,0.6) 170deg, transparent 230deg, rgba(3,0,53,0.6) 290deg, rgba(3,0,53,0.98) 330deg, #030035 360deg)'
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-0"
       style={{ willChange: 'transform', transform: 'translateZ(0)' }}
     >
@@ -81,8 +92,8 @@ export default function SpotlightGridBackground({
           className="absolute inset-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 w-[100vw] h-[100vh]"
           style={{
             backgroundImage: `
-              linear-gradient(to right, rgba(211,211,211,${gridAlpha}) 1px, transparent 1px), 
-              linear-gradient(to bottom, rgba(211,211,211,${gridAlpha}) 1px, transparent 1px)
+              linear-gradient(to right, ${lineColor} 1px, transparent 1px), 
+              linear-gradient(to bottom, ${lineColor} 1px, transparent 1px)
             `,
             backgroundSize: '72px 72px',
             backgroundPosition: '36px 36px',
@@ -93,7 +104,7 @@ export default function SpotlightGridBackground({
             opacity: gridOpacity,
           }}
         />
-        
+
         {/* Layer 2: The Rotating Sweep Overlay */}
         <div
           ref={gridSweepRef}
@@ -114,10 +125,10 @@ export default function SpotlightGridBackground({
         <div
           className="absolute inset-0 transform -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 w-[100vw] h-[100vh]"
           style={{
-            backgroundImage: `radial-gradient(circle at 36px 36px, rgba(211,211,211,${gridAlpha}) 1.5px, transparent 1.5px)`,
+            backgroundImage: `radial-gradient(circle at 36px 36px, ${dotColor} 1.5px, transparent 1.5px)`,
             backgroundSize: '72px 72px',
             backgroundPosition: '0px 0px',
-            filter: `drop-shadow(0 0 ${shadowBlur} rgba(211,211,211,${shadowAlpha}))`,
+            filter: `drop-shadow(0 0 ${shadowBlur} ${shadowColor})`,
           }}
         />
 

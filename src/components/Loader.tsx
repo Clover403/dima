@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { sequenceCache } from '../lib/sequenceCache';
+import { videoCache } from '../lib/videoCache';
 
 // ─── HOOK ANIMASI ENVELOPE DOTS ───
 function useEnvelopeDots(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
@@ -164,117 +164,126 @@ export default function Loader() {
 
 
     let isLoadTriggered = false;
-    const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || '';
-    
-    // The frames we absolutely must wait for
-    const priority1 = [
+    let videoProgress = 0;
+    let logosDone = false;
+    let fontsDone = false;
+
+    // Tunggu fonts selesai dimuat untuk mencegah teks delay/FOIT saat loader terbuka
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        fontsDone = true;
+        checkReadyToFinish();
+      }).catch(() => {
+        fontsDone = true;
+        checkReadyToFinish();
+      });
+    } else {
+      fontsDone = true;
+    }
+
+    // 1. Prioritas Utama: Logo awal yang wajib tampil di loader & hero
+    const initialLogos = [
       "/logo/white.svg",
       "/logo/Imagen 1.png"
     ];
-    
-    const priority2 = R2_BASE_URL ? [
-      `${R2_BASE_URL}/hero1_re/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/models1_re/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/models2_re/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/models3_re/ezgif-frame-001.webp`,
-      `${R2_BASE_URL}/nosotros1_re/ezgif-frame-001.webp`
-    ] : [];
 
-    const priority3 = [
-      "/illustration-compressed/home/temple6.webp",
-      "/illustration-compressed/home/temple9.webp",
-      "/illustration-compressed/home/jembatan3.webp",
-      "/illustration-compressed/home/timbangan1.webp",
-      "/illustration-compressed/serviceHome/crene.webp",
-      "/illustration-compressed/serviceHome/armilarry.webp",
-      "/illustration-compressed/serviceHome/jam-air.webp",
-      "/illustration-compressed/serviceHome/berlian.webp",
-      "/illustration-compressed/serviceHome/buku.webp",
-      "/illustration-compressed/products/menara.webp",
-      "/illustration-compressed/products/bridge.webp",
-      "/illustration-compressed/products/tabung.webp",
-      "/illustration-compressed/products/cycle.webp",
-      "/illustration-compressed/products/gear-machine.webp",
-      "/illustration-compressed/products/invoice.webp"
-    ];
+    let loadedLogosCount = 0;
 
-    const essentialItems = [...priority1, ...priority2, ...priority3];
-    let loadedItemsCount = 0;
+    const updateAggregateProgress = (vPct: number, logoRatio: number) => {
+      // Bobot: Video (95%), Logo Awal (5%)
+      const combined = Math.min(100, vPct * 0.95 + (logoRatio * 100) * 0.05);
+      setProgress(combined);
+    };
 
     const checkReadyToFinish = () => {
       if (isLoadTriggered) return;
-      if (loadedItemsCount >= essentialItems.length) {
+      // Syarat buka: Logo awal selesai & ter-decode, font siap, DAN Video 1-8 100% selesai dimuat ke RAM!
+      if (videoCache.isInitialReady() && logosDone && fontsDone) {
         isLoadTriggered = true;
         setProgress(100);
-        setTimeout(startExitAnimation, 600);
+        setTimeout(startExitAnimation, 250);
       }
     };
 
-    const preloadImage = async (src: string): Promise<void> => {
-      if (src.includes('.webp') && R2_BASE_URL && src.includes(R2_BASE_URL)) {
-        await sequenceCache.preloadImage(src, 'high');
-      } else {
-        await new Promise<void>((resolve) => {
-          const img = new Image();
-          img.fetchPriority = 'high';
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = src;
-        });
-      }
-      loadedItemsCount++;
-      setProgress((loadedItemsCount / essentialItems.length) * 100);
+    const preloadLogo = (src: string): Promise<void> => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.fetchPriority = 'high';
+        const finish = () => {
+          loadedLogosCount++;
+          updateAggregateProgress(videoProgress, loadedLogosCount / initialLogos.length);
+          resolve();
+        };
+
+        img.onload = () => {
+          if ('decode' in img) {
+            img.decode().then(finish).catch(finish);
+          } else {
+            finish();
+          }
+        };
+        img.onerror = finish;
+        img.src = src;
+      });
     };
 
-    const loadSequentially = async () => {
-      // 1. Logo di loading
-      await Promise.all(priority1.map(preloadImage));
-      
-      // 2. Frame awal hero home
-      await Promise.all(priority2.map(preloadImage));
-      
-      // 3. Semua gambar di halaman home
-      await Promise.all(priority3.map(preloadImage));
-      
-      checkReadyToFinish();
-
-      // Background loading for Home hero sequence continuation
-      const homeBackgroundAssets = R2_BASE_URL ? [
-        `${R2_BASE_URL}/hero2_re/ezgif-frame-001.webp`
-      ] : [];
-
-      const backgroundPreload = (src: string) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.fetchPriority = 'low';
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = src;
-        });
-      };
-      
-      await Promise.all(homeBackgroundAssets.map(backgroundPreload));
-    };
-
-    loadSequentially();
-
-    // Failsafe timeout (dipercepat jadi 8 detik max)
-    const timeout = setTimeout(() => {
+    // Failsafe timeout: jaminan web PASTI terbuka maksimal 3.5 detik apapun kondisi jaringan klien
+    const failsafe = setTimeout(() => {
       if (!isLoadTriggered) {
-        loadedItemsCount = essentialItems.length;
-        checkReadyToFinish();
+        isLoadTriggered = true;
+        setProgress(100);
+        setTimeout(startExitAnimation, 150);
       }
-    }, 8000);
+    }, 3500);
+
+    // A. Preload Logo Awal (Cepat, < 100ms)
+    Promise.all(initialLogos.map(preloadLogo)).then(() => {
+      logosDone = true;
+      checkReadyToFinish();
+    });
+
+    // B. Real-Time Byte Preload untuk Video 1 (lokal)
+    const unsubProgress = videoCache.onProgress((pct) => {
+      videoProgress = pct;
+      updateAggregateProgress(videoProgress, loadedLogosCount / initialLogos.length);
+    });
+
+    videoCache.preloadInitialVideos(2).then(() => {
+      checkReadyToFinish();
+    });
 
     return () => {
-      clearTimeout(timeout);
+      unsubProgress();
+      clearTimeout(failsafe);
     };
   }, []);
 
-  // Mencegah scroll saat loading
+  // Mencegah scroll secara total saat loading & selama tirai animasi sedang membuka
   useEffect(() => {
-    document.body.style.overflow = isLoading ? 'hidden' : 'auto';
-    return () => { document.body.style.overflow = 'auto'; };
+    const preventScroll = (e: Event) => {
+      if (isLoading) {
+        e.preventDefault();
+      }
+    };
+
+    const preventKeyScroll = (e: KeyboardEvent) => {
+      if (isLoading && ['Space', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.code)) {
+        e.preventDefault();
+      }
+    };
+
+    if (isLoading) {
+      window.scrollTo(0, 0);
+      window.addEventListener('wheel', preventScroll, { passive: false });
+      window.addEventListener('touchmove', preventScroll, { passive: false });
+      window.addEventListener('keydown', preventKeyScroll, { passive: false });
+    }
+
+    return () => {
+      window.removeEventListener('wheel', preventScroll);
+      window.removeEventListener('touchmove', preventScroll);
+      window.removeEventListener('keydown', preventKeyScroll);
+    };
   }, [isLoading]);
 
   const startExitAnimation = () => {
@@ -283,6 +292,8 @@ export default function Loader() {
         setIsLoading(false);
         (window as any).isLoaderFinished = true;
         window.dispatchEvent(new Event('loaderFinished'));
+        window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new Event('scroll'));
       }
     });
 
@@ -348,6 +359,11 @@ export default function Loader() {
       ease: "power3.inOut",
       onUpdate: updatePath
     }, 1.6);
+
+    tl.call(() => {
+      window.dispatchEvent(new Event('resize'));
+      window.dispatchEvent(new Event('scroll'));
+    }, [], 1.6);
   };
 
   if (!isLoading) return null;

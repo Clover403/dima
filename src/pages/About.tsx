@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import NosotrosHeroScroll from '../components/about/NosotrosHeroScroll';
+import NosotrosHeroScroll from '../components/About/NosotrosHeroScroll';
 import CTA from '../components/layout/CTA';
 import PageTransition from '../components/layout/PageTransition';
 
@@ -11,7 +11,7 @@ export default function About() {
   return (
     <PageTransition>
       <NosotrosHeroScroll />
-      <CTA theme="light" />
+      <CTA theme="light" className="-mt-[2px] relative z-20" />
     </PageTransition>
   );
 }
