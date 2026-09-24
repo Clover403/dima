@@ -189,16 +189,19 @@ export default function Loader() {
 
     let loadedLogosCount = 0;
 
+    const isHomePage = typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '/home-legacy');
+
     const updateAggregateProgress = (vPct: number, logoRatio: number) => {
       // Bobot: Video (95%), Logo Awal (5%)
-      const combined = Math.min(100, vPct * 0.95 + (logoRatio * 100) * 0.05);
-      setProgress(combined);
+      const combined = Math.min(99, vPct * 0.95 + (logoRatio * 100) * 0.05);
+      setProgress((prev) => Math.max(prev, combined));
     };
 
     const checkReadyToFinish = () => {
       if (isLoadTriggered) return;
-      // Syarat buka: Logo awal selesai & ter-decode, font siap, DAN Video 1-8 100% selesai dimuat ke RAM!
-      if (videoCache.isInitialReady() && logosDone && fontsDone) {
+      // Di halaman Home: Loader TIDAK AKAN terbuka sampai SEMUA video Home selesai dimuat 100% ke memori!
+      const videosReady = isHomePage ? videoCache.isInitialReady() : true;
+      if (videosReady && logosDone && fontsDone) {
         isLoadTriggered = true;
         setProgress(100);
         setTimeout(startExitAnimation, 250);
@@ -227,34 +230,38 @@ export default function Loader() {
       });
     };
 
-    // Failsafe timeout: jaminan web PASTI terbuka maksimal 3.5 detik apapun kondisi jaringan klien
-    const failsafe = setTimeout(() => {
-      if (!isLoadTriggered) {
-        isLoadTriggered = true;
-        setProgress(100);
-        setTimeout(startExitAnimation, 150);
-      }
-    }, 3500);
-
     // A. Preload Logo Awal (Cepat, < 100ms)
     Promise.all(initialLogos.map(preloadLogo)).then(() => {
       logosDone = true;
       checkReadyToFinish();
     });
 
-    // B. Real-Time Byte Preload untuk Video 1 (lokal)
+    // B. Real-Time Byte Preload untuk SEMUA Video Home
     const unsubProgress = videoCache.onProgress((pct) => {
       videoProgress = pct;
       updateAggregateProgress(videoProgress, loadedLogosCount / initialLogos.length);
     });
 
-    videoCache.preloadInitialVideos(2).then(() => {
+    // Mulai preload seluruh 12 video Home (concurrency = 3)
+    videoCache.preloadInitialVideos(3).then(() => {
       checkReadyToFinish();
     });
 
+    // Hanya pasang fallback timeout untuk halaman non-home agar subhalaman statis tidak tertahan
+    let fallbackTimeout: ReturnType<typeof setTimeout> | null = null;
+    if (!isHomePage) {
+      fallbackTimeout = setTimeout(() => {
+        if (!isLoadTriggered) {
+          isLoadTriggered = true;
+          setProgress(100);
+          setTimeout(startExitAnimation, 150);
+        }
+      }, 2500);
+    }
+
     return () => {
       unsubProgress();
-      clearTimeout(failsafe);
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
     };
   }, []);
 
