@@ -21,12 +21,17 @@ function validateEmail(email: string) {
 interface CTAProps {
   theme?: "dark" | "light";
   transparentBg?: boolean;
+  textColor?: "navy" | "white";
+  buttonTextColor?: "white" | "navy";
   className?: string;
 }
 
-export default function CTA({ theme = "dark", transparentBg = false, className = "" }: CTAProps) {
+export default function CTA({ theme = "dark", transparentBg = false, textColor, buttonTextColor, className = "" }: CTAProps) {
   const isLight = theme === "light";
   const isTransparent = transparentBg;
+  const useNavyText = textColor ? textColor === "navy" : (isLight || isTransparent);
+  const isHome = typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '/home-legacy');
+  const useWhiteButtonText = buttonTextColor === "white" || (isHome && isTransparent) || buttonTextColor !== "navy" && (isHome || isTransparent);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     contactName: "",
@@ -112,7 +117,7 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
       className={`w-full font-body relative overflow-hidden min-h-screen flex flex-col justify-center py-12 lg:py-20 -mt-[2px] z-20 ${className}`}
       style={{
         background: isTransparent ? "transparent" : (isLight ? COLORS.gray : COLORS.navy),
-        color: isLight && !isTransparent ? COLORS.navy : COLORS.gray,
+        color: useNavyText ? COLORS.navy : COLORS.gray,
       }}
     >
       <style>{fontFace}</style>
@@ -129,7 +134,7 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
           </p>
           <h2
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] md:leading-[1.15] tracking-tight font-medium w-full mx-auto font-display"
-            style={{ color: isLight && !isTransparent ? COLORS.navy : "#FFFFFF" }}
+            style={{ color: useNavyText ? COLORS.navy : "#FFFFFF" }}
           >
             Hablemos de su{' '}
             <span className="font-display block sm:inline" style={{ color: COLORS.bronze }}>próximo paso.</span>
@@ -144,7 +149,7 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
             {/* DESKRIPSI: Centered di Mobile/Tab, Kiri di Desktop */}
             <p
               className="text-base sm:text-lg lg:text-xl font-normal mb-8 leading-relaxed opacity-90 mx-auto lg:mx-0 max-w-lg lg:max-w-none"
-              style={{ color: isLight && !isTransparent ? COLORS.navy : "rgba(255, 255, 255, 0.85)" }}
+              style={{ color: useNavyText ? COLORS.navy : "rgba(255, 255, 255, 0.85)" }}
             >
               Comience completando algunos datos básicos. Con base en su información,
               le daremos acceso directo a nuestro calendario para agendar una sesión
@@ -156,7 +161,7 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
               {featuresList.map((item) => (
                 <div key={item} className="flex items-center gap-3 py-2.5">
                   <span className="w-2 h-2 rounded-full flex-none" style={{ background: COLORS.bronze }} />
-                  <span className="text-base font-medium opacity-90" style={{ color: isLight && !isTransparent ? COLORS.navy : "rgba(255, 255, 255, 0.95)" }}>
+                  <span className="text-base font-medium opacity-90" style={{ color: useNavyText ? COLORS.navy : "rgba(255, 255, 255, 0.95)" }}>
                     {item}
                   </span>
                 </div>
@@ -166,7 +171,7 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
             {/* ILUSTRASI */}
             <div className="mt-2 lg:mt-auto pt-4 flex justify-center lg:justify-start">
               <img 
-                src={isLight && !isTransparent ? "/logo/orange_black.svg" : "/logo/orange_white.svg"} 
+                src={useNavyText ? "/logo/orange_black.svg" : "/logo/orange_white.svg"} 
                 alt="Invoice Illustration" 
                 className="w-1/2 lg:w-full max-w-[200px] lg:max-w-[320px] object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
               />
@@ -300,12 +305,12 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
               <button
                 type="submit"
                 className={`w-full mt-8 sm:mt-10 inline-flex items-center justify-center gap-3 px-6 py-3.5 sm:py-4 font-body font-bold text-xs sm:text-sm tracking-[0.15em] sm:tracking-widest uppercase transition-all duration-300 rounded-full cursor-pointer transform hover:-translate-y-0.5 active:scale-95 ${
-                  isTransparent
-                    ? 'bg-[#E5997B] text-[#030035] hover:bg-white hover:text-[#030035] shadow-[0_8px_25px_rgba(229,153,123,0.35)]'
+                  useWhiteButtonText
+                    ? 'bg-[#E5997B] text-white hover:bg-white hover:text-[#E5997B] active:bg-white active:text-[#E5997B] focus:bg-white focus:text-[#E5997B] shadow-[0_8px_25px_rgba(229,153,123,0.35)]'
                     : 'bg-[#E5997B] text-[#030035] hover:bg-[#030035] hover:text-[#F4F4F5] hover:shadow-[0_10px_30px_rgba(3,0,53,0.15)]'
                 }`}
               >
-                <span>Continuar / Lanjut</span>
+                <span>Continuar</span>
                 <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
                   <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -321,12 +326,12 @@ export default function CTA({ theme = "dark", transparentBg = false, className =
             </form>
 
             {/* POIN 3: HANYA TAMPIL DI MOBILE & TAB (DI BAWAH FORM) */}
-            <div className={`block lg:hidden w-full mt-8 pt-6 border-t ${isTransparent ? 'border-white/10' : 'border-[#030035]/10'} sm:border-none sm:pt-0 sm:mt-8`}>
+            <div className={`block lg:hidden w-full mt-8 pt-6 border-t ${useNavyText ? 'border-[#030035]/15' : 'border-white/10'} sm:border-none sm:pt-0 sm:mt-8`}>
               <div className="pl-4 sm:pl-5 border-l-2 sm:border-l-4 mx-auto max-w-sm text-left" style={{ borderColor: COLORS.bronze }}>
                 {featuresList.map((item) => (
                   <div key={item} className="flex items-center gap-3 py-2">
                     <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-none" style={{ background: COLORS.bronze }} />
-                    <span className="text-sm sm:text-base font-medium opacity-90" style={{ color: isLight && !isTransparent ? COLORS.navy : "rgba(255, 255, 255, 0.95)" }}>
+                    <span className="text-sm sm:text-base font-medium opacity-90" style={{ color: useNavyText ? COLORS.navy : "rgba(255, 255, 255, 0.95)" }}>
                       {item}
                     </span>
                   </div>
