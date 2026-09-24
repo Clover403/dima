@@ -24,10 +24,10 @@ interface ScrollVideoCanvasProps {
 }
 
 const TOTAL_VIDEOS = TOTAL_HOME_VIDEOS;
-const KNOWN_DURATIONS = [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 8.0, 6.0, 6.0, 10.0];
+const KNOWN_DURATIONS = [13.0, 10.0, 10.0, 10.0, 8.0, 10.0, 10.0, 8.0, 8.0, 10.0, 6.0, 10.0];
 
 const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasProps>(
-  ({ className = '', canvasShiftX = 18, overlayOpacity = 0 }, ref) => {
+  ({ className = '', canvasShiftX = 0 }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
@@ -314,11 +314,11 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           />
         ))}
 
-        {/* Dynamic Dark Overlay (0 at start, smoothly darkens to 0.50, pure black, NO blue tint) */}
+        {/* Dark overlay removed per revision Point 7 */}
         <div
           ref={overlayRef}
-          className="absolute inset-0 bg-black pointer-events-none z-[20] transition-opacity duration-300 ease-out"
-          style={{ opacity: overlayOpacity }}
+          className="hidden absolute inset-0 bg-black pointer-events-none z-[20]"
+          style={{ opacity: 0, display: 'none' }}
         />
       </div>
     );
