@@ -1,40 +1,60 @@
 // src/lib/videoCache.ts
 // High-performance In-Memory Video Blob Cache & Real-Time Byte Preloader
 
-export const TOTAL_HOME_VIDEOS = 10;
-export const INITIAL_LOAD_COUNT = 1; // Video 1 lokal (17MB) untuk pembukaan instan (1-2 detik)
+export const TOTAL_HOME_VIDEOS = 12;
+export const INITIAL_LOAD_COUNT = TOTAL_HOME_VIDEOS; // Seluruh 12 video Home wajib selesai dimuat sebelum loader terbuka
 
-// Known exact sizes of all 10 Intra MP4 videos (bytes)
+// Known exact sizes of all 12 Intra MP4 videos (bytes)
 export const KNOWN_VIDEO_SIZES: number[] = [
-  17077306, // home1
-  29302074, // home2
-  25530952, // home3
-  28450814, // home4
-  30860030, // home5
-  28399629, // home6
-  22385040, // home7
-  13584951, // home8
-  12718193, // home9
-  21132117  // home10
+  16052626, // home1 (Merged Hourglass download.mp4 - 13s)
+  37788305, // home2 (Agro bulir gandum)
+  25530952, // home3 (Agro traktor panen)
+  28450814, // home4 (Konstruksi excavator pondasi)
+  21908836, // home5 (Konstruksi rangka luar baru)
+  21575923, // home6 (Konstruksi rangka dalam interior)
+  28399629, // home7 (Expansión gedung pencakar langit kota)
+  22385040, // home8 (Energi turbin & solar)
+  21594403, // home9 (Logistik pelabuhan loading docks)
+  28833242, // home10 (Logistik rak supermarket retail)
+  12718193, // home11 (Logistik warehouse interior)
+  21132117  // home12 (Logistik armada truk kontainer)
 ];
 
-// Ukuran total byte untuk video 1 sampai 8 saja (fase pembukaan awal)
-export const INITIAL_VIDEOS_BYTE_SIZE = KNOWN_VIDEO_SIZES.slice(0, INITIAL_LOAD_COUNT).reduce((a, b) => a + b, 0);
+// Ukuran total byte untuk seluruh 12 video Home
 export const TOTAL_VIDEOS_BYTE_SIZE = KNOWN_VIDEO_SIZES.reduce((a, b) => a + b, 0);
+export const INITIAL_VIDEOS_BYTE_SIZE = TOTAL_VIDEOS_BYTE_SIZE;
+
+export const VIDEO_VERSION = 'v6';
+export const CURRENT_VIDEO_CACHE_NAME = `dima-video-cache-${VIDEO_VERSION}`;
+
+// Auto cache migration: berjalan 100% otomatis di browser klien tanpa perlu tombol/shortcut apa pun
+if (typeof window !== 'undefined') {
+  try {
+    const savedVersion = localStorage.getItem('dima_vid_ver');
+    if (savedVersion !== VIDEO_VERSION) {
+      localStorage.setItem('dima_vid_ver', VIDEO_VERSION);
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => {
+            if (name.startsWith('dima-video-cache') && name !== CURRENT_VIDEO_CACHE_NAME) {
+              caches.delete(name).catch(() => {});
+            }
+          });
+        }).catch(() => {});
+      }
+    }
+  } catch (_) {}
+}
 
 export function resolveVideoUrl(index: number): string {
-  // Video 1 (index 0) & Video 2 (index 1) SELALU disajikan dari direktori lokal (/video/video-home/intra/home{1,2}_intra.mp4), baik di localhost maupun di deployment (ikut ter-deploy ke Vercel)
-  if (index === 0 || index === 1) {
-    return `/video/video-home/intra/home${index + 1}_intra.mp4`;
+  // Video 1 (index 0) SELALU disajikan dari direktori lokal (/video/video-home/intra/home1_intra.mp4)
+  if (index === 0) {
+    return `/video/video-home/intra/home1_intra.mp4?v=${VIDEO_VERSION}`;
   }
 
-  // Video 3-10: SELALU gunakan Cloudflare R2, baik di localhost maupun di deployment
-  const r2Base = import.meta.env.VITE_R2_BASE_URL;
-  if (r2Base) {
-    return `${r2Base}/video/home/home${index + 1}_intra.mp4`;
-  }
-
-  return `/video/video-home/intra/home${index + 1}_intra.mp4`;
+  // Video 2-12: Disajikan langsung dari Cloudflare R2 (path: dima/video/home/homeX_intra.mp4)
+  const r2Base = import.meta.env.VITE_R2_BASE_URL || 'https://pub-cb6cb35c3575473bae197e7054f52cee.r2.dev';
+  return `${r2Base}/video/home/home${index + 1}_intra.mp4?v=${VIDEO_VERSION}`;
 }
 
 type ProgressListener = (percent: number, loadedBytes: number, totalBytes: number) => void;
@@ -48,7 +68,6 @@ class VideoCacheManager {
   private allReadyListeners: Set<ReadyListener> = new Set();
   private isPreloadingInitial = false;
   private isInitialDone = false;
-  private isRemainingPreloading = false;
   private isAllDone = false;
 
   public getVideoSrc(index: number): string {
@@ -124,16 +143,16 @@ class VideoCacheManager {
       return this.blobUrls.get(index)!;
     }
 
-    const CACHE_NAME = 'dima-video-cache-v2';
+    const CACHE_NAME = CURRENT_VIDEO_CACHE_NAME;
     const expectedSize = KNOWN_VIDEO_SIZES[index] || 20000000;
-    const fallbackUrl = `/video/video-home/intra/home${index + 1}_intra.mp4`;
-    const targetUrl = retryCount > 0 ? fallbackUrl : url;
+    const targetUrl = url;
+    const requestUrl = targetUrl;
 
     // 1. Cek Cache API browser (CacheStorage) - Jika sudah pernah di-load, INSTAN tanpa download ulang!
     if (typeof window !== 'undefined' && 'caches' in window) {
       try {
         const cache = await caches.open(CACHE_NAME);
-        const cachedResp = (await cache.match(targetUrl)) || (await cache.match(fallbackUrl)) || (await cache.match(url));
+        const cachedResp = (await cache.match(targetUrl)) || (await cache.match(url));
         if (cachedResp) {
           const blob = await cachedResp.blob();
           if (blob && blob.size > 500000) {
@@ -150,7 +169,7 @@ class VideoCacheManager {
     }
 
     try {
-      const response = await fetch(targetUrl);
+      const response = await fetch(requestUrl);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} fetching ${targetUrl}`);
       }
@@ -206,9 +225,8 @@ class VideoCacheManager {
     } catch (err) {
       console.warn(`Video ${index + 1} download attempt ${retryCount + 1} failed:`, err);
       if (retryCount < 3) {
-        // Coba ulang dengan fallback lokal
-        await new Promise((r) => setTimeout(r, 400));
-        return this.fetchSingleVideoAsBlob(index, fallbackUrl, retryCount + 1);
+        await new Promise((r) => setTimeout(r, 600));
+        return this.fetchSingleVideoAsBlob(index, url, retryCount + 1);
       }
       throw err;
     }
@@ -275,6 +293,7 @@ class VideoCacheManager {
     });
 
     this.isInitialDone = true;
+    this.isAllDone = true;
     this.isPreloadingInitial = false;
 
     // Trigger 100% progress
@@ -291,48 +310,25 @@ class VideoCacheManager {
     }
     this.initialReadyListeners.clear();
 
-    window.dispatchEvent(new CustomEvent('videosInitialLoaded', {
-      detail: { count: INITIAL_LOAD_COUNT }
-    }));
-
-    // Otomatis download video 9 dan 10 di background setelah video 1-8 siap
-    setTimeout(() => {
-      this.preloadRemainingVideos(2);
-    }, 200);
-  }
-
-  // 2. Fase 2: Download Video 9 dan 10 di Background setelah web terbuka
-  public async preloadRemainingVideos(_concurrency = 2): Promise<void> {
-    if (this.isAllDone || this.isRemainingPreloading) return;
-    this.isRemainingPreloading = true;
-
-    const remainingIndices = Array.from(
-      { length: TOTAL_HOME_VIDEOS - INITIAL_LOAD_COUNT },
-      (_, i) => INITIAL_LOAD_COUNT + i
-    ); // indices [8, 9] (video 9 & 10)
-
-    for (const idx of remainingIndices) {
-      try {
-        const url = resolveVideoUrl(idx);
-        await this.fetchSingleVideoAsBlob(idx, url);
-        // Dispatch update saat video 9 atau 10 berhasil di-cache
-        window.dispatchEvent(new CustomEvent('videosFullyLoaded', {
-          detail: { count: this.blobUrls.size }
-        }));
-      } catch (err) {
-        console.warn(`Background video ${idx + 1} preload failed, will fallback to stream:`, err);
-      }
-    }
-
-    this.isAllDone = true;
-    this.isRemainingPreloading = false;
-
     for (const fn of this.allReadyListeners) {
       try {
         fn();
       } catch {}
     }
     this.allReadyListeners.clear();
+
+    window.dispatchEvent(new CustomEvent('videosInitialLoaded', {
+      detail: { count: INITIAL_LOAD_COUNT }
+    }));
+    window.dispatchEvent(new CustomEvent('videosFullyLoaded', {
+      detail: { count: TOTAL_HOME_VIDEOS }
+    }));
+  }
+
+  // 2. Fase 2: Preload sisa video jika ada yang belum terunduh
+  public async preloadRemainingVideos(): Promise<void> {
+    if (this.isAllDone) return;
+    await this.preloadInitialVideos();
   }
 
   public async preloadAllVideos(
