@@ -35,7 +35,7 @@ export default function HeroStage({ onScrollProgress }: HeroStageProps) {
   const phrase1Progress = useTransform(scrollYProgress, [0.16, 0.27], [0, 1]);
   const phrase1BlockOpacity = useTransform(scrollYProgress, [0.15, 0.18, 0.33, 0.36], [0, 1, 1, 0]);
 
-  // Phrase 2 (Kanan Tengah): 02 — Mecánica: "Es un mecanismo — predecible, medible, replicable."
+  // Phrase 2 (Kanan Tengah): 02 — Mecánica: "Es un mecanismo predecible, medible, replicable."
   const phrase2Progress = useTransform(scrollYProgress, [0.34, 0.44], [0, 1]);
   const phrase2BlockOpacity = useTransform(scrollYProgress, [0.33, 0.36, 0.50, 0.53], [0, 1, 1, 0]);
 
