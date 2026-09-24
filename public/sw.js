@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dima-sequence-cache-v2';
+const CACHE_NAME = 'dima-sequence-cache-v3';
 let cacheInstance = null;
 
 // Helper function untuk mendapatkan instance cache secara efisien (agar tidak open cache ratusan kali)
