@@ -35,7 +35,7 @@ const SectorProgressNav = forwardRef<SectorProgressNavHandle, SectorProgressNavP
         style={{ opacity: initialVisible ? 1 : 0 }}
       >
         {/* Minimalist Bronze Scroll Status Bar: Elegant vertical line filled downwards */}
-        <div className="relative w-[2.5px] sm:w-[3px] h-40 sm:h-48 md:h-52 rounded-full bg-white/20 overflow-hidden shadow-sm">
+        <div className="relative w-[2.5px] sm:w-[3px] h-40 sm:h-48 md:h-52 rounded-full bg-[#030035]/15 overflow-hidden shadow-sm">
           {/* Bronze bar filling downwards according to scroll */}
           <div
             ref={barRef}
