@@ -104,7 +104,9 @@ export default function SectorStorySection({
 
   // Compact height: eliminates long empty scrolling between sectors
   const containerHeightClass =
-    sector.videoIndices.length === 3
+    sector.videoIndices.length >= 4
+      ? 'min-h-[350vh]'
+      : sector.videoIndices.length === 3
       ? 'min-h-[280vh]'
       : sector.videoIndices.length === 2
       ? 'min-h-[210vh]'
@@ -134,14 +136,6 @@ export default function SectorStorySection({
           {/* TITLE BLOCK (Placed at designated perimeter side)            */}
           {/* ============================================================ */}
           <div className={`w-full flex flex-col space-y-3 sm:space-y-4 ${layout.titlePosition} ${layout.titleAlign}`}>
-            {/* Eyebrow: Numbers removed, dot on the right if right-sided, centered if isCentered */}
-            <div className={`flex items-center gap-2 ${isCentered ? 'justify-center' : isRightSide ? 'lg:flex-row-reverse' : ''}`}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E5997B]" />
-              <span className="font-body text-xs sm:text-[13px] tracking-[0.25em] text-[#E5997B] font-semibold uppercase">
-                {sector.sectorName}
-              </span>
-            </div>
-
             {/* Title with letter-by-letter reveal animation (Nosotros style) */}
             <h3 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-[3.9rem] text-white font-normal leading-[1.08] tracking-tight drop-shadow-md">
               <HybridRevealText
