@@ -46,16 +46,16 @@ export default function CreditArchitectureDiagram() {
   const [activeTab, setActiveTab] = useState<number>(0);
 
   return (
-    <div className="my-1.5 w-full rounded-2xl border border-white/15 bg-black/55 backdrop-blur-md p-3.5 sm:p-5 md:p-5 shadow-2xl transition-all duration-300">
+    <div className="my-1.5 w-full rounded-2xl border border-[#030035]/15 bg-white/85 backdrop-blur-sm p-3.5 sm:p-5 md:p-5 shadow-lg transition-all duration-300">
       {/* Top telemetry bar */}
-      <div className="flex flex-wrap items-center justify-between border-b border-white/10 pb-2.5 mb-4 gap-2">
+      <div className="flex flex-wrap items-center justify-between border-b border-[#030035]/10 pb-2.5 mb-4 gap-2">
         <div className="flex items-center gap-2">
           <span className="inline-block w-2 h-2 rounded-full bg-[#E5997B] animate-pulse" />
-          <span className="font-mono text-[11px] sm:text-xs uppercase tracking-[0.18em] text-white/80 font-semibold">
+          <span className="font-mono text-[11px] sm:text-xs uppercase tracking-[0.18em] text-[#030035]/80 font-semibold">
             ARQUITECTURA DEL CRÉDITO // SISTEMA TRIPARTITO
           </span>
         </div>
-        <div className="font-mono text-[10px] sm:text-[11px] text-white/50 tracking-widest">
+        <div className="font-mono text-[10px] sm:text-[11px] text-[#030035]/50 tracking-widest">
           SYS.MODEL-DIMA // REV.2026
         </div>
       </div>
@@ -73,28 +73,28 @@ export default function CreditArchitectureDiagram() {
               onClick={() => setActiveTab(idx)}
               className={`relative text-left p-3 sm:p-3.5 rounded-xl border transition-all duration-300 cursor-pointer ${
                 isSelected
-                  ? 'bg-white/12 text-white border-[#E5997B] shadow-[0_0_12px_rgba(229,153,123,0.22)] scale-[1.01]'
-                  : 'bg-white/[0.04] text-white/75 border-white/15 hover:border-white/30 hover:bg-white/[0.07]'
+                  ? 'bg-[#E5997B]/15 text-[#030035] border-[#E5997B] shadow-[0_2px_12px_rgba(229,153,123,0.3)] scale-[1.01]'
+                  : 'bg-[#030035]/[0.03] text-[#030035]/75 border-[#030035]/10 hover:border-[#030035]/30 hover:bg-[#030035]/[0.06]'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span
                   className={`font-mono text-[11px] sm:text-xs font-bold tracking-wider ${
-                    isSelected ? 'text-[#E5997B]' : 'text-white/40'
+                    isSelected ? 'text-[#E5997B]' : 'text-[#030035]/40'
                   }`}
                 >
                   {elem.step}
                 </span>
                 <Icon
                   size={16}
-                  className={isSelected ? 'text-[#E5997B]' : 'text-white/40'}
+                  className={isSelected ? 'text-[#E5997B]' : 'text-[#030035]/40'}
                 />
               </div>
 
-              <h4 className="font-body text-xs sm:text-[13.5px] font-semibold tracking-wider text-white uppercase mb-1">
+              <h4 className="font-body text-xs sm:text-[13.5px] font-semibold tracking-wider text-[#030035] uppercase mb-1">
                 {elem.title}
               </h4>
-              <p className="text-xs sm:text-[13px] font-body text-white/80 leading-relaxed">
+              <p className="text-xs sm:text-[13px] font-body text-[#030035]/80 leading-relaxed">
                 {elem.summary}
               </p>
             </button>
@@ -103,7 +103,7 @@ export default function CreditArchitectureDiagram() {
       </div>
 
       {/* Active Tab Detail Pane */}
-      <div className="relative rounded-xl bg-white/[0.03] border border-white/15 p-3.5 sm:p-4">
+      <div className="relative rounded-xl bg-[#030035]/[0.03] border border-[#030035]/10 p-3.5 sm:p-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -118,18 +118,18 @@ export default function CreditArchitectureDiagram() {
                 <span className="font-mono text-xs sm:text-[13px] uppercase font-bold tracking-widest text-[#E5997B]">
                   {creditElements[activeTab].tag}
                 </span>
-                <span className="text-white/30">•</span>
-                <span className="font-mono text-[11px] sm:text-xs text-white/60">
+                <span className="text-[#030035]/30">•</span>
+                <span className="font-mono text-[11px] sm:text-xs text-[#030035]/60">
                   {creditElements[activeTab].highlight}
                 </span>
               </div>
-              <p className="text-sm sm:text-[15px] md:text-base text-white/95 leading-relaxed font-body font-light">
+              <p className="text-sm sm:text-[15px] md:text-base text-[#030035]/90 leading-relaxed font-body font-light">
                 {creditElements[activeTab].detail}
               </p>
             </div>
 
-            <div className="shrink-0 flex items-center sm:flex-col sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-white/15 pt-2 sm:pt-0 sm:pl-4">
-              <span className="font-mono text-[9px] sm:text-[10px] text-white/50 tracking-wider">COBERTURA</span>
+            <div className="shrink-0 flex items-center sm:flex-col sm:items-end justify-between border-t sm:border-t-0 sm:border-l border-[#030035]/15 pt-2 sm:pt-0 sm:pl-4">
+              <span className="font-mono text-[9px] sm:text-[10px] text-[#030035]/50 tracking-wider">COBERTURA</span>
               <span className="font-mono text-xs sm:text-[13px] font-bold text-[#E5997B] tracking-wider mt-0.5">
                 100% BLINDADA
               </span>
