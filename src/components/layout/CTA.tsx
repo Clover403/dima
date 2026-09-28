@@ -116,7 +116,7 @@ export default function CTA({ theme = "dark", transparentBg = false, textColor, 
     <section
       className={`w-full font-body relative overflow-hidden min-h-screen flex flex-col justify-center py-12 lg:py-20 -mt-[2px] z-20 ${className}`}
       style={{
-        background: isTransparent ? "transparent" : (isLight ? COLORS.gray : COLORS.navy),
+        background: isTransparent ? "transparent" : (isLight ? "#FFFFFF" : COLORS.navy),
         color: useNavyText ? COLORS.navy : COLORS.gray,
       }}
     >
