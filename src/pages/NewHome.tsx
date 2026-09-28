@@ -49,9 +49,9 @@ export default function NewHome() {
         {/* 3. Complete Unified Narrative Stage (z-[25]): ALL chapters in ONE sticky container */}
         <UnifiedStoryStage ref={storyStageRef} onProgressUpdate={handleProgressUpdate} />
 
-        {/* 5. Closing CTA with transparent background and navy text, button text white */}
-        <div className="relative z-20 bg-transparent text-[#030035]">
-          <CTA transparentBg={true} textColor="navy" buttonTextColor="white" />
+        {/* 5. Closing CTA with completely clean solid white background, ending the background video experience */}
+        <div className="relative z-20 bg-white text-[#030035] shadow-[0_-25px_50px_rgba(3,0,53,0.04)]">
+          <CTA theme="light" transparentBg={false} textColor="navy" buttonTextColor="white" />
         </div>
       </div>
     </PageTransition>
