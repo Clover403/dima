@@ -30,7 +30,7 @@ export const NEW_HOME_SECTORS: SectorData[] = [
     ],
     linkText: 'Conoce más sobre nuestro Modelo',
     linkTo: '/modelo-crediticio',
-    videoIndices: [2, 3], // home2 (bulir gandum) + home3 (traktor panen)
+    videoIndices: [5, 6], // Slot 5: home17 (bulir gandum) + Slot 6: home18 (traktor panen)
     telemetry: {
       code: 'AGRO.01-SYNCH',
       metric: 'PRODUCTIVITY / DEBT CYCLE',
@@ -50,7 +50,7 @@ export const NEW_HOME_SECTORS: SectorData[] = [
     ],
     linkText: 'Conoce más sobre nuestro Proceso',
     linkTo: '/proceso',
-    videoIndices: [4, 5, 6, 7], // Fused Real Estate sequence: ground up (4), frame exterior (5), interior fly-through (6), finished architectural structure (7)
+    videoIndices: [7, 8, 9, 10], // Slot 7: home4 (ground up), Slot 8: home5 (frame exterior), Slot 9: home6 (interior), Slot 10: home7 (finished skyscraper)
     telemetry: {
       code: 'STRUC.02-ITERAR',
       metric: 'ACREDITABILIDAD INSTITUCIONAL',
@@ -71,7 +71,7 @@ export const NEW_HOME_SECTORS: SectorData[] = [
     ],
     linkText: 'Conoce más sobre Nosotros',
     linkTo: '/nosotros',
-    videoIndices: [8], // home8_intra.mp4 (Turbinas eólicas y parques solares - continúa desde el zoom a la ventana)
+    videoIndices: [11], // Slot 11: home8_intra.mp4 (Turbinas eólicas y parques solares)
     telemetry: {
       code: 'SOLV.03-ENERGY',
       metric: 'INTERTEMPORAL PRODUCTIVITY',
@@ -90,7 +90,7 @@ export const NEW_HOME_SECTORS: SectorData[] = [
     ],
     linkText: 'Conoce más sobre los créditos',
     linkTo: '/productos',
-    videoIndices: [9, 10], // home9 (docks de puerto marítimo) + home10 (lorong rak supermarket / retail store)
+    videoIndices: [12, 13], // Slot 12: home9 (docks de puerto marítimo) + Slot 13: home10 (supermarket retail)
     hasDiagram: true,
     telemetry: {
       code: 'TRADE.04-STRUCTURE',
@@ -106,11 +106,11 @@ export const NEW_HOME_SECTORS: SectorData[] = [
     title: 'Capacidad que impulsa soluciones estratégicas',
     body: [
       'Erradicamos vulnerabilidades derivadas de estructuras financieras desalineadas, neutralizamos la toxicidad de pasivos ineficientes para restaurar equilibrio estructural, transformamos fragilidad en perfiles de alta resiliencia.',
-      'Otorgamos certeza matemática ante decisiones críticas de inversión o expansión, dotamos a la organización de una arquitectura directiva, liberamos la liquidez atrapada en la operación maximizando el flujo de caja libre sin sacrificar rentabilidad, entre otros.'
+      'Otorgamos certeza matemática ante decisiones críticas de inversión o expansión, dotamos a la organization de una arquitectura directiva, liberamos la liquidez atrapada en la operación maximizando el flujo de caja libre sin sacrificar rentabilidad, entre otros.'
     ],
     linkText: 'Descubre nuestros Servicios',
     linkTo: '/servicios',
-    videoIndices: [11, 12], // home11 (interior warehouse logístico) + home12 (armada de camiones y contenedores)
+    videoIndices: [14, 15], // Slot 14: home11 (warehouse logístico) + Slot 15: home12 (armada de camiones contenedores)
     telemetry: {
       code: 'LOGIS.05-TRADE',
       metric: 'FREE CASH FLOW OPTIMIZATION',
@@ -129,9 +129,8 @@ export const HERO_STAGE_DATA = {
   title: 'El Financiamiento Dictado por la Mecánica del Crecimiento.',
   subtitle: 'Donde la ingeniería del crédito y los fundamentos económicos convergen para transformar el crédito en desarrollo sostenible.',
   body: [
-    'Concebidos bajo la misma lógica de equilibrio y sostenibilidad que mantiene estable a la economía global, somos una organización de brokeraje financiero especializada en crédito.',
-    'Trasladamos los principios macroeconómicos que rigen a las naciones a nivel microeconómico fundacional; individuos, negocios y empresas, fusionando teoría económica, análisis de riesgo y práctica crediticia en un mismo sistema operativo.',
+    'Concebidos bajo la misma lógica de equilibrio y sostenibilidad que mantiene estable a la economía global, somos una organización de brokeraje financiero especializada en crédito. Trasladamos los principios macroeconómicos que rigen a las naciones a nivel microeconómico fundacional; individuos, negocios y empresas, fusionando teoría económica, análisis de riesgo y práctica crediticia en un mismo sistema operativo.',
     'No operamos bajo el modelo de corretaje tradicional. Más allá de gestionar y asesorar, nos enfocamos en impulsar el crecimiento y desarrollo sostenible, demostrando día a día que el crédito bien estructurado no genera deuda, genera progreso.'
   ],
-  videoIndices: [1] // home1_intra.mp4 (Merged Hourglass & money hook - 13s)
+  videoIndices: [1, 2, 3, 4] // Slot 1-4: home13, home14, home15, home16 (Lokal)
 };
