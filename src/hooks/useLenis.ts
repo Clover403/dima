@@ -9,7 +9,13 @@ let lenisInstance: Lenis | null = null
 
 export function useLenis() {
   useEffect(() => {
-    if (lenisInstance) return
+    // If instance exists, destroy previous so HMR updates Lenis settings immediately
+    if (lenisInstance) {
+      try {
+        lenisInstance.destroy();
+      } catch {}
+      lenisInstance = null;
+    }
 
     // Deteksi Browser dan OS
     const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
@@ -17,17 +23,17 @@ export function useLenis() {
     const isLinux = ua.includes('linux') && !ua.includes('android');
     const isWindows = ua.includes('windows');
 
-    // Windows & Linux calibration: keep multiplier at 1.0 to prevent jerky wheel impulses
-    let baseMultiplier = 1.0;
-    if (isLinux) baseMultiplier = 0.65;
-    if (isWindows) baseMultiplier = 1.0;
+    // Calibrated for a relaxed, slow, and ultra-smooth cinematic experience
+    let baseMultiplier = 0.65;
+    if (isLinux) baseMultiplier = 0.50;
+    if (isWindows) baseMultiplier = 0.65;
 
     const lenis = new Lenis({
-      duration: 1.1, // Smooth cinematic glide without abrupt braking
+      duration: 1.4, // Luxuriously smooth, cinematic glide
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: isFirefox ? 1 : baseMultiplier,
-      touchMultiplier: isFirefox ? 1 : baseMultiplier,
+      wheelMultiplier: isFirefox ? 0.75 : baseMultiplier,
+      touchMultiplier: 0.75,
     })
 
     lenisInstance = lenis
