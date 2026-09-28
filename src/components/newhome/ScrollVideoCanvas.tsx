@@ -24,12 +24,11 @@ interface ScrollVideoCanvasProps {
 }
 
 const TOTAL_VIDEOS = TOTAL_HOME_VIDEOS;
-const KNOWN_DURATIONS = [13.0, 10.0, 10.0, 10.0, 8.0, 10.0, 10.0, 8.0, 8.0, 10.0, 6.0, 10.0];
+const KNOWN_DURATIONS = [6.0, 6.0, 8.0, 8.0, 6.0, 10.0, 10.0, 8.0, 10.0, 10.0, 8.0, 8.0, 10.0, 6.0, 10.0];
 
 const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasProps>(
   ({ className = '', canvasShiftX = 0 }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const overlayRef = useRef<HTMLDivElement>(null);
     const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
     const durationsRef = useRef<number[]>([...KNOWN_DURATIONS]);
     const currentTimesRef = useRef<number[]>(new Array(TOTAL_VIDEOS).fill(0));
@@ -60,9 +59,6 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
       if (containerRef.current) {
         containerRef.current.style.transform = canvasShiftX !== 0 ? `translateX(${canvasShiftX}%)` : 'none';
-      }
-      if (overlayRef.current) {
-        overlayRef.current.style.opacity = '0';
       }
 
       // Prime Video 1 immediately to opening frame (0.001s)
@@ -154,7 +150,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
     // Expose high-performance imperative scrubbing handle (Zero React re-render overhead!)
     useImperativeHandle(ref, () => ({
-      setScrub: (activeVidIndex: number, progress: number, shiftX: number, overlayOp: number) => {
+      setScrub: (activeVidIndex: number, progress: number, shiftX: number, _overlayOp: number) => {
         const vidIdx = activeVidIndex - 1;
         if (vidIdx >= 0 && vidIdx < TOTAL_VIDEOS) {
           const duration = durationsRef.current[vidIdx] || KNOWN_DURATIONS[vidIdx] || 10;
@@ -193,11 +189,6 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
         // Direct hardware transform update without CSS transition interference
         if (containerRef.current) {
           containerRef.current.style.transform = shiftX !== 0 ? `translateX(${shiftX}%)` : 'none';
-        }
-
-        // Direct overlay opacity update
-        if (overlayRef.current) {
-          overlayRef.current.style.opacity = String(overlayOp);
         }
       },
     }));
@@ -313,13 +304,6 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             }}
           />
         ))}
-
-        {/* Dark overlay removed per revision Point 7 */}
-        <div
-          ref={overlayRef}
-          className="hidden absolute inset-0 bg-black pointer-events-none z-[20]"
-          style={{ opacity: 0, display: 'none' }}
-        />
       </div>
     );
   }
