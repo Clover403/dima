@@ -219,47 +219,53 @@ export default function FloatingCTA() {
             onMouseLeave={() => setHovered(false)}
             onFocus={() => setHovered(true)}
             onBlur={() => setHovered(false)}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            // Tetap ngumpet 24px ke kanan saat tidak di-hover
+            initial={{ opacity: 0, x: 30, y: 0 }}
+            animate={{ opacity: 1, x: hovered ? 0 : 24, y: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             layout
             aria-label="Agendar Sesión"
-className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[9999] flex items-center gap-4 md:gap-6 rounded-full px-4 md:px-6 py-3 md:py-5 min-w-[64px] md:min-w-[96px] min-h-[64px] md:min-h-[96px] cursor-pointer select-none will-change-transform"
+            // Padding disesuaikan biar center: pl-3 (12px) dan pr-9 (36px). Saat x:24, sisa padding kanan di layar adalah 12px.
+            className="fixed bottom-6 right-0 md:bottom-8 z-[9999] flex items-center rounded-l-full pl-3 pr-9 md:pl-4 md:pr-10 h-14 md:h-16 cursor-pointer select-none will-change-transform"
             style={{
               backgroundColor: NAVY,
-              border: '1px solid rgba(244,244,245,0.06)',
+              border: '1px solid rgba(244,244,245,0.1)',
+              borderRight: 'none', 
               backdropFilter: 'blur(10px)',
+              // Shadow dibuat lebih gelap/nyebar di bagian bawah dan kiri biar lebih TIMBUL
               boxShadow: hovered
-                ? `0 0 0 1px rgba(229,153,123,0.10), 0 0 26px rgba(3,0,53,0.34), 0 0 16px rgba(229,153,123,0.08)`
-                : `0 0 0 1px rgba(244,244,245,0.04), 0 12px 30px rgba(3,0,53,0.26), 0 0 14px rgba(3,0,53,0.18)`,
-              transition: 'box-shadow 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.45s ease',
+                ? `0 0 0 1px rgba(229,153,123,0.10), -8px 0 20px rgba(3,0,53,0.25), 0 0 16px rgba(229,153,123,0.08)`
+                : `-6px 0 16px rgba(3,0,53,0.2), -2px 0 6px rgba(3,0,53,0.12)`,
+              transition: 'box-shadow 0.45s ease, border-color 0.45s ease',
             }}
           >
-            <motion.div
-              layout="position"
-              animate={pulse ? { scale: [1, 1.14, 1] } : { scale: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-              className="flex items-center justify-center w-7 h-7 md:w-10 md:h-10 shrink-0"
-            >
-              <CalendarIcon className="w-7 h-7 md:w-10 md:h-10" />
-            </motion.div>
-
             <AnimatePresence initial={false}>
               {hovered && (
                 <motion.span
                   key="label"
-                  initial={{ opacity: 0, width: 0, marginLeft: 0 }}
-                  animate={{ opacity: 1, width: 'auto', marginLeft: 4 }}
-                  exit={{ opacity: 0, width: 0, marginLeft: 0 }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden whitespace-nowrap font-sans font-medium text-[13px] md:text-[15px] tracking-wide pr-2 md:pr-4"
+                  initial={{ opacity: 0, width: 0, marginLeft: 0, marginRight: 0 }}
+                  animate={{ opacity: 1, width: 'auto', marginLeft: 16, marginRight: 12 }}
+                  exit={{ opacity: 0, width: 0, marginLeft: 0, marginRight: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden whitespace-nowrap font-sans font-medium text-[13px] md:text-[14px] tracking-wide"
                   style={{ color: GRAY }}
                 >
                   Agendar Sesión
                 </motion.span>
               )}
             </AnimatePresence>
+
+            <motion.div
+              layout="position"
+              // Efek denyut (pulse) sedikit lebih kentara saat nggak di-hover biar menarik perhatian
+              animate={pulse && !hovered ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+              // Ukuran ikon digedein dikit (w-7 h-7) biar lebih menonjol di dalam tombol
+              className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0"
+            >
+              <CalendarIcon className="w-full h-full" />
+            </motion.div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -279,7 +285,7 @@ className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[9999] flex items-cen
               style={{ backgroundColor: 'rgba(3,0,53,0.6)' }}
             />
 
-            {/* ── Panel — diperlebar: md:w-[520px], bg disesuaikan tema Contact ── */}
+            {/* ── Panel ── */}
             <motion.aside
               key="panel"
               initial={{ x: '100%' }}
@@ -293,21 +299,19 @@ className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[9999] flex items-cen
               aria-modal="true"
               aria-label="Agendar sesión"
             >
-              {/* Close */}
               <button
                 onClick={closeModal}
                 aria-label="Cerrar"
-                className="absolute top-5 right-5 z-10 w-9 h-9 flex items-center justify-center text-[#030035] hover:bg-black/5 rounded-full transition-colors"
+                className="absolute top-5 right-5 z-10 w-8 h-8 flex items-center justify-center text-[#030035] hover:bg-black/5 rounded-full transition-colors"
               >
-                <svg viewBox="0 0 16 16" fill="none" className="w-4.5 h-4.5">
-                  <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5">
+                  <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                 </svg>
               </button>
 
               {!showCalendly ? (
                 /* ── STATE 1: FORM ── */
                 <div className="px-8 md:px-10 pt-16 pb-12">
-                  {/* Judul */}
                   <h2 className="font-display text-4xl md:text-5xl tracking-tight text-[#030035] mb-4">
                     Agendar <span className="italic font-serif" style={{ color: BRONZE }}>Sesión</span>
                   </h2>
