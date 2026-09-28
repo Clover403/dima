@@ -1,30 +1,33 @@
 // src/lib/videoCache.ts
 // High-performance In-Memory Video Blob Cache & Real-Time Byte Preloader
 
-export const TOTAL_HOME_VIDEOS = 12;
-export const INITIAL_LOAD_COUNT = TOTAL_HOME_VIDEOS; // Seluruh 12 video Home wajib selesai dimuat sebelum loader terbuka
+export const TOTAL_HOME_VIDEOS = 15;
+export const INITIAL_LOAD_COUNT = TOTAL_HOME_VIDEOS; // Seluruh 15 video Home wajib selesai dimuat sebelum loader terbuka
 
-// Known exact sizes of all 12 Intra MP4 videos (bytes)
+// Known exact sizes of all 15 Intra MP4 videos (bytes)
 export const KNOWN_VIDEO_SIZES: number[] = [
-  16052626, // home1 (Merged Hourglass download.mp4 - 13s)
-  37788305, // home2 (Agro bulir gandum)
-  25530952, // home3 (Agro traktor panen)
-  28450814, // home4 (Konstruksi excavator pondasi)
-  21908836, // home5 (Konstruksi rangka luar baru)
-  21575923, // home6 (Konstruksi rangka dalam interior)
-  28399629, // home7 (Expansión gedung pencakar langit kota)
-  22385040, // home8 (Energi turbin & solar)
-  21594403, // home9 (Logistik pelabuhan loading docks)
-  28833242, // home10 (Logistik rak supermarket retail)
-  12718193, // home11 (Logistik warehouse interior)
-  21132117  // home12 (Logistik armada truk kontainer)
+  5593666,  // Slot 1 (home13_intra.mp4 - Lokal: 5.33 MB - Opening Logo DIMA)
+  8170961,  // Slot 2 (home14_intra.mp4 - Lokal: 7.79 MB - Logo to Hourglass)
+  12730145, // Slot 3 (home15_intra.mp4 - Lokal: 12.14 MB - Hourglass filling)
+  16974313, // Slot 4 (home16_intra.mp4 - Lokal: 16.19 MB - Hourglass flow & Hero text)
+  30606460, // Slot 5 (home17_intra.mp4 - R2: 29.19 MB - Agro bulir gandum)
+  25088461, // Slot 6 (home18_intra.mp4 - R2: 23.93 MB - Agro traktor panen)
+  28450814, // Slot 7 (home4_intra.mp4 - R2: 27.13 MB - Konstruksi excavator pondasi)
+  21908836, // Slot 8 (home5_intra.mp4 - R2: 20.89 MB - Konstruksi rangka luar baru)
+  21575923, // Slot 9 (home6_intra.mp4 - R2: 20.58 MB - Konstruksi rangka dalam interior)
+  28399629, // Slot 10 (home7_intra.mp4 - R2: 27.08 MB - Expansión gedung pencakar langit kota)
+  22385040, // Slot 11 (home8_intra.mp4 - R2: 21.35 MB - Energi turbin & solar)
+  21594403, // Slot 12 (home9_intra.mp4 - R2: 20.59 MB - Logistik pelabuhan loading docks)
+  28833242, // Slot 13 (home10_intra.mp4 - R2: 27.50 MB - Logistik rak supermarket retail)
+  12718193, // Slot 14 (home11_intra.mp4 - R2: 12.13 MB - Logistik warehouse interior)
+  21132117  // Slot 15 (home12_intra.mp4 - R2: 20.15 MB - Logistik armada truk kontainer)
 ];
 
-// Ukuran total byte untuk seluruh 12 video Home
+// Ukuran total byte untuk seluruh 15 video Home
 export const TOTAL_VIDEOS_BYTE_SIZE = KNOWN_VIDEO_SIZES.reduce((a, b) => a + b, 0);
 export const INITIAL_VIDEOS_BYTE_SIZE = TOTAL_VIDEOS_BYTE_SIZE;
 
-export const VIDEO_VERSION = 'v6';
+export const VIDEO_VERSION = 'v11';
 export const CURRENT_VIDEO_CACHE_NAME = `dima-video-cache-${VIDEO_VERSION}`;
 
 // Auto cache migration: berjalan 100% otomatis di browser klien tanpa perlu tombol/shortcut apa pun
@@ -47,14 +50,20 @@ if (typeof window !== 'undefined') {
 }
 
 export function resolveVideoUrl(index: number): string {
-  // Video 1 (index 0) SELALU disajikan dari direktori lokal (/video/video-home/intra/home1_intra.mp4)
-  if (index === 0) {
-    return `/video/video-home/intra/home1_intra.mp4?v=${VIDEO_VERSION}`;
+  // Slot 1 s/d 4 (index 0, 1, 2, 3): Video 13, 14, 15, 16 SELALU disajikan dari direktori lokal (/video/video-home/intra/)
+  if (index >= 0 && index <= 3) {
+    return `/video/video-home/intra/home${index + 13}_intra.mp4?v=${VIDEO_VERSION}`;
   }
 
-  // Video 2-12: Disajikan langsung dari Cloudflare R2 (path: dima/video/home/homeX_intra.mp4)
   const r2Base = import.meta.env.VITE_R2_BASE_URL || 'https://pub-cb6cb35c3575473bae197e7054f52cee.r2.dev';
-  return `${r2Base}/video/home/home${index + 1}_intra.mp4?v=${VIDEO_VERSION}`;
+
+  // Slot 5 & 6 (index 4, 5): Video 17 & 18 dari Cloudflare R2
+  if (index === 4 || index === 5) {
+    return `${r2Base}/video/home/home${index + 13}_intra.mp4?v=${VIDEO_VERSION}`;
+  }
+
+  // Slot 7 s/d 15 (index 6 s/d 14): Video 4 s/d 12 dari Cloudflare R2
+  return `${r2Base}/video/home/home${index - 2}_intra.mp4?v=${VIDEO_VERSION}`;
 }
 
 type ProgressListener = (percent: number, loadedBytes: number, totalBytes: number) => void;
