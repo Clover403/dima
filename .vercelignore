@@ -3,16 +3,14 @@ dist
 .git
 .vercel
 *.py
-public/video/video-home/intra/home2_intra.mp4
-public/video/video-home/intra/home3_intra.mp4
-public/video/video-home/intra/home4_intra.mp4
-public/video/video-home/intra/home5_intra.mp4
-public/video/video-home/intra/home6_intra.mp4
-public/video/video-home/intra/home7_intra.mp4
-public/video/video-home/intra/home8_intra.mp4
-public/video/video-home/intra/home9_intra.mp4
-public/video/video-home/intra/home10_intra.mp4
-public/video/video-home/intra/home11_intra.mp4
-public/video/video-home/intra/home12_intra.mp4
+# Ignore all heavy videos for Vercel deployment except video 13, 14, 15, 16
+public/video/video-home/intra/*.mp4
 public/video/video-home/intra/backup_original/
+public/video/**/*.mp4
+!public/video/video-home/intra/home_13.mp4
+!public/video/video-home/intra/home_14.mp4
+!public/video/video-home/intra/home13_intra.mp4
+!public/video/video-home/intra/home14_intra.mp4
+!public/video/video-home/intra/home15_intra.mp4
+!public/video/video-home/intra/home16_intra.mp4
 
