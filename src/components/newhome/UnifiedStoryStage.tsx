@@ -68,11 +68,11 @@ const SECTOR_LAYOUTS: Record<string, {
 }> = {
   modelo: {
     // 01: Kiri Bawah (Title) & P0 Kanan Atas, P1 Kanan Bawah
-    titlePosition: 'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[46%] max-w-xl xl:max-w-2xl',
+    titlePosition: 'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[46vw] lg:max-w-[42vw]',
     titleAlign: 'items-start text-left',
     descPositions: [
-      'absolute right-8 sm:right-12 lg:right-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute right-8 sm:right-12 lg:right-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
+      'absolute right-8 sm:right-12 lg:right-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute right-8 sm:right-12 lg:right-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
     ],
     descAligns: [
       'items-end text-right',
@@ -81,12 +81,12 @@ const SECTOR_LAYOUTS: Record<string, {
   },
   proceso: {
     // 02: Kanan Bawah (Title), P0, P1, P2 semua Kiri Bawah
-    titlePosition: 'absolute right-8 sm:right-12 lg:right-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[46%] max-w-xl xl:max-w-2xl',
+    titlePosition: 'absolute right-8 sm:right-12 lg:right-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[46vw] lg:max-w-[42vw]',
     titleAlign: 'items-end text-right',
     descPositions: [
-      'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
     ],
     descAligns: [
       'items-start text-left',
@@ -96,13 +96,13 @@ const SECTOR_LAYOUTS: Record<string, {
   },
   filosofia: {
     // 03: Kanan Atas (Title), P0 & P1 Kiri Atas, P2 & P3 Kiri Bawah
-    titlePosition: 'absolute right-8 sm:right-12 lg:right-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[46%] max-w-xl xl:max-w-2xl',
+    titlePosition: 'absolute right-8 sm:right-12 lg:right-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[46vw] lg:max-w-[42vw]',
     titleAlign: 'items-end text-right',
     descPositions: [
-      'absolute left-8 sm:left-12 lg:left-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw]',
     ],
     descAligns: [
       'items-start text-left',
@@ -113,11 +113,11 @@ const SECTOR_LAYOUTS: Record<string, {
   },
   productos: {
     // 04: Atas Tengah (Title), P0 Tengah Bawah, P1 Tengah Bawah
-    titlePosition: 'absolute inset-x-8 sm:inset-x-12 lg:inset-x-20 top-20 sm:top-24 lg:top-28 mx-auto max-w-2xl lg:max-w-3xl xl:max-w-4xl',
+    titlePosition: 'absolute inset-x-8 sm:inset-x-12 lg:inset-x-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] mx-auto max-w-2xl lg:max-w-[50vw]',
     titleAlign: 'items-center text-center',
     descPositions: [
-      'absolute inset-x-6 sm:inset-x-10 lg:inset-x-16 bottom-14 sm:bottom-16 lg:bottom-20 mx-auto max-w-xl lg:max-w-2xl xl:max-w-3xl',
-      'absolute inset-x-6 sm:inset-x-10 lg:inset-x-16 bottom-14 sm:bottom-16 lg:bottom-20 mx-auto max-w-xl lg:max-w-2xl xl:max-w-3xl',
+      'absolute inset-x-6 sm:inset-x-10 lg:inset-x-[4.17vw] bottom-14 sm:bottom-16 lg:bottom-[7.5vh] mx-auto max-w-xl lg:max-w-[48vw]',
+      'absolute inset-x-6 sm:inset-x-10 lg:inset-x-[4.17vw] bottom-14 sm:bottom-16 lg:bottom-[7.5vh] mx-auto max-w-xl lg:max-w-[48vw]',
     ],
     descAligns: [
       'items-center text-center',
@@ -125,12 +125,12 @@ const SECTOR_LAYOUTS: Record<string, {
     ],
   },
   servicios: {
-    // 05: Tengah Bawah (Title & CTA), P0 Kanan Atas, P1 Kiri Tengah
-    titlePosition: 'absolute inset-x-8 sm:inset-x-12 lg:inset-x-20 bottom-8 sm:bottom-10 lg:bottom-12 mx-auto max-w-4xl xl:max-w-5xl',
+    // 05: Tengah Bawah (Title & CTA), P0 Kanan Atas (4 baris), P1 Kiri Tengah (4 baris)
+    titlePosition: 'absolute inset-x-8 sm:inset-x-12 lg:inset-x-[4.17vw] bottom-8 sm:bottom-10 lg:bottom-[4.5vh] mx-auto max-w-4xl lg:max-w-[55vw]',
     titleAlign: 'items-center text-center',
     descPositions: [
-      'absolute right-8 sm:right-12 lg:right-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
-      'absolute left-8 sm:left-12 lg:left-20 top-1/2 -translate-y-1/2 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl',
+      'absolute right-8 sm:right-12 lg:right-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[32vw] lg:max-w-[27.5vw]',
+      'absolute left-8 sm:left-12 lg:left-[4.17vw] top-1/2 -translate-y-1/2 w-[90%] sm:w-[75%] lg:w-[32vw] lg:max-w-[27.5vw]',
     ],
     descAligns: [
       'items-end text-right',
@@ -616,11 +616,11 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
           {/* ------------------------------------------------------------------- */}
           <div
             ref={(el) => { phaseRefs.current[0] = el; }}
-            className="absolute left-8 sm:left-12 lg:left-20 top-1/2 -translate-y-1/2 w-[90%] sm:w-[70%] lg:w-[48%] max-w-xl text-left pointer-events-none transition-opacity duration-200 ease-out z-20"
+            className="absolute left-8 sm:left-12 lg:left-[4.17vw] top-1/2 -translate-y-1/2 w-[90%] sm:w-[70%] lg:w-[45vw] lg:max-w-[35vw] text-left pointer-events-none transition-opacity duration-200 ease-out z-20"
             style={{ opacity: 0, visibility: 'hidden' }}
           >
             <h2
-              className="block leading-[1.08] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3.2rem] md:text-[4.5vw] lg:text-[5.2vw] break-words text-white"
+              className="block leading-[1.08] lg:leading-[5.6vw] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3.2rem] md:text-[4.5vw] lg:text-[5.2vw] break-words text-white"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               <HybridRevealText
@@ -632,15 +632,15 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
           </div>
 
           {/* ------------------------------------------------------------------- */}
-          {/* PHASE 1: Opening Phrase 2 ("Es un mecanismo — predecible...") - Kanan Bawah */}
+          {/* PHASE 1: Opening Phrase 2 ("Es un mecanismo — predecible...") - Kanan Bawah, 5 Baris */}
           {/* ------------------------------------------------------------------- */}
           <div
             ref={(el) => { phaseRefs.current[1] = el; }}
-            className="absolute right-8 sm:right-12 lg:right-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[70%] lg:w-[50%] max-w-xl text-right flex flex-col items-end pointer-events-none transition-opacity duration-200 ease-out z-20"
+            className="absolute right-8 sm:right-12 lg:right-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[70%] lg:w-[35vw] lg:max-w-[28vw] text-right flex flex-col items-end pointer-events-none transition-opacity duration-200 ease-out z-20"
             style={{ opacity: 0, visibility: 'hidden' }}
           >
             <h2
-              className="block leading-[1.08] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3rem] md:text-[4.2vw] lg:text-[4.8vw] break-words text-white"
+              className="block leading-[1.08] lg:leading-[5.2vw] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3rem] md:text-[4.2vw] lg:text-[4.8vw] break-words text-white"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               <HybridRevealText
@@ -652,15 +652,15 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
           </div>
 
           {/* ------------------------------------------------------------------- */}
-          {/* PHASE 2: Opening Phrase 3 ("Adaptamos esa misma lógica...") - Kiri Atas */}
+          {/* PHASE 2: Opening Phrase 3 ("Adaptamos esa misma lógica...") - Kiri Atas, 4 Baris */}
           {/* ------------------------------------------------------------------- */}
           <div
             ref={(el) => { phaseRefs.current[2] = el; }}
-            className="absolute left-8 sm:left-12 lg:left-20 top-24 sm:top-28 lg:top-36 w-[90%] sm:w-[70%] lg:w-[52%] max-w-2xl text-left pointer-events-none transition-opacity duration-200 ease-out z-20"
+            className="absolute left-8 sm:left-12 lg:left-[4.17vw] top-24 sm:top-28 lg:top-[12vh] w-[90%] sm:w-[70%] lg:w-[48vw] lg:max-w-[38vw] text-left pointer-events-none transition-opacity duration-200 ease-out z-20"
             style={{ opacity: 0, visibility: 'hidden' }}
           >
             <h2
-              className="block leading-[1.08] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3rem] md:text-[4.2vw] lg:text-[4.8vw] break-words text-white"
+              className="block leading-[1.08] lg:leading-[5.2vw] tracking-tight font-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)] text-[2.5rem] sm:text-[3rem] md:text-[4.2vw] lg:text-[4.8vw] break-words text-white"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               <HybridRevealText
@@ -718,9 +718,9 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 opacity: heroTitleOpacity,
                 y: heroTitleY,
               }}
-              className="absolute left-8 sm:left-12 lg:left-20 top-20 sm:top-24 lg:top-28 w-[90%] sm:w-[75%] lg:w-[46%] max-w-xl xl:max-w-2xl text-left pointer-events-auto flex flex-col space-y-3 sm:space-y-4"
+              className="absolute left-8 sm:left-12 lg:left-[4.17vw] top-20 sm:top-24 lg:top-[10.5vh] w-[90%] sm:w-[75%] lg:w-[46vw] lg:max-w-[42vw] text-left pointer-events-auto flex flex-col space-y-3 sm:space-y-4 lg:space-y-[0.8vh]"
             >
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-[3rem] text-[#030035] font-normal leading-[1.12] tracking-tight">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.2vw] xl:text-[2.45vw] lg:leading-[2.5vw] xl:leading-[2.75vw] text-[#030035] font-normal leading-[1.12] tracking-tight">
                 <HybridRevealText
                   text={HERO_STAGE_DATA.title}
                   progress={heroTitleProgress}
@@ -731,15 +731,15 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
 
               {/* Subtitle */}
               {HERO_STAGE_DATA.subtitle && (
-                <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em]">
+                <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em]">
                   {HERO_STAGE_DATA.subtitle}
                 </p>
               )}
             </motion.div>
 
             {/* 2. Description Block - Kanan Bawah dengan padding persis sama seperti 3 frasa pembuka & Rata Kanan (text-right) */}
-            <div className="absolute right-8 sm:right-12 lg:right-20 bottom-16 sm:bottom-20 lg:bottom-24 w-[90%] sm:w-[75%] lg:w-[48%] max-w-xl xl:max-w-2xl text-right flex flex-col items-end pointer-events-auto">
-              <div className="relative w-full min-h-[160px] sm:min-h-[180px] md:min-h-[200px] lg:min-h-[220px]">
+            <div className="absolute right-8 sm:right-12 lg:right-[4.17vw] bottom-16 sm:bottom-20 lg:bottom-[8.9vh] w-[90%] sm:w-[75%] lg:w-[48vw] lg:max-w-[42vw] text-right flex flex-col items-end pointer-events-auto">
+              <div className="relative w-full min-h-[160px] sm:min-h-[180px] md:min-h-[200px] lg:min-h-[20.5vh]">
                 {/* Session 1 / Part 1 */}
                 <motion.div
                   style={{
@@ -749,7 +749,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   }}
                   className="absolute inset-x-0 bottom-0 pointer-events-none flex flex-col items-end"
                 >
-                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
+                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
                     {HERO_STAGE_DATA.body[0]}
                   </p>
                 </motion.div>
@@ -763,7 +763,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   }}
                   className="absolute inset-x-0 bottom-0 pointer-events-none flex flex-col items-end"
                 >
-                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
+                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
                     {HERO_STAGE_DATA.body[1]}
                   </p>
                 </motion.div>
@@ -827,7 +827,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 {/* Overlay lightgray di sisi kiri bawah khusus Sector 2 (Proceso) - tinggi pertengahan yang pas & pekat menaungi teks */}
                 {sec.id === 'proceso' && (
                   <div
-                    className="absolute bottom-0 left-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[65%] xl:w-[57%] max-w-4xl lg:max-w-5xl h-[360px] sm:h-[410px] md:h-[460px] lg:h-[500px] xl:h-[530px] pointer-events-none z-0"
+                    className="absolute bottom-0 left-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[58vw] xl:w-[57vw] max-w-4xl lg:max-w-[62vw] h-[360px] sm:h-[410px] md:h-[460px] lg:h-[48vh] xl:h-[50vh] pointer-events-none z-0"
                     aria-hidden="true"
                   >
                     {/* Lapisan 1: Kabut atmosfer terluar melebur sangat lembut ke atas & ke arah tengah */}
@@ -860,7 +860,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 {/* Overlay lightgray di sisi kanan bawah khusus Sector 2 (Proceso) - tinggi pertengahan yang pas & pekat menaungi judul */}
                 {sec.id === 'proceso' && (
                   <div
-                    className="absolute bottom-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[65%] xl:w-[57%] max-w-4xl lg:max-w-5xl h-[360px] sm:h-[410px] md:h-[460px] lg:h-[500px] xl:h-[530px] pointer-events-none z-0"
+                    className="absolute bottom-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[58vw] xl:w-[57vw] max-w-4xl lg:max-w-[62vw] h-[360px] sm:h-[410px] md:h-[460px] lg:h-[48vh] xl:h-[50vh] pointer-events-none z-0"
                     aria-hidden="true"
                   >
                     {/* Lapisan 1: Kabut atmosfer terluar melebur sangat lembut ke atas & ke arah tengah */}
@@ -893,7 +893,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 {/* Overlay lightgray di sisi kanan atas khusus Sector 3 (Filosofia) - pekat di pojok, makin ke pojok makin pekat, menaungi judul dengan jelas */}
                 {sec.id === 'filosofia' && (
                   <div
-                    className="absolute top-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[65%] xl:w-[58%] max-w-4xl lg:max-w-5xl h-[380px] sm:h-[430px] md:h-[480px] lg:h-[520px] xl:h-[550px] pointer-events-none z-0"
+                    className="absolute top-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[58vw] xl:w-[58vw] max-w-4xl lg:max-w-[62vw] h-[380px] sm:h-[430px] md:h-[480px] lg:h-[49vh] xl:h-[52vh] pointer-events-none z-0"
                     aria-hidden="true"
                   >
                     {/* Lapisan 1: Kabut atmosfer terluar melebur sangat lembut ke arah bawah & tengah */}
@@ -924,8 +924,8 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 )}
 
                 {/* Title Block - Stays visible throughout the sector until next section */}
-                <div className={`${layout.titlePosition} ${layout.titleAlign} pointer-events-auto flex flex-col space-y-4 sm:space-y-6 z-10`}>
-                  <h3 className={`font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-[3rem] text-[#030035] font-normal leading-[1.12] tracking-tight ${layout.titleAlign.includes('text-center') ? 'text-center' : ''}`}>
+                <div className={`${layout.titlePosition} ${layout.titleAlign} pointer-events-auto flex flex-col space-y-4 sm:space-y-6 lg:space-y-[1.2vh] z-10`}>
+                  <h3 className={`font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.2vw] xl:text-[2.45vw] lg:leading-[2.5vw] xl:leading-[2.75vw] text-[#030035] font-normal leading-[1.12] tracking-tight ${layout.titleAlign.includes('text-center') ? 'text-center' : ''}`}>
                     <HybridRevealText
                       text={sec.title}
                       progress={secTitleProgress}
@@ -935,10 +935,10 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   </h3>
 
                   {/* CTA Link */}
-                  <div className="pt-1">
+                  <div className="pt-1 lg:pt-[0.4vh]">
                     <Link
                       to={sec.linkTo}
-                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 font-body text-xs tracking-[0.2em] uppercase text-[#030035] hover:text-[#E5997B] transition-all duration-300 pointer-events-auto shadow-sm"
+                      className="inline-flex items-center justify-center px-6 py-2.5 lg:px-[1.25vw] lg:py-[0.9vh] rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 font-body text-xs lg:text-[0.68vw] lg:leading-[1vw] tracking-[0.2em] uppercase text-[#030035] hover:text-[#E5997B] transition-all duration-300 pointer-events-auto shadow-sm"
                     >
                       {sec.linkText}
                     </Link>
@@ -963,7 +963,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                       {isModeloP1 && (
                         <motion.div
                           style={{ opacity: pConfig.opacity }}
-                          className="absolute bottom-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[65%] xl:w-[57%] max-w-4xl lg:max-w-5xl h-[360px] sm:h-[410px] md:h-[460px] lg:h-[500px] xl:h-[530px] pointer-events-none z-0"
+                          className="absolute bottom-0 right-0 w-[96%] sm:w-[90%] md:w-[80%] lg:w-[58vw] xl:w-[57vw] max-w-4xl lg:max-w-[62vw] h-[360px] sm:h-[410px] md:h-[460px] lg:h-[48vh] xl:h-[50vh] pointer-events-none z-0"
                           aria-hidden="true"
                         >
                           {/* Lapisan 1: Kabut atmosfer terluar melebur sangat lembut ke atas teks & ke arah tengah */}
@@ -1003,32 +1003,35 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                       >
                         {isProductos ? (
                           pIdx === 0 ? (
-                            <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.12rem] xl:text-[1.22rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-center [text-wrap:balance] flex flex-col items-center gap-1.5 sm:gap-2">
-                              <span className="block max-w-md sm:max-w-lg lg:max-w-xl text-center">
+                            <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[0.95vw] xl:text-[1.03vw] lg:leading-[1.45vw] xl:leading-[1.55vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-center [text-wrap:balance] flex flex-col items-center gap-1.5 sm:gap-2 lg:gap-[0.5vh]">
+                              <span className="block max-w-md sm:max-w-lg lg:max-w-[34vw] text-center">
                                 Parte de nuestra filosofía operativa, y como política organizacional, promovemos la educación financiera tanto interna y como externa.
                               </span>
-                              <span className="block max-w-lg sm:max-w-xl lg:max-w-2xl text-center">
+                              <span className="block max-w-lg sm:max-w-xl lg:max-w-[42vw] text-center">
                                 La confusión y falta de entendimiento sobre los productos financieros lleva a subestimar las variables que determinan su viabilidad,
                               </span>
-                              <span className="block max-w-xl sm:max-w-2xl lg:max-w-3xl text-center">
+                              <span className="block max-w-xl sm:max-w-2xl lg:max-w-[48vw] text-center">
                                 no solo afectando la planeación estratégica y la toma de decisiones financieras internas de alto impacto, sino que genera un riesgo de insolvencia irreversible al adquirir financiamiento.
                               </span>
                             </p>
                           ) : (
-                            <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.12rem] xl:text-[1.22rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-center [text-wrap:balance] flex flex-col items-center gap-1.5 sm:gap-2">
-                              <span className="block max-w-sm sm:max-w-md lg:max-w-lg text-center">
+                            <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[0.95vw] xl:text-[1.03vw] lg:leading-[1.45vw] xl:leading-[1.55vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-center [text-wrap:balance] flex flex-col items-center gap-1.5 sm:gap-2 lg:gap-[0.5vh]">
+                              <span className="block max-w-sm sm:max-w-md lg:max-w-[32vw] text-center">
                                 Por ello, exponemos los elementos que componen un crédito.
                               </span>
-                              <span className="block max-w-lg sm:max-w-xl lg:max-w-2xl text-center">
-                                La solidez de una entidad no depende únicamente de tener acceso al capital, sino del entendimiento y la arquitectura con la que este se integra:
+                              <span className="block max-w-lg sm:max-w-xl lg:max-w-[38vw] text-center">
+                                La solidez de una entidad no depende únicamente de tener acceso al capital,
                               </span>
-                              <span className="block max-w-xl sm:max-w-2xl lg:max-w-3xl text-center font-semibold text-[#030035]">
+                              <span className="block max-w-lg sm:max-w-xl lg:max-w-[38vw] text-center">
+                                sino del entendimiento y la arquitectura con la que este se integra:
+                              </span>
+                              <span className="block max-w-xl sm:max-w-2xl lg:max-w-[42vw] text-center font-semibold text-[#030035]">
                                 la Solución correcta, ejecutada a través del Instrumento idóneo y blindada bajo la Estructura precisa.
                               </span>
                             </p>
                           )
                         ) : (
-                          <p className={`font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em] ${alignClass}`}>
+                          <p className={`font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em] ${alignClass}`}>
                             {paragraphText}
                           </p>
                         )}
@@ -1039,14 +1042,14 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
 
                 {/* Architecture Diagram (Sector 4 only) */}
                 {sec.hasDiagram && (
-                  <div className="absolute right-8 sm:right-12 lg:right-20 bottom-8 sm:bottom-10 lg:bottom-12 pointer-events-auto flex flex-col items-end z-20">
+                  <div className="absolute right-8 sm:right-12 lg:right-[4.17vw] bottom-8 sm:bottom-10 lg:bottom-[4.5vh] pointer-events-auto flex flex-col items-end z-20">
                     {showDiagram && (
                       <motion.div
                         initial={{ opacity: 0, y: 15, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 15, scale: 0.98 }}
                         transition={{ duration: 0.2 }}
-                        className="mb-3 w-full max-w-[640px]"
+                        className="mb-3 w-full max-w-[640px] lg:max-w-[34vw]"
                       >
                         <CreditArchitectureDiagram />
                       </motion.div>
@@ -1054,7 +1057,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                     <button
                       type="button"
                       onClick={() => setShowDiagram((prev) => !prev)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 text-xs font-mono tracking-wider text-[#030035] uppercase shadow-sm transition-all duration-200"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-[1.2vw] lg:py-[0.85vh] rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 text-xs lg:text-[0.68vw] font-mono tracking-wider text-[#030035] uppercase shadow-sm transition-all duration-200"
                     >
                       <span>{showDiagram ? 'Ocultar Arquitectura' : 'Ver Arquitectura del Crédito'}</span>
                       <span className="text-[#E5997B] font-bold text-sm leading-none">{showDiagram ? '✕' : '+'}</span>
@@ -1087,7 +1090,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   }}
                   className={`${layout.descPositions[0]} ${layout.descAligns[0]} pointer-events-none flex flex-col`}
                 >
-                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
+                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-right">
                     <HybridRevealText
                       text={sec.body[0]}
                       progress={s5p0Progress}
@@ -1106,7 +1109,7 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   }}
                   className={`${layout.descPositions[1]} ${layout.descAligns[1]} pointer-events-none flex flex-col`}
                 >
-                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.2rem] xl:text-[1.3rem] text-[#030035] leading-relaxed tracking-[-0.01em] text-left">
+                  <p className="font-body font-medium text-sm sm:text-base md:text-lg lg:text-[1.0vw] xl:text-[1.08vw] lg:leading-[1.5vw] xl:leading-[1.6vw] text-[#030035] leading-relaxed tracking-[-0.01em] text-left">
                     <HybridRevealText
                       text={sec.body[1]}
                       progress={s5p1Progress}
@@ -1117,8 +1120,8 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                 </motion.div>
 
                 {/* Bottom Center Block: Judul & Tombol CTA */}
-                <div className={`${layout.titlePosition} ${layout.titleAlign} pointer-events-auto flex flex-col items-center space-y-2.5 sm:space-y-3.5`}>
-                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-[3rem] text-[#030035] font-normal leading-[1.12] tracking-tight text-center">
+                <div className={`${layout.titlePosition} ${layout.titleAlign} pointer-events-auto flex flex-col items-center space-y-2.5 sm:space-y-3.5 lg:space-y-[0.8vh]`}>
+                  <h3 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[2.2vw] xl:text-[2.45vw] lg:leading-[2.5vw] xl:leading-[2.75vw] text-[#030035] font-normal leading-[1.12] tracking-tight text-center">
                     <HybridRevealText
                       text={sec.title}
                       progress={sector5TitleProgress}
@@ -1128,10 +1131,10 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
                   </h3>
 
                   {/* Tombol CTA */}
-                  <div className="pt-1 flex justify-center pointer-events-auto">
+                  <div className="pt-1 lg:pt-[0.4vh] flex justify-center pointer-events-auto">
                     <Link
                       to={sec.linkTo}
-                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 font-body text-xs tracking-[0.2em] uppercase text-[#030035] hover:text-[#E5997B] transition-all duration-300 pointer-events-auto shadow-sm"
+                      className="inline-flex items-center justify-center px-6 py-2.5 lg:px-[1.25vw] lg:py-[0.9vh] rounded-full border border-[#030035]/20 hover:border-[#E5997B] bg-transparent hover:bg-[#030035]/5 font-body text-xs lg:text-[0.68vw] lg:leading-[1vw] tracking-[0.2em] uppercase text-[#030035] hover:text-[#E5997B] transition-all duration-300 pointer-events-auto shadow-sm"
                     >
                       {sec.linkText}
                     </Link>

@@ -122,8 +122,8 @@ export const NEW_HOME_SECTORS: SectorData[] = [
 export const HERO_STAGE_DATA = {
   openingPhrases: [
     'La economía\nno es caos.',
-    'Es un mecanismo predecible, medible, replicable.',
-    'Adaptamos esa misma lógica a la escala de tu empresa.',
+    'Es un\nmecanismo\npredecible,\nmedible,\nreplicable.',
+    'Adaptamos esa\nmisma lógica a la\nescala de tu\nempresa.',
     'Arquitectos de equilibrio.'
   ],
   title: 'El Financiamiento Dictado por la Mecánica del Crecimiento.',
