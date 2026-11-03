@@ -132,7 +132,7 @@ export default function Contact() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className={labelStyle}>Nombre de Contacto</label>
-                        <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} placeholder="Ej. Alejandro Magno" className={`${capsuleInput} ${placeholderStyle}`} required />
+                        <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} placeholder="Ej. Pablo Gutierrez" className={`${capsuleInput} ${placeholderStyle}`} required />
                       </div>
                       <div>
                         <label className={labelStyle}>Cargo</label>

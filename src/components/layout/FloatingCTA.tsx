@@ -231,7 +231,7 @@ export default function FloatingCTA() {
             style={{
               backgroundColor: NAVY,
               border: '1px solid rgba(244,244,245,0.1)',
-              borderRight: 'none', 
+              borderRight: 'none',
               backdropFilter: 'blur(10px)',
               // Shadow dibuat lebih gelap/nyebar di bagian bawah dan kiri biar lebih TIMBUL
               boxShadow: hovered
@@ -318,7 +318,7 @@ export default function FloatingCTA() {
                   <p className="font-sans text-base text-[#030035]/70 leading-relaxed font-light">
                     Complete la información y agende directamente su sesión con nuestro equipo.
                   </p>
-                  
+
                   <div className="h-px w-16 my-8 bg-[#030035]/10" />
 
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -355,7 +355,7 @@ export default function FloatingCTA() {
                         type="text"
                         value={formData.contactName}
                         onChange={e => setFormData(p => ({ ...p, contactName: e.target.value }))}
-                        placeholder="Ej. Alejandro Magno"
+                        placeholder="Ej. Pablo Gutierrez"
                         className={capsuleInput}
                         required
                       />
@@ -451,11 +451,10 @@ export default function FloatingCTA() {
                             value={formData.loanCurrency}
                             onChange={e => setFormData(p => ({ ...p, loanCurrency: e.target.value }))}
                             disabled={formData.loanTBD}
-                            className={`${capsuleInput} w-[100px] appearance-none cursor-pointer pr-10 pl-4 text-center ${
-                              formData.loanTBD ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
-                            }`}
+                            className={`${capsuleInput} w-[100px] appearance-none cursor-pointer pr-10 pl-4 text-center ${formData.loanTBD ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                              }`}
                           >
-                            {['MXN','USD','EUR','TBD'].map(c => <option key={c} value={c}>{c}</option>)}
+                            {['MXN', 'USD', 'EUR', 'TBD'].map(c => <option key={c} value={c}>{c}</option>)}
                           </select>
                           <ChevronDown />
                         </div>
@@ -505,11 +504,10 @@ export default function FloatingCTA() {
                     <button
                       type="submit"
                       disabled={!isFormValid}
-                      className={`w-full mt-6 py-4 rounded-full font-sans text-lg font-medium transition-all duration-300 shadow-md ${
-                        isFormValid
+                      className={`w-full mt-6 py-4 rounded-full font-sans text-lg font-medium transition-all duration-300 shadow-md ${isFormValid
                           ? 'bg-[#030035] text-[#F4F4F5] hover:bg-[#E5997B] hover:text-[#030035] cursor-pointer'
                           : 'bg-[#030035]/40 text-[#F4F4F5] cursor-not-allowed shadow-none'
-                      }`}
+                        }`}
                     >
                       Continuar → Agendar
                     </button>
