@@ -31,7 +31,7 @@ export default function NewHome() {
     shiftX: number,
     overlayOpacity: number
   ) => {
-    videoCanvasRef.current?.setScrub(activeVidIndex, activeVidProgress, shiftX, overlayOpacity);
+    videoCanvasRef.current?.setScrub(activeVidIndex, activeVidProgress, shiftX, overlayOpacity, progress);
     progressNavRef.current?.setProgress(progress * 100);
     progressNavRef.current?.setVisible(progress >= 0.03);
   }, []);
