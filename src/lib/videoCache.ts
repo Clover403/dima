@@ -1,33 +1,33 @@
 // src/lib/videoCache.ts
 // High-performance In-Memory Video Blob Cache & Real-Time Byte Preloader
 
-export const TOTAL_HOME_VIDEOS = 15;
-export const INITIAL_LOAD_COUNT = TOTAL_HOME_VIDEOS; // Seluruh 15 video Home wajib selesai dimuat sebelum loader terbuka
+export const TOTAL_HOME_VIDEOS = 14;
+export const INITIAL_LOAD_COUNT = 13; // Loading awal sampai Video 13 (slot index 1 s/d 12: Video 2 s/d Video 13)
 
-// Known exact sizes of all 15 Intra MP4 videos (bytes)
+// Known exact sizes of all 14 MP4 videos (bytes)
 export const KNOWN_VIDEO_SIZES: number[] = [
-  5593666,  // Slot 1 (home13_intra.mp4 - Lokal: 5.33 MB - Opening Logo DIMA)
-  8170961,  // Slot 2 (home14_intra.mp4 - Lokal: 7.79 MB - Logo to Hourglass)
-  12730145, // Slot 3 (home15_intra.mp4 - Lokal: 12.14 MB - Hourglass filling)
-  16974313, // Slot 4 (home16_intra.mp4 - Lokal: 16.19 MB - Hourglass flow & Hero text)
-  30606460, // Slot 5 (home17_intra.mp4 - R2: 29.19 MB - Agro bulir gandum)
-  25088461, // Slot 6 (home18_intra.mp4 - R2: 23.93 MB - Agro traktor panen)
-  28450814, // Slot 7 (home4_intra.mp4 - R2: 27.13 MB - Konstruksi excavator pondasi)
-  21908836, // Slot 8 (home5_intra.mp4 - R2: 20.89 MB - Konstruksi rangka luar baru)
-  21575923, // Slot 9 (home6_intra.mp4 - R2: 20.58 MB - Konstruksi rangka dalam interior)
-  28399629, // Slot 10 (home7_intra.mp4 - R2: 27.08 MB - Expansión gedung pencakar langit kota)
-  22385040, // Slot 11 (home8_intra.mp4 - R2: 21.35 MB - Energi turbin & solar)
-  21594403, // Slot 12 (home9_intra.mp4 - R2: 20.59 MB - Logistik pelabuhan loading docks)
-  28833242, // Slot 13 (home10_intra.mp4 - R2: 27.50 MB - Logistik rak supermarket retail)
-  12718193, // Slot 14 (home11_intra.mp4 - R2: 12.13 MB - Logistik warehouse interior)
-  21132117  // Slot 15 (home12_intra.mp4 - R2: 20.15 MB - Logistik armada truk kontainer)
+  0,        // Slot 1 (video1.mp4 - dilewati / tidak digunakan lagi)
+  13801324, // Slot 2 (video2.mp4 - Intra CRF 17: 13.16 MB - Navy to Gray Money Flow)
+  9561844,  // Slot 3 (video3.mp4 - Intra CRF 17: 9.12 MB - Logo to Hourglass)
+  21179286, // Slot 4 (video4.mp4 - Intra CRF 17: 20.20 MB - Hourglass flow & fill)
+  22375710, // Slot 5 (video5.mp4 - Intra CRF 17: 21.34 MB - Agro bulir gandum)
+  29144861, // Slot 6 (video6.mp4 - Intra CRF 17: 27.79 MB - Agro traktor panen)
+  19039491, // Slot 7 (video7.mp4 - Intra CRF 17: 18.16 MB - Konstruksi excavator)
+  18675808, // Slot 8 (video8.mp4 - Intra CRF 17: 17.81 MB - Konstruksi rangka luar)
+  24239119, // Slot 9 (video9.mp4 - Intra CRF 17: 23.12 MB - Gedung & solar panel)
+  16366704, // Slot 10 (video10.mp4 - Intra CRF 17: 15.61 MB - Turbinas de viento y solar)
+  18458425, // Slot 11 (video11.mp4 - Intra CRF 17: 17.60 MB - Logistik pelabuhan docks)
+  24991744, // Slot 12 (video12.mp4 - Intra CRF 17: 23.83 MB - Supermarket retail)
+  11103300, // Slot 13 (video13.mp4 - Intra CRF 17: 10.59 MB - Warehouse interior)
+  18905407  // Slot 14 (video14.mp4 - Intra CRF 17: 18.03 MB - Armada truk kontainer)
 ];
 
-// Ukuran total byte untuk seluruh 15 video Home
+// Ukuran total byte untuk seluruh video Home yang aktif (Video 2 s/d 14)
 export const TOTAL_VIDEOS_BYTE_SIZE = KNOWN_VIDEO_SIZES.reduce((a, b) => a + b, 0);
-export const INITIAL_VIDEOS_BYTE_SIZE = TOTAL_VIDEOS_BYTE_SIZE;
+// Ukuran total byte fase awal (Video 2 s/d Video 13) yang menentukan progress loader hingga web terbuka
+export const INITIAL_VIDEOS_BYTE_SIZE = KNOWN_VIDEO_SIZES.slice(1, INITIAL_LOAD_COUNT).reduce((a, b) => a + b, 0);
 
-export const VIDEO_VERSION = 'v11';
+export const VIDEO_VERSION = 'v36';
 export const CURRENT_VIDEO_CACHE_NAME = `dima-video-cache-${VIDEO_VERSION}`;
 
 // Auto cache migration: berjalan 100% otomatis di browser klien tanpa perlu tombol/shortcut apa pun
@@ -40,30 +40,46 @@ if (typeof window !== 'undefined') {
         caches.keys().then((names) => {
           names.forEach((name) => {
             if (name.startsWith('dima-video-cache') && name !== CURRENT_VIDEO_CACHE_NAME) {
-              caches.delete(name).catch(() => {});
+              caches.delete(name).catch(() => { });
             }
           });
-        }).catch(() => {});
+        }).catch(() => { });
       }
     }
-  } catch (_) {}
+  } catch (_) { }
 }
 
+const R2_BASE_URL = import.meta.env.VITE_R2_BASE_URL || 'https://pub-cb6cb35c3575473bae197e7054f52cee.r2.dev';
+
 export function resolveVideoUrl(index: number): string {
-  // Slot 1 s/d 4 (index 0, 1, 2, 3): Video 13, 14, 15, 16 SELALU disajikan dari direktori lokal (/video/video-home/intra/)
-  if (index >= 0 && index <= 3) {
-    return `/video/video-home/intra/home${index + 13}_intra.mp4?v=${VIDEO_VERSION}`;
+  // Video 1 (index 0) sudah tidak digunakan lagi
+  if (index === 0) {
+    return '';
   }
 
-  const r2Base = import.meta.env.VITE_R2_BASE_URL || 'https://pub-cb6cb35c3575473bae197e7054f52cee.r2.dev';
+  const isLocalhost =
+    (typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname.endsWith('.local') ||
+        window.location.hostname.startsWith('192.168.') ||
+        window.location.hostname.startsWith('10.') ||
+        window.location.hostname.startsWith('172.'))) ||
+    Boolean(import.meta.env.DEV);
 
-  // Slot 5 & 6 (index 4, 5): Video 17 & 18 dari Cloudflare R2
-  if (index === 4 || index === 5) {
-    return `${r2Base}/video/home/home${index + 13}_intra.mp4?v=${VIDEO_VERSION}`;
+  // Jika sedang testing di localhost: seluruh video yang aktif disajikan dari file lokal agar cepat & instan
+  if (isLocalhost) {
+    return `/video/video-home/new-video/video${index + 1}.mp4?v=${VIDEO_VERSION}`;
   }
 
-  // Slot 7 s/d 15 (index 6 s/d 14): Video 4 s/d 12 dari Cloudflare R2
-  return `${r2Base}/video/home/home${index - 2}_intra.mp4?v=${VIDEO_VERSION}`;
+  // Jika di production (Vercel):
+  // Video 2, 3, dan 4 (index 1, 2, 3): Disajikan langsung dari file lokal Vercel untuk opening instan & hemat bandwidth R2
+  if (index >= 1 && index <= 3) {
+    return `/video/video-home/new-video/video${index + 1}.mp4?v=${VIDEO_VERSION}`;
+  }
+
+  // Video 5 s/d 14 (index 4 s/d 13): Disajikan dari Cloudflare R2
+  return `${R2_BASE_URL}/video/home/video${index + 1}.mp4?v=${VIDEO_VERSION}`;
 }
 
 type ProgressListener = (percent: number, loadedBytes: number, totalBytes: number) => void;
@@ -80,20 +96,21 @@ class VideoCacheManager {
   private isAllDone = false;
 
   public getVideoSrc(index: number): string {
+    if (index === 0) return '';
     return this.blobUrls.get(index) || resolveVideoUrl(index);
   }
 
   public isInitialReady(): boolean {
     if (this.isInitialDone) return true;
-    // STRICT: Harus benar-benar ada di blobUrls untuk video 0 sampai INITIAL_LOAD_COUNT - 1
-    for (let i = 0; i < INITIAL_LOAD_COUNT; i++) {
+    // Harus benar-benar ada di blobUrls untuk video 1 sampai INITIAL_LOAD_COUNT - 1 (Video 1 / index 0 dilewati)
+    for (let i = 1; i < INITIAL_LOAD_COUNT; i++) {
       if (!this.blobUrls.has(i)) return false;
     }
     return true;
   }
 
   public isReady(): boolean {
-    return this.blobUrls.size === TOTAL_HOME_VIDEOS;
+    return this.blobUrls.size >= TOTAL_HOME_VIDEOS - 1;
   }
 
   public onProgress(fn: ProgressListener): () => void {
@@ -104,7 +121,7 @@ class VideoCacheManager {
   public onInitialReady(fn: ReadyListener): () => void {
     if (this.isInitialReady()) {
       fn();
-      return () => {};
+      return () => { };
     }
     this.initialReadyListeners.add(fn);
     return () => this.initialReadyListeners.delete(fn);
@@ -113,7 +130,7 @@ class VideoCacheManager {
   public onReady(fn: ReadyListener): () => void {
     if (this.isReady()) {
       fn();
-      return () => {};
+      return () => { };
     }
     this.allReadyListeners.add(fn);
     return () => this.allReadyListeners.delete(fn);
@@ -125,7 +142,7 @@ class VideoCacheManager {
   private notifyProgress(force = false) {
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     let totalLoaded = 0;
-    for (let i = 0; i < INITIAL_LOAD_COUNT; i++) {
+    for (let i = 1; i < INITIAL_LOAD_COUNT; i++) {
       totalLoaded += this.loadedBytesMap.get(i) || 0;
     }
     const percent = Math.min(99.9, (totalLoaded / INITIAL_VIDEOS_BYTE_SIZE) * 100);
@@ -226,8 +243,8 @@ class VideoCacheManager {
               'Cache-Control': 'public, max-age=31536000, immutable',
             },
           });
-          cache.put(targetUrl, responseToStore).catch(() => {});
-        }).catch(() => {});
+          cache.put(targetUrl, responseToStore).catch(() => { });
+        }).catch(() => { });
       }
 
       return blobUrl;
@@ -266,7 +283,8 @@ class VideoCacheManager {
       this.onProgress((pct) => onProgressUpdate(pct));
     }
 
-    const indices = Array.from({ length: INITIAL_LOAD_COUNT }, (_, i) => i);
+    // Slot 1 (index 0) sudah tidak digunakan, muat video aktif mulai dari index 1 (Video 2)
+    const indices = Array.from({ length: INITIAL_LOAD_COUNT - 1 }, (_, i) => i + 1);
     let activeWorkers = 0;
     let nextIdx = 0;
 
@@ -302,46 +320,100 @@ class VideoCacheManager {
     });
 
     this.isInitialDone = true;
-    this.isAllDone = true;
     this.isPreloadingInitial = false;
 
-    // Trigger 100% progress
+    // Trigger 100% progress untuk fase awal (Video 2 s/d Video 12 selesai)
     for (const fn of this.progressListeners) {
       try {
         fn(100, INITIAL_VIDEOS_BYTE_SIZE, INITIAL_VIDEOS_BYTE_SIZE);
-      } catch {}
+      } catch { }
     }
 
     for (const fn of this.initialReadyListeners) {
       try {
         fn();
-      } catch {}
+      } catch { }
     }
     this.initialReadyListeners.clear();
+
+    console.log('[VIDEO LOADER] Loading awal selesai! Video 2 s/d 13 siap. Tirai loading membuka sekarang...');
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('videosInitialLoaded', {
+        detail: { count: INITIAL_LOAD_COUNT }
+      }));
+    }
+
+    // Begitu loading awal selesai dan web terbuka, otomatis muat video terakhir (Video 14) di background
+    this.preloadRemainingVideosSequentially();
+  }
+
+  private isPreloadingRemaining = false;
+
+  // 2. Fase 2: Preload di latar belakang untuk video terakhir (Video 14)
+  public async preloadRemainingVideosSequentially(): Promise<void> {
+    if (this.isAllDone || this.isPreloadingRemaining) return;
+    this.isPreloadingRemaining = true;
+
+    console.log('[BACKGROUND PRELOAD] Web sudah terbuka! Sekarang mengunduh video terakhir (Video 14) di background...');
+
+    // Hanya video terakhir: Video 14 (slot index 13)
+    const remainingIndices = [13];
+
+    for (const currentIndex of remainingIndices) {
+      const videoNum = currentIndex + 1;
+      if (this.blobUrls.has(currentIndex)) {
+        console.log(`[BACKGROUND PRELOAD] Video ${videoNum} sudah ada di cache.`);
+        continue;
+      }
+
+      const url = resolveVideoUrl(currentIndex);
+      console.log(`[BACKGROUND PRELOAD] Mulai mengunduh Video ${videoNum} (video terakhir)...`);
+      let success = false;
+      let attempt = 0;
+      while (!success && attempt < 5) {
+        attempt++;
+        try {
+          await this.fetchSingleVideoAsBlob(currentIndex, url);
+          success = true;
+          console.log(`[BACKGROUND PRELOAD] ✅ Video ${videoNum} SELESAI dimuat 100% ke memori!`);
+
+          // Dispatch event agar ScrollVideoCanvas langsung meng-upgrade video element ke in-memory Blob
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('videoLoaded', { detail: { index: currentIndex } }));
+          }
+        } catch (err) {
+          console.warn(`[Background Video Preload] Video ${videoNum} attempt ${attempt} failed:`, err);
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      }
+    }
+
+    console.log('[BACKGROUND PRELOAD] ✅ Seluruh video (termasuk Video 14) kini 100% lengkap di memori.');
+
+    this.isAllDone = true;
+    this.isPreloadingRemaining = false;
 
     for (const fn of this.allReadyListeners) {
       try {
         fn();
-      } catch {}
+      } catch { }
     }
     this.allReadyListeners.clear();
 
-    window.dispatchEvent(new CustomEvent('videosInitialLoaded', {
-      detail: { count: INITIAL_LOAD_COUNT }
-    }));
-    window.dispatchEvent(new CustomEvent('videosFullyLoaded', {
-      detail: { count: TOTAL_HOME_VIDEOS }
-    }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('videosFullyLoaded', {
+        detail: { count: TOTAL_HOME_VIDEOS }
+      }));
+    }
   }
 
-  // 2. Fase 2: Preload sisa video jika ada yang belum terunduh
   public async preloadRemainingVideos(): Promise<void> {
-    if (this.isAllDone) return;
-    await this.preloadInitialVideos();
+    return this.preloadRemainingVideosSequentially();
   }
 
   public async preloadAllVideos(
-    concurrency = 4,
+    concurrency = 3,
     onProgressUpdate?: (percent: number) => void
   ): Promise<void> {
     return this.preloadInitialVideos(concurrency, onProgressUpdate);
