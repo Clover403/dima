@@ -117,3 +117,51 @@ html.lenis, html.lenis body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Reusable utility for global body text justification */
+.body-justified {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  text-wrap: pretty;
+}
+
+/* Hero Stage - Skala Halus Khusus Layar Ultra-Pendek (< 640px tinggi) */
+/* Desktop biasa & laptop gepeng TETAP mempertahankan ukuran teks & logo tanpa bertabrakan */
+@media screen and (min-width: 1024px) and (max-height: 640px) {
+  .hero-compact-title {
+    margin-bottom: 0.75rem !important;
+  }
+  .hero-compact-body {
+    line-height: 1.42 !important;
+  }
+  .hero-compact-body p {
+    margin-bottom: 0.35rem !important;
+  }
+  .hero-compact-prompt {
+    bottom: 0.75rem !important;
+  }
+}
+
+/* Skala Layar HP (Mobile / Handphone & Tablet < 1024px) */
+@media screen and (max-width: 1023px) {
+  .hero-compact-title {
+    font-size: clamp(1.45rem, 5.5vw, 2.1rem) !important;
+    line-height: 1.18 !important;
+    margin-bottom: 0.85rem !important;
+  }
+  .hero-compact-nowrap {
+    white-space: normal !important;
+  }
+  .hero-compact-body {
+    font-size: 14px !important;
+  }
+  .hero-compact-body p {
+    margin-bottom: 0.5rem !important;
+  }
+  .hero-compact-prompt {
+    bottom: 0.85rem !important;
+  }
+}
