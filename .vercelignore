@@ -14,3 +14,9 @@ public/video/**/*.mp4
 !public/video/video-home/intra/home15_intra.mp4
 !public/video/video-home/intra/home16_intra.mp4
 
+# Allow new-video/video2.mp4, video3.mp4, and video4.mp4 for local Vercel delivery
+!public/video/video-home/new-video/video2.mp4
+!public/video/video-home/new-video/video3.mp4
+!public/video/video-home/new-video/video4.mp4
+
+
