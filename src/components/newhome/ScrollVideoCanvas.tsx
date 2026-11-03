@@ -9,10 +9,11 @@ export interface ActiveVideoTarget {
 
 export interface ScrollVideoCanvasHandle {
   setScrub: (
-    activeVidIndex: number, // 1 to 10
+    activeVidIndex: number, // 1 to 14
     progress: number, // 0 to 1
     shiftX: number, // 0 to 18%
-    overlayOpacity: number // 0 to 0.50
+    overlayOpacity: number, // 0 to 0.50
+    overallProgress?: number
   ) => void;
 }
 
@@ -24,7 +25,7 @@ interface ScrollVideoCanvasProps {
 }
 
 const TOTAL_VIDEOS = TOTAL_HOME_VIDEOS;
-const KNOWN_DURATIONS = [6.0, 6.0, 8.0, 8.0, 6.0, 10.0, 10.0, 8.0, 10.0, 10.0, 8.0, 8.0, 10.0, 6.0, 10.0];
+const KNOWN_DURATIONS = [16.0, 8.0, 8.0, 8.63, 10.0, 10.0, 8.0, 10.0, 13.47, 8.0, 8.0, 10.0, 6.0, 10.0];
 
 const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasProps>(
   ({ className = '', canvasShiftX = 0 }, ref) => {
@@ -43,32 +44,106 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
     const lastActiveIdxRef = useRef<number>(0);
     const rafRef = useRef<number | null>(null);
 
+    // Track whether Video 1 is currently in continuous autoplay loop mode at top
+    const isLoopingRef = useRef<boolean>(false);
+    // Track whether user has initiated scroll from top
+    const hasScrolledRef = useRef<boolean>(false);
+    // Capture the exact running timestamp of Video 1 at the moment scroll begins
+    const capturedStartRef = useRef<number | null>(null);
+
     // Dynamic video sources: initialized from cache (or URLs), seamlessly swapped to in-memory Blobs
     const [videoSources, setVideoSources] = useState<string[]>(() =>
       Array.from({ length: TOTAL_VIDEOS }, (_, i) => videoCache.getVideoSrc(i))
     );
 
+    // Helper to start continuous looping of Video 1 at top
+    const startVideo1Loop = useCallback(() => {
+      const v1 = videoRefs.current[0];
+      if (!v1) return;
+      isLoopingRef.current = true;
+      capturedStartRef.current = null;
+      v1.loop = true;
+      v1.muted = true;
+      if (v1.paused) {
+        v1.play().catch(() => {});
+      }
+    }, []);
+
+    // Helper to transition Video 1 from autoplay loop to scroll-driven scrubbing
+    const stopVideo1Loop = useCallback(() => {
+      if (!isLoopingRef.current) return;
+      isLoopingRef.current = false;
+      const v1 = videoRefs.current[0];
+      if (v1) {
+        v1.loop = false;
+        v1.pause();
+        const v1Dur = durationsRef.current[0] || KNOWN_DURATIONS[0] || 16.0;
+        let currentPlay = v1.currentTime;
+        // If it was within the last 0.5s before EOF, wrap smoothly to start
+        if (currentPlay >= v1Dur - 0.5) {
+          currentPlay = 0.001;
+        }
+        capturedStartRef.current = currentPlay;
+        currentTimesRef.current[0] = currentPlay;
+      }
+    }, []);
+
     // Reset video refs, scrubbing timestamps, and hardware state on mount
     useLayoutEffect(() => {
-      activeIdxRef.current = 0;
-      lastActiveIdxRef.current = 0;
+      activeIdxRef.current = 1; // Video 2 langsung aktif (video 1 tidak dipakai)
+      lastActiveIdxRef.current = 1;
       currentTimesRef.current.fill(0);
       targetTimesRef.current.fill(0);
       isSeekingRef.current.fill(false);
       pendingSeekRef.current.fill(null);
+      isLoopingRef.current = false;
+      hasScrolledRef.current = false;
 
       if (containerRef.current) {
         containerRef.current.style.transform = canvasShiftX !== 0 ? `translateX(${canvasShiftX}%)` : 'none';
       }
 
-      // Prime Video 1 immediately to opening frame (0.001s)
-      const v1 = videoRefs.current[0];
-      if (v1) {
-        try {
-          v1.currentTime = 0.001;
-        } catch {}
+      // Pastikan seluruh video paused & hidden saat posisi scroll 0
+      for (let i = 0; i < TOTAL_VIDEOS; i++) {
+        const v = videoRefs.current[i];
+        if (v) {
+          v.pause();
+          v.style.opacity = '0';
+        }
+      }
+
+      // Prime ALL active videos (Video 2 through Video 14) to 0.001s so frame 0 is decoded in GPU memory
+      for (let i = 1; i < TOTAL_VIDEOS; i++) {
+        const v = videoRefs.current[i];
+        if (v) {
+          try {
+            v.currentTime = 0.001;
+          } catch {}
+        }
       }
     }, [canvasShiftX]);
+
+    // Ensure Video 1 loop plays when scrolling begins even under strict browser autoplay policies
+    useEffect(() => {
+      const handleUserInteraction = () => {
+        if (hasScrolledRef.current && isLoopingRef.current) {
+          const v1 = videoRefs.current[0];
+          if (v1 && v1.paused) {
+            v1.play().catch(() => {});
+          }
+        }
+      };
+
+      window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+      window.addEventListener('mousedown', handleUserInteraction);
+      window.addEventListener('wheel', handleUserInteraction, { passive: true });
+
+      return () => {
+        window.removeEventListener('touchstart', handleUserInteraction);
+        window.removeEventListener('mousedown', handleUserInteraction);
+        window.removeEventListener('wheel', handleUserInteraction);
+      };
+    }, []);
 
     // Subscribe to video cache ready event to upgrade video sources to instant in-memory Blobs
     useEffect(() => {
@@ -81,17 +156,22 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           const v = videoRefs.current[i];
           const bSrc = newSources[i];
           if (v && bSrc && v.src !== bSrc) {
+            const wasLooping = (i === 0 && isLoopingRef.current);
+            const savedTime = currentTimesRef.current[i] || 0.001;
             v.src = bSrc;
             v.load();
+            const onMeta = () => {
+              v.removeEventListener('loadedmetadata', onMeta);
+              try {
+                v.currentTime = savedTime;
+              } catch {}
+            };
+            v.addEventListener('loadedmetadata', onMeta, { once: true });
+            if (wasLooping) {
+              v.loop = true;
+              v.play().catch(() => {});
+            }
           }
-        }
-
-        // Prime Video 1 immediately
-        const v1 = videoRefs.current[0];
-        if (v1) {
-          try {
-            v1.currentTime = 0.001;
-          } catch {}
         }
       };
 
@@ -101,6 +181,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
       window.addEventListener('videosInitialLoaded', upgradeToBlobs);
       window.addEventListener('videosFullyLoaded', upgradeToBlobs);
+      window.addEventListener('videoLoaded', upgradeToBlobs);
       const unsubInitial = videoCache.onInitialReady(upgradeToBlobs);
       const unsubAll = videoCache.onReady(upgradeToBlobs);
 
@@ -109,6 +190,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
         unsubAll();
         window.removeEventListener('videosInitialLoaded', upgradeToBlobs);
         window.removeEventListener('videosFullyLoaded', upgradeToBlobs);
+        window.removeEventListener('videoLoaded', upgradeToBlobs);
       };
     }, []);
 
@@ -118,17 +200,17 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
       if (video && !isNaN(video.duration) && video.duration > 0) {
         durationsRef.current[index] = video.duration;
       }
-
-      // If Video 1 metadata is loaded and we are at start position, ensure frame 0.001 is decoded
-      if (index === 0 && targetTimesRef.current[0] <= 0.02) {
-        const v1 = videoRefs.current[0];
-        if (v1) {
+      if (index === 0 && hasScrolledRef.current && isLoopingRef.current) {
+        startVideo1Loop();
+      } else if (index >= 1 && index < TOTAL_VIDEOS && targetTimesRef.current[index] <= 0.02) {
+        const v = videoRefs.current[index];
+        if (v) {
           try {
-            v1.currentTime = 0.001;
+            v.currentTime = 0.001;
           } catch {}
         }
       }
-    }, []);
+    }, [startVideo1Loop]);
 
     // On seek completed: unlock decoder and immediately process any pending seek
     const handleSeeked = useCallback((index: number) => {
@@ -150,24 +232,69 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
     // Expose high-performance imperative scrubbing handle (Zero React re-render overhead!)
     useImperativeHandle(ref, () => ({
-      setScrub: (activeVidIndex: number, progress: number, shiftX: number, _overlayOp: number) => {
+      setScrub: (
+        activeVidIndex: number,
+        progress: number,
+        shiftX: number,
+        _overlayOp: number,
+        overallProgress?: number
+      ) => {
         const vidIdx = activeVidIndex - 1;
-        if (vidIdx >= 0 && vidIdx < TOTAL_VIDEOS) {
-          const duration = durationsRef.current[vidIdx] || KNOWN_DURATIONS[vidIdx] || 10;
-          const isAtStart = vidIdx === 0 && progress <= 0.005;
-          const safeProgress = isAtStart ? 0.001 : Math.max(0.001, Math.min(0.999, progress));
-          const targetTime = safeProgress * duration;
-          targetTimesRef.current[vidIdx] = targetTime;
+        const isAtScrollZero = (overallProgress !== undefined ? overallProgress === 0 : progress === 0) &&
+          (typeof window === 'undefined' || window.scrollY <= 10);
 
-          if (isAtStart) {
-            currentTimesRef.current[0] = 0.001;
-            const v1 = videoRefs.current[0];
-            if (v1 && !v1.seeking && Math.abs(v1.currentTime - 0.001) > 0.02) {
-              try {
-                v1.currentTime = 0.001;
-              } catch {}
+        if (isAtScrollZero) {
+          hasScrolledRef.current = false;
+          if (isLoopingRef.current) {
+            isLoopingRef.current = false;
+          }
+          for (let i = 0; i < TOTAL_VIDEOS; i++) {
+            const v = videoRefs.current[i];
+            if (v) {
+              if (!v.paused) v.pause();
+              if (v.style.opacity !== '0') v.style.opacity = '0';
             }
           }
+          return;
+        }
+
+        hasScrolledRef.current = true;
+        const isAtTop = vidIdx === 0 && progress <= 0.005;
+
+        // Transition between continuous autoplay loop and scroll-driven scrubbing
+        if (isAtTop) {
+          if (!isLoopingRef.current) {
+            startVideo1Loop();
+          }
+        } else {
+          if (isLoopingRef.current) {
+            stopVideo1Loop();
+          }
+        }
+
+        if (vidIdx >= 0 && vidIdx < TOTAL_VIDEOS) {
+          const duration = durationsRef.current[vidIdx] || KNOWN_DURATIONS[vidIdx] || 10;
+          const maxSeek = Math.max(0, duration - 0.04);
+
+          let targetTime: number;
+
+          if (vidIdx === 0) {
+            if (isLoopingRef.current) {
+              const v1 = videoRefs.current[0];
+              targetTime = v1 ? v1.currentTime : 0.001;
+            } else {
+              // Directly continue from the frame that was running to the last frame!
+              const startTime = capturedStartRef.current !== null ? capturedStartRef.current : 0.001;
+              const endTime = maxSeek;
+              const normProg = Math.max(0, Math.min(1, (progress - 0.005) / (0.999 - 0.005)));
+              targetTime = startTime + normProg * (endTime - startTime);
+            }
+          } else {
+            const safeProgress = Math.max(0.001, Math.min(0.999, progress));
+            targetTime = Math.min(maxSeek, safeProgress * duration);
+          }
+
+          targetTimesRef.current[vidIdx] = targetTime;
 
           if (vidIdx !== activeIdxRef.current) {
             lastActiveIdxRef.current = activeIdxRef.current;
@@ -176,12 +303,34 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             // Prime newly active video immediately so it doesn't lerp from stale frame
             currentTimesRef.current[vidIdx] = targetTime;
             const newVid = videoRefs.current[vidIdx];
-            if (newVid && !newVid.seeking) {
+            if (newVid && !newVid.seeking && Math.abs(newVid.currentTime - targetTime) > 0.01) {
               try {
                 newVid.currentTime = targetTime;
               } catch {
                 // Ignore
               }
+            }
+          }
+
+          // Adjacent video pre-seeking for seamless cross-clip continuity across ALL 14 videos:
+          const safeProg = Math.max(0.001, Math.min(0.999, progress));
+
+          // 1. Forward pre-seeking: when halfway through current video (> 40%), ensure next video is warmed at frame 0
+          if (safeProg > 0.40 && vidIdx < TOTAL_VIDEOS - 1) {
+            const nextVid = videoRefs.current[vidIdx + 1];
+            if (nextVid && !nextVid.seeking && nextVid.currentTime > 0.05) {
+              try { nextVid.currentTime = 0.001; } catch {}
+            }
+          }
+
+          // 2. Backward holding: when scrolling backwards near start of current video (< 40%), ensure previous video holds its last frame
+          if (safeProg < 0.40 && vidIdx >= 1) {
+            const prevIdx = vidIdx - 1;
+            const prevDur = durationsRef.current[prevIdx] || KNOWN_DURATIONS[prevIdx] || 8.0;
+            const prevVid = videoRefs.current[prevIdx];
+            const endPrev = Math.max(0, prevDur - 0.04);
+            if (prevVid && !prevVid.seeking && Math.abs(prevVid.currentTime - endPrev) > 0.06) {
+              try { prevVid.currentTime = endPrev; } catch {}
             }
           }
         }
@@ -191,14 +340,13 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           containerRef.current.style.transform = shiftX !== 0 ? `translateX(${shiftX}%)` : 'none';
         }
       },
-    }));
+    }), [startVideo1Loop, stopVideo1Loop]);
 
     // High-performance RAF animation loop:
     // 1. Hardware seek-locking: never queue seeks while Chromium decoder is actively seeking
     // 2. Active video has z-index 10, opacity 1
     // 3. Last active video has z-index 5, opacity 1 (held underneath as solid buffer)
     // 4. Inactive videos have z-index 1, opacity 0
-    // 5. Zero neighbor seeking in RAF loop = zero GPU decoder congestion
     useEffect(() => {
       let active = true;
 
@@ -214,7 +362,20 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
           if (i === currentActive) {
             if (video.style.zIndex !== '10') video.style.zIndex = '10';
+
+            // Keep active video strictly hidden (opacity 0) at scroll position 0
+            if (!hasScrolledRef.current) {
+              if (video.style.opacity !== '0') video.style.opacity = '0';
+              continue;
+            }
+
             if (video.style.opacity !== '1') video.style.opacity = '1';
+
+            // When Video 1 is auto-playing continuously in loop at top:
+            if (i === 0 && isLoopingRef.current) {
+              currentTimesRef.current[0] = video.currentTime;
+              continue;
+            }
 
             // Smooth time lerp for silky scrubbing
             const targetTime = targetTimesRef.current[i];
@@ -222,7 +383,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             const timeDiff = targetTime - currentTime;
 
             if (Math.abs(timeDiff) > 0.002) {
-              currentTimesRef.current[i] += timeDiff * 0.35;
+              currentTimesRef.current[i] += timeDiff * 0.25;
             } else {
               currentTimesRef.current[i] = targetTime;
             }
@@ -283,24 +444,26 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           transform: canvasShiftX !== 0 ? `translateX(${canvasShiftX}%)` : 'none',
         }}
       >
-        {/* 10 High-Fidelity Intra Videos - Direct connection, double-buffered, zero gap */}
+        {/* 14 High-Fidelity Intra Videos - Direct connection, double-buffered, zero gap */}
         {videoSources.map((src, i) => (
           <video
             key={i}
             ref={(el) => {
               videoRefs.current[i] = el;
             }}
-            src={src}
-            poster={i === 0 ? '/video/video-home/thumbs/thumb1.jpg' : undefined}
+            src={src || undefined}
+            poster={undefined}
+            autoPlay={false}
+            loop={false}
             muted
             playsInline
-            preload="auto"
+            preload={i === 0 ? 'none' : 'auto'}
             onLoadedMetadata={() => handleLoadedMetadata(i)}
             onSeeked={() => handleSeeked(i)}
             className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none will-change-[transform,opacity] bg-transparent"
             style={{
               zIndex: i === 0 ? 10 : 1,
-              opacity: i === 0 ? 1 : 0,
+              opacity: 0,
             }}
           />
         ))}
