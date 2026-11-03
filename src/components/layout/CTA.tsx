@@ -130,7 +130,7 @@ export default function CTA({ theme = "dark", transparentBg = false, textColor, 
             className="text-[10px] md:text-xs tracking-[0.25em] uppercase font-bold mb-3 md:mb-4"
             style={{ color: COLORS.bronze }}
           >
-            Get in touch
+            CONTÁCTENOS
           </p>
           <h2
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1] md:leading-[1.15] tracking-tight font-medium w-full mx-auto font-display"
@@ -201,7 +201,7 @@ export default function CTA({ theme = "dark", transparentBg = false, textColor, 
                       name="contactName" 
                       value={formData.contactName} 
                       onChange={handleChange} 
-                      placeholder="Ej. Alejandro Magno" 
+                      placeholder="Ej. Pablo Gutierrez" 
                       className={capsuleInput} 
                       required 
                     />
