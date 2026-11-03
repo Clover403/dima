@@ -104,6 +104,7 @@ function NavDropdown({ label, baseTo, items, isActive }: NavDropdownProps) {
 
 export default function Navbar() {
   const location = useLocation()
+  const isHome = location.pathname === '/'
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false)
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
@@ -123,19 +124,45 @@ export default function Navbar() {
     setMobileOpen(false)
   }, [location])
 
+  // Sinkronisasi status awal visibilitas logo pada pergantian rute
+  useEffect(() => {
+    const navLogo = document.getElementById('navbar-logo-slot')
+    if (navLogo) {
+      if (!isHome) {
+        navLogo.style.opacity = '1'
+        navLogo.style.pointerEvents = 'auto'
+      } else {
+        // Pada halaman Home: jika di hero atas, logo tersembunyi
+        // Jika reload di bawah hero, logo langsung terlihat
+        const isBelowHero = typeof window !== 'undefined' && window.scrollY > 250
+        navLogo.style.opacity = isBelowHero ? '1' : '0'
+        navLogo.style.pointerEvents = isBelowHero ? 'auto' : 'none'
+      }
+    }
+  }, [isHome, location.pathname])
+
   return (
     <>
       <header className="fixed top-4 left-0 right-0 z-[100] flex justify-center px-4 md:px-6 pointer-events-none">
         
         <nav className="pointer-events-auto flex items-center justify-between gap-3 md:gap-5 px-4 md:px-5 py-2 md:py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.05)] w-full max-w-4xl transition-all duration-300">
           
-          <Link to="/" className="flex items-center pr-3 md:pr-4 border-r border-gray-300/50 shrink-0">
-            <img 
-              src="/logo/orange_black.svg" 
-              alt="DIMA Finance" 
-              className="h-6 md:h-7 w-auto object-contain" 
-            />
-          </Link>
+          <div
+            id="navbar-logo-slot"
+            className="flex items-center pr-3 md:pr-4 border-r border-gray-300/50 shrink-0 transition-opacity duration-300 ease-out"
+            style={{
+              opacity: isHome ? 0 : 1,
+              pointerEvents: isHome ? 'none' : 'auto',
+            }}
+          >
+            <Link to="/" className="flex items-center">
+              <img 
+                src="/logo/orange_black.svg" 
+                alt="DIMA Finance" 
+                className="h-6 md:h-7 w-auto object-contain select-none" 
+              />
+            </Link>
+          </div>
 
           <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
             {navLinks.map((link) => {
@@ -183,7 +210,6 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* PERUBAHAN: Ditambahkan hidden lg:inline-flex agar sembunyi di mobile/tab tapi tetap ada di desktop */}
           <Link
             to="/contacto"
             className="group hidden lg:inline-flex items-center justify-center text-center bg-bronze/90 hover:bg-bronze text-white font-body text-xs lg:text-[13px] font-medium px-5 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-bronze/30 hover:scale-[1.02] active:scale-[0.98] shrink-0 ml-auto"
