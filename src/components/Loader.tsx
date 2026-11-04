@@ -170,7 +170,7 @@ export default function Loader() {
 
     // Tunggu fonts selesai dimuat untuk mencegah teks delay/FOIT saat loader terbuka
     if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(() => {
+      setTimeout(function() { fontsDone = true; checkReadyToFinish(); }, 1800); document.fonts.ready.then(() => {
         fontsDone = true;
         checkReadyToFinish();
       }).catch(() => {

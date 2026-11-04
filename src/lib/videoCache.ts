@@ -195,7 +195,14 @@ class VideoCacheManager {
     }
 
     try {
-      const response = await fetch(requestUrl);
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : null;
+      let response: Response;
+      try {
+        response = await fetch(requestUrl, controller ? { signal: controller.signal } : undefined);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} fetching ${targetUrl}`);
       }
