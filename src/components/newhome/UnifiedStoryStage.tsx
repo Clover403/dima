@@ -101,11 +101,19 @@ const UnifiedStoryStage = forwardRef<UnifiedStoryStageHandle, UnifiedStoryStageP
           el.style.pointerEvents = op > 0.1 ? 'auto' : 'none';
         } else {
           // Sectors 1-5 (Phase 3-7):
-          // Keep visibility 'visible' and baseline 0.001 opacity so GPU tiles remain hot in VRAM.
-          const baseOp = Math.max(0.001, op);
-          el.style.opacity = `${baseOp.toFixed(3)}`;
-          el.style.visibility = 'visible';
-          el.style.pointerEvents = op > 0.1 ? 'auto' : 'none';
+          // Pre-warm with baseline 0.001 opacity and visibility 'visible' ONLY when approaching or within the phase
+          // (window 0.05 before start and after end). Outside this window, set hidden so GPU doesn't composite 40 blur layers simultaneously!
+          const isNearSector = p >= cfg.start - 0.05 && p <= cfg.end + 0.05;
+          if (isNearSector) {
+            const baseOp = Math.max(0.001, op);
+            el.style.opacity = `${baseOp.toFixed(3)}`;
+            el.style.visibility = 'visible';
+            el.style.pointerEvents = op > 0.1 ? 'auto' : 'none';
+          } else {
+            el.style.opacity = '0';
+            el.style.visibility = 'hidden';
+            el.style.pointerEvents = 'none';
+          }
         }
       }
 
