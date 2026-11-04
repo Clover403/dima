@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useRef, useEffect, useLayoutEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { videoCache, TOTAL_HOME_VIDEOS } from '../../lib/videoCache';
 
 export interface ActiveVideoTarget {
@@ -40,53 +40,99 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
     const pendingSeekRef = useRef<(number | null)[]>(new Array(TOTAL_VIDEOS).fill(null));
 
     // Track active and previous video indices for foolproof double-buffered layering
-    const activeIdxRef = useRef<number>(0);
-    const lastActiveIdxRef = useRef<number>(0);
+    const activeIdxRef = useRef<number>(1);
+    const lastActiveIdxRef = useRef<number>(1);
     const rafRef = useRef<number | null>(null);
 
-    // Track whether Video 1 is currently in continuous autoplay loop mode at top
-    const isLoopingRef = useRef<boolean>(false);
+    // Track which videos currently have active hardware decoders attached
+    // macOS VideoToolbox and Windows DXVA have a hard limit of 4-5 hardware decoders.
+    // Keeping at most 3 videos attached guarantees 100% hardware decode without crashing or freezing.
+    const attachedIndicesRef = useRef<Set<number>>(new Set([1, 2]));
+
     // Track whether user has initiated scroll from top
     const hasScrolledRef = useRef<boolean>(false);
-    // Capture the exact running timestamp of Video 1 at the moment scroll begins
-    const capturedStartRef = useRef<number | null>(null);
 
-    // Dynamic video sources: initialized from cache (or URLs), seamlessly swapped to in-memory Blobs
-    const [videoSources, setVideoSources] = useState<string[]>(() =>
-      Array.from({ length: TOTAL_VIDEOS }, (_, i) => videoCache.getVideoSrc(i))
-    );
+    // Attach decoder to a video element
+    const attachVideo = useCallback((idx: number, seekTarget = 0.001) => {
+      if (idx < 1 || idx >= TOTAL_VIDEOS) return;
+      const v = videoRefs.current[idx];
+      if (!v) return;
 
-    // Helper to start continuous looping of Video 1 at top
-    const startVideo1Loop = useCallback(() => {
-      const v1 = videoRefs.current[0];
-      if (!v1) return;
-      isLoopingRef.current = true;
-      capturedStartRef.current = null;
-      v1.loop = true;
-      v1.muted = true;
-      if (v1.paused) {
-        v1.play().catch(() => {});
+      const targetSrc = videoCache.getVideoSrc(idx);
+      if (!targetSrc) return;
+
+      if (v.src && (v.src === targetSrc || v.src.endsWith(targetSrc))) {
+        return;
       }
-    }, []);
 
-    // Helper to transition Video 1 from autoplay loop to scroll-driven scrubbing
-    const stopVideo1Loop = useCallback(() => {
-      if (!isLoopingRef.current) return;
-      isLoopingRef.current = false;
-      const v1 = videoRefs.current[0];
-      if (v1) {
-        v1.loop = false;
-        v1.pause();
-        const v1Dur = durationsRef.current[0] || KNOWN_DURATIONS[0] || 16.0;
-        let currentPlay = v1.currentTime;
-        // If it was within the last 0.5s before EOF, wrap smoothly to start
-        if (currentPlay >= v1Dur - 0.5) {
-          currentPlay = 0.001;
+      v.src = targetSrc;
+      v.preload = 'auto';
+      v.load();
+
+      const onMeta = () => {
+        v.removeEventListener('loadedmetadata', onMeta);
+        if (!isNaN(v.duration) && v.duration > 0) {
+          durationsRef.current[idx] = v.duration;
         }
-        capturedStartRef.current = currentPlay;
-        currentTimesRef.current[0] = currentPlay;
+        try {
+          v.currentTime = seekTarget;
+        } catch {}
+      };
+      v.addEventListener('loadedmetadata', onMeta, { once: true });
+    }, []);
+
+    // Detach decoder from a video element to release OS hardware decoder session
+    const detachVideo = useCallback((idx: number) => {
+      if (idx < 1 || idx >= TOTAL_VIDEOS) return;
+      const v = videoRefs.current[idx];
+      if (!v) return;
+
+      if (v.src) {
+        try {
+          v.pause();
+          v.removeAttribute('src');
+          v.load(); // Immediately frees hardware decoder session in WebKit and Chromium
+        } catch {}
+        v.style.opacity = '0';
+        v.style.zIndex = '1';
+        isSeekingRef.current[idx] = false;
+        pendingSeekRef.current[idx] = null;
       }
     }, []);
+
+    // Smart decoder sync: ensures only active, buffer, and immediate neighbors have decoders open
+    const syncAttachedDecoders = useCallback((currentActive: number) => {
+      const desired = new Set<number>();
+      desired.add(currentActive);
+      if (lastActiveIdxRef.current >= 1 && lastActiveIdxRef.current < TOTAL_VIDEOS) {
+        desired.add(lastActiveIdxRef.current);
+      }
+      if (currentActive + 1 < TOTAL_VIDEOS) {
+        desired.add(currentActive + 1);
+      }
+      if (currentActive - 1 >= 1) {
+        desired.add(currentActive - 1);
+      }
+
+      // Detach any video that is no longer desired
+      for (let i = 1; i < TOTAL_VIDEOS; i++) {
+        if (!desired.has(i) && attachedIndicesRef.current.has(i)) {
+          detachVideo(i);
+          attachedIndicesRef.current.delete(i);
+        }
+      }
+
+      // Attach any newly desired video
+      for (const idx of desired) {
+        if (!attachedIndicesRef.current.has(idx)) {
+          const seekTarget = idx < currentActive
+            ? Math.max(0, (durationsRef.current[idx] || KNOWN_DURATIONS[idx] || 8.0) - 0.04)
+            : 0.001;
+          attachVideo(idx, seekTarget);
+          attachedIndicesRef.current.add(idx);
+        }
+      }
+    }, [attachVideo, detachVideo]);
 
     // Reset video refs, scrubbing timestamps, and hardware state on mount
     useLayoutEffect(() => {
@@ -96,8 +142,8 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
       targetTimesRef.current.fill(0);
       isSeekingRef.current.fill(false);
       pendingSeekRef.current.fill(null);
-      isLoopingRef.current = false;
       hasScrolledRef.current = false;
+      attachedIndicesRef.current = new Set([1, 2]);
 
       if (containerRef.current) {
         containerRef.current.style.transform = canvasShiftX !== 0 ? `translateX(${canvasShiftX}%)` : 'none';
@@ -112,9 +158,9 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
         }
       }
 
-      // Prime ALL active videos (Video 2 through Video 14) to 0.001s so frame 0 is decoded in GPU memory
-      for (let i = 1; i < TOTAL_VIDEOS; i++) {
-        const v = videoRefs.current[i];
+      // Prime only initial active videos (Video 2 and Video 3)
+      for (const idx of [1, 2]) {
+        const v = videoRefs.current[idx];
         if (v) {
           try {
             v.currentTime = 0.001;
@@ -123,74 +169,52 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
       }
     }, [canvasShiftX]);
 
-    // Ensure Video 1 loop plays when scrolling begins even under strict browser autoplay policies
+    // Upgrade attached videos when Blob cache becomes ready in background
     useEffect(() => {
-      const handleUserInteraction = () => {
-        if (hasScrolledRef.current && isLoopingRef.current) {
-          const v1 = videoRefs.current[0];
-          if (v1 && v1.paused) {
-            v1.play().catch(() => {});
-          }
-        }
-      };
-
-      window.addEventListener('touchstart', handleUserInteraction, { passive: true });
-      window.addEventListener('mousedown', handleUserInteraction);
-      window.addEventListener('wheel', handleUserInteraction, { passive: true });
-
-      return () => {
-        window.removeEventListener('touchstart', handleUserInteraction);
-        window.removeEventListener('mousedown', handleUserInteraction);
-        window.removeEventListener('wheel', handleUserInteraction);
-      };
-    }, []);
-
-    // Subscribe to video cache ready event to upgrade video sources to instant in-memory Blobs
-    useEffect(() => {
-      const upgradeToBlobs = () => {
-        const newSources = Array.from({ length: TOTAL_VIDEOS }, (_, i) => videoCache.getVideoSrc(i));
-        setVideoSources(newSources);
-
-        // Sambungkan langsung DOM video element ke in-memory Blob URL
-        for (let i = 0; i < TOTAL_VIDEOS; i++) {
-          const v = videoRefs.current[i];
-          const bSrc = newSources[i];
-          if (v && bSrc && v.src !== bSrc) {
-            const wasLooping = (i === 0 && isLoopingRef.current);
-            const savedTime = currentTimesRef.current[i] || 0.001;
-            v.src = bSrc;
+      const handleVideoLoaded = (e: Event) => {
+        const customEvent = e as CustomEvent<{ index?: number }>;
+        const idx = customEvent.detail?.index;
+        if (typeof idx === 'number' && attachedIndicesRef.current.has(idx)) {
+          const v = videoRefs.current[idx];
+          const blobSrc = videoCache.getVideoSrc(idx);
+          if (v && blobSrc && v.src !== blobSrc) {
+            const savedTime = currentTimesRef.current[idx] || 0.001;
+            v.src = blobSrc;
             v.load();
             const onMeta = () => {
               v.removeEventListener('loadedmetadata', onMeta);
-              try {
-                v.currentTime = savedTime;
-              } catch {}
+              try { v.currentTime = savedTime; } catch {}
             };
             v.addEventListener('loadedmetadata', onMeta, { once: true });
-            if (wasLooping) {
-              v.loop = true;
-              v.play().catch(() => {});
-            }
           }
         }
       };
 
-      if (videoCache.isInitialReady()) {
-        upgradeToBlobs();
-      }
+      const handleBatchUpgrade = () => {
+        for (const idx of attachedIndicesRef.current) {
+          const v = videoRefs.current[idx];
+          const blobSrc = videoCache.getVideoSrc(idx);
+          if (v && blobSrc && v.src !== blobSrc) {
+            const savedTime = currentTimesRef.current[idx] || 0.001;
+            v.src = blobSrc;
+            v.load();
+            const onMeta = () => {
+              v.removeEventListener('loadedmetadata', onMeta);
+              try { v.currentTime = savedTime; } catch {}
+            };
+            v.addEventListener('loadedmetadata', onMeta, { once: true });
+          }
+        }
+      };
 
-      window.addEventListener('videosInitialLoaded', upgradeToBlobs);
-      window.addEventListener('videosFullyLoaded', upgradeToBlobs);
-      window.addEventListener('videoLoaded', upgradeToBlobs);
-      const unsubInitial = videoCache.onInitialReady(upgradeToBlobs);
-      const unsubAll = videoCache.onReady(upgradeToBlobs);
+      window.addEventListener('videoLoaded', handleVideoLoaded);
+      window.addEventListener('videosInitialLoaded', handleBatchUpgrade);
+      window.addEventListener('videosFullyLoaded', handleBatchUpgrade);
 
       return () => {
-        unsubInitial();
-        unsubAll();
-        window.removeEventListener('videosInitialLoaded', upgradeToBlobs);
-        window.removeEventListener('videosFullyLoaded', upgradeToBlobs);
-        window.removeEventListener('videoLoaded', upgradeToBlobs);
+        window.removeEventListener('videoLoaded', handleVideoLoaded);
+        window.removeEventListener('videosInitialLoaded', handleBatchUpgrade);
+        window.removeEventListener('videosFullyLoaded', handleBatchUpgrade);
       };
     }, []);
 
@@ -200,9 +224,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
       if (video && !isNaN(video.duration) && video.duration > 0) {
         durationsRef.current[index] = video.duration;
       }
-      if (index === 0 && hasScrolledRef.current && isLoopingRef.current) {
-        startVideo1Loop();
-      } else if (index >= 1 && index < TOTAL_VIDEOS && targetTimesRef.current[index] <= 0.02) {
+      if (index >= 1 && index < TOTAL_VIDEOS && targetTimesRef.current[index] <= 0.02) {
         const v = videoRefs.current[index];
         if (v) {
           try {
@@ -210,7 +232,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           } catch {}
         }
       }
-    }, [startVideo1Loop]);
+    }, []);
 
     // On seek completed: unlock decoder and immediately process any pending seek
     const handleSeeked = useCallback((index: number) => {
@@ -245,9 +267,6 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
 
         if (isAtScrollZero) {
           hasScrolledRef.current = false;
-          if (isLoopingRef.current) {
-            isLoopingRef.current = false;
-          }
           for (let i = 0; i < TOTAL_VIDEOS; i++) {
             const v = videoRefs.current[i];
             if (v) {
@@ -259,40 +278,12 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
         }
 
         hasScrolledRef.current = true;
-        const isAtTop = vidIdx === 0 && progress <= 0.005;
-
-        // Transition between continuous autoplay loop and scroll-driven scrubbing
-        if (isAtTop) {
-          if (!isLoopingRef.current) {
-            startVideo1Loop();
-          }
-        } else {
-          if (isLoopingRef.current) {
-            stopVideo1Loop();
-          }
-        }
 
         if (vidIdx >= 0 && vidIdx < TOTAL_VIDEOS) {
           const duration = durationsRef.current[vidIdx] || KNOWN_DURATIONS[vidIdx] || 10;
           const maxSeek = Math.max(0, duration - 0.04);
-
-          let targetTime: number;
-
-          if (vidIdx === 0) {
-            if (isLoopingRef.current) {
-              const v1 = videoRefs.current[0];
-              targetTime = v1 ? v1.currentTime : 0.001;
-            } else {
-              // Directly continue from the frame that was running to the last frame!
-              const startTime = capturedStartRef.current !== null ? capturedStartRef.current : 0.001;
-              const endTime = maxSeek;
-              const normProg = Math.max(0, Math.min(1, (progress - 0.005) / (0.999 - 0.005)));
-              targetTime = startTime + normProg * (endTime - startTime);
-            }
-          } else {
-            const safeProgress = Math.max(0.001, Math.min(0.999, progress));
-            targetTime = Math.min(maxSeek, safeProgress * duration);
-          }
+          const safeProgress = Math.max(0.001, Math.min(0.999, progress));
+          const targetTime = Math.min(maxSeek, safeProgress * duration);
 
           targetTimesRef.current[vidIdx] = targetTime;
 
@@ -300,37 +291,43 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             lastActiveIdxRef.current = activeIdxRef.current;
             activeIdxRef.current = vidIdx;
 
+            // Sync decoder allocation so hardware limit is never exceeded
+            syncAttachedDecoders(vidIdx);
+
             // Prime newly active video immediately so it doesn't lerp from stale frame
             currentTimesRef.current[vidIdx] = targetTime;
             const newVid = videoRefs.current[vidIdx];
             if (newVid && !newVid.seeking && Math.abs(newVid.currentTime - targetTime) > 0.01) {
               try {
                 newVid.currentTime = targetTime;
-              } catch {
-                // Ignore
-              }
+              } catch {}
             }
           }
 
-          // Adjacent video pre-seeking for seamless cross-clip continuity across ALL 14 videos:
+          // Adjacent video pre-seeking for seamless cross-clip continuity across videos
           const safeProg = Math.max(0.001, Math.min(0.999, progress));
 
           // 1. Forward pre-seeking: when halfway through current video (> 40%), ensure next video is warmed at frame 0
           if (safeProg > 0.40 && vidIdx < TOTAL_VIDEOS - 1) {
-            const nextVid = videoRefs.current[vidIdx + 1];
-            if (nextVid && !nextVid.seeking && nextVid.currentTime > 0.05) {
-              try { nextVid.currentTime = 0.001; } catch {}
+            const nextIdx = vidIdx + 1;
+            if (attachedIndicesRef.current.has(nextIdx)) {
+              const nextVid = videoRefs.current[nextIdx];
+              if (nextVid && !nextVid.seeking && nextVid.currentTime > 0.05) {
+                try { nextVid.currentTime = 0.001; } catch {}
+              }
             }
           }
 
           // 2. Backward holding: when scrolling backwards near start of current video (< 40%), ensure previous video holds its last frame
           if (safeProg < 0.40 && vidIdx >= 1) {
             const prevIdx = vidIdx - 1;
-            const prevDur = durationsRef.current[prevIdx] || KNOWN_DURATIONS[prevIdx] || 8.0;
-            const prevVid = videoRefs.current[prevIdx];
-            const endPrev = Math.max(0, prevDur - 0.04);
-            if (prevVid && !prevVid.seeking && Math.abs(prevVid.currentTime - endPrev) > 0.06) {
-              try { prevVid.currentTime = endPrev; } catch {}
+            if (attachedIndicesRef.current.has(prevIdx)) {
+              const prevDur = durationsRef.current[prevIdx] || KNOWN_DURATIONS[prevIdx] || 8.0;
+              const prevVid = videoRefs.current[prevIdx];
+              const endPrev = Math.max(0, prevDur - 0.04);
+              if (prevVid && !prevVid.seeking && Math.abs(prevVid.currentTime - endPrev) > 0.06) {
+                try { prevVid.currentTime = endPrev; } catch {}
+              }
             }
           }
         }
@@ -340,13 +337,14 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           containerRef.current.style.transform = shiftX !== 0 ? `translateX(${shiftX}%)` : 'none';
         }
       },
-    }), [startVideo1Loop, stopVideo1Loop]);
+    }), [syncAttachedDecoders]);
 
     // High-performance RAF animation loop:
     // 1. Hardware seek-locking: never queue seeks while Chromium decoder is actively seeking
     // 2. Active video has z-index 10, opacity 1
     // 3. Last active video has z-index 5, opacity 1 (held underneath as solid buffer)
-    // 4. Inactive videos have z-index 1, opacity 0
+    // 4. Inactive attached videos have z-index 1, opacity 0
+    // 5. Unattached videos have z-index 1, opacity 0, no decoders running!
     useEffect(() => {
       let active = true;
 
@@ -360,6 +358,13 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
           const video = videoRefs.current[i];
           if (!video) continue;
 
+          // If video decoder is not attached, keep completely hidden and skip seek lerp
+          if (!attachedIndicesRef.current.has(i)) {
+            if (video.style.opacity !== '0') video.style.opacity = '0';
+            if (video.style.zIndex !== '1') video.style.zIndex = '1';
+            continue;
+          }
+
           if (i === currentActive) {
             if (video.style.zIndex !== '10') video.style.zIndex = '10';
 
@@ -370,12 +375,6 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             }
 
             if (video.style.opacity !== '1') video.style.opacity = '1';
-
-            // When Video 1 is auto-playing continuously in loop at top:
-            if (i === 0 && isLoopingRef.current) {
-              currentTimesRef.current[0] = video.currentTime;
-              continue;
-            }
 
             // Smooth time lerp for silky scrubbing
             const targetTime = targetTimesRef.current[i];
@@ -418,7 +417,7 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
             if (video.style.zIndex !== '5') video.style.zIndex = '5';
             if (video.style.opacity !== '1') video.style.opacity = '1';
           } else {
-            // Offscreen / inactive videos: opacity 0, but NOT visibility: hidden
+            // Offscreen / inactive videos in warm set: opacity 0
             if (video.style.zIndex !== '1') video.style.zIndex = '1';
             if (video.style.opacity !== '0') video.style.opacity = '0';
           }
@@ -438,26 +437,27 @@ const ScrollVideoCanvas = forwardRef<ScrollVideoCanvasHandle, ScrollVideoCanvasP
     return (
       <div
         ref={containerRef}
-        className={`fixed inset-0 pointer-events-none z-10 overflow-hidden bg-[#F4F4F5] flex items-center justify-center will-change-transform ${canvasShiftX > 0 ? 'shadow-[-25px_0_50px_rgba(0,0,0,0.12)]' : ''
-          } ${className}`}
+        className={`fixed inset-0 pointer-events-none z-10 overflow-hidden bg-[#F4F4F5] flex items-center justify-center will-change-transform ${
+          canvasShiftX > 0 ? 'shadow-[-25px_0_50px_rgba(0,0,0,0.12)]' : ''
+        } ${className}`}
         style={{
           transform: canvasShiftX !== 0 ? `translateX(${canvasShiftX}%)` : 'none',
         }}
       >
-        {/* 14 High-Fidelity Intra Videos - Direct connection, double-buffered, zero gap */}
-        {videoSources.map((src, i) => (
+        {/* 14 High-Fidelity Intra Videos - Sliding window decoder pool, zero gap */}
+        {Array.from({ length: TOTAL_VIDEOS }).map((_, i) => (
           <video
             key={i}
             ref={(el) => {
               videoRefs.current[i] = el;
             }}
-            src={src || undefined}
+            src={i === 1 || i === 2 ? videoCache.getVideoSrc(i) : undefined}
             poster={undefined}
             autoPlay={false}
             loop={false}
             muted
             playsInline
-            preload={i === 0 ? 'none' : 'auto'}
+            preload={i === 1 || i === 2 ? 'auto' : 'none'}
             onLoadedMetadata={() => handleLoadedMetadata(i)}
             onSeeked={() => handleSeeked(i)}
             className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none will-change-[transform,opacity] bg-transparent"
