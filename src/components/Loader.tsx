@@ -247,16 +247,17 @@ export default function Loader() {
       checkReadyToFinish();
     });
 
-    // Hanya pasang fallback timeout untuk halaman non-home agar subhalaman statis tidak tertahan
+    // Fallback safety timeout: Jangan biarkan klien terjebak selamanya di loader jika jaringan lambat
     let fallbackTimeout: ReturnType<typeof setTimeout> | null = null;
-    if (!isHomePage) {
+    const fallbackDuration = isHomePage ? 4500 : 2500;
+    if (fallbackDuration > 0) {
       fallbackTimeout = setTimeout(() => {
         if (!isLoadTriggered) {
           isLoadTriggered = true;
           setProgress(100);
           setTimeout(startExitAnimation, 150);
         }
-      }, 2500);
+      }, fallbackDuration);
     }
 
     return () => {
