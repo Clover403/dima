@@ -2,7 +2,7 @@
 // High-performance In-Memory Video Blob Cache & Real-Time Byte Preloader
 
 export const TOTAL_HOME_VIDEOS = 14;
-export const INITIAL_LOAD_COUNT = 13; // Loading awal sampai Video 13 (slot index 1 s/d 12: Video 2 s/d Video 13)
+export const INITIAL_LOAD_COUNT = 4; // Loading awal Video 2 s/d Video 4 (slot index 1, 2, 3) yang disajikan dari file lokal Vercel
 
 // Known exact sizes of all 14 MP4 videos (bytes)
 export const KNOWN_VIDEO_SIZES: number[] = [
@@ -336,7 +336,7 @@ class VideoCacheManager {
     }
     this.initialReadyListeners.clear();
 
-    console.log('[VIDEO LOADER] Loading awal selesai! Video 2 s/d 13 siap. Tirai loading membuka sekarang...');
+    console.log('[VIDEO LOADER] Loading awal selesai! Video 2 s/d 4 siap. Tirai loading membuka sekarang...');
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('videosInitialLoaded', {
@@ -344,21 +344,24 @@ class VideoCacheManager {
       }));
     }
 
-    // Begitu loading awal selesai dan web terbuka, otomatis muat video terakhir (Video 14) di background
+    // Begitu loading awal selesai dan web terbuka, otomatis muat video berikutnya (Video 5 s/d 14) di background
     this.preloadRemainingVideosSequentially();
   }
 
   private isPreloadingRemaining = false;
 
-  // 2. Fase 2: Preload di latar belakang untuk video terakhir (Video 14)
+  // 2. Fase 2: Preload di latar belakang untuk video berikutnya (Video 5 s/d Video 14)
   public async preloadRemainingVideosSequentially(): Promise<void> {
     if (this.isAllDone || this.isPreloadingRemaining) return;
     this.isPreloadingRemaining = true;
 
-    console.log('[BACKGROUND PRELOAD] Web sudah terbuka! Sekarang mengunduh video terakhir (Video 14) di background...');
+    console.log('[BACKGROUND PRELOAD] Web sudah terbuka! Sekarang mengunduh Video 5 s/d 14 di background...');
 
-    // Hanya video terakhir: Video 14 (slot index 13)
-    const remainingIndices = [13];
+    // Video 5 s/d 14 (slot index 4 s/d 13)
+    const remainingIndices = Array.from(
+      { length: TOTAL_HOME_VIDEOS - INITIAL_LOAD_COUNT },
+      (_, i) => i + INITIAL_LOAD_COUNT
+    );
 
     for (const currentIndex of remainingIndices) {
       const videoNum = currentIndex + 1;
@@ -368,7 +371,7 @@ class VideoCacheManager {
       }
 
       const url = resolveVideoUrl(currentIndex);
-      console.log(`[BACKGROUND PRELOAD] Mulai mengunduh Video ${videoNum} (video terakhir)...`);
+      console.log(`[BACKGROUND PRELOAD] Mulai mengunduh Video ${videoNum}...`);
       let success = false;
       let attempt = 0;
       while (!success && attempt < 5) {
